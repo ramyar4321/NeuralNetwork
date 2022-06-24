@@ -37,4 +37,12 @@ void cpu::NeuralNetwork::weight_initialization(std::vector<std::vector<float> > 
 void cpu::NeuralNetwork::fit(){
 
     weight_initialization(m_W1, m_input_size, m_layer_p_size);
+    weight_initialization(m_W2,m_layer_p_size, m_layer_q_size );
+    weight_initialization(m_W3, m_layer_q_size, m_layer_r_size);
+
+    forward_propegation();
+}
+
+void cpu::NeuralNetwork::forward_propegation(){
+    
 }

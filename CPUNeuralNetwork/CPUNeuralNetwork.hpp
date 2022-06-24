@@ -15,8 +15,11 @@ namespace cpu {
                                         const unsigned int &layer_i_size, 
                                         const unsigned int &layer_j_size);
 
+            
             void fit();
-        
+
+            void forward_propegation();
+                    
         private:
 
             // Number of input layer neurons.
