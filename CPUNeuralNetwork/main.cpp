@@ -1,7 +1,8 @@
-#include "iostream"
+#include "CPUNeuralNetwork.hpp"
 
 int main(){
-    std::cout << "Hello World" << std::endl;
+    cpu::NeuralNetwork net(3,3,3,1);
+    net.fit();
 
     return 0;
 }

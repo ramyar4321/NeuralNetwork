@@ -1,0 +1,41 @@
+#ifndef CPU_NEURAL_NETWORK
+#define CPU_NEURAL_NETWORK
+
+#include <vector>
+
+namespace cpu {
+    class NeuralNetwork{
+        public:
+            NeuralNetwork(unsigned int input_size,
+                                  unsigned int layer_p_size,
+                                  unsigned int layer_q_size,
+                                  unsigned int layer_r_size);
+
+            void weight_initialization(std::vector<std::vector<float> > &W, 
+                                        const unsigned int &layer_i_size, 
+                                        const unsigned int &layer_j_size);
+
+            void fit();
+        
+        private:
+
+            // Number of input layer neurons.
+            unsigned int m_input_size;
+            // Number of neurons in first hidden layer.
+            unsigned int m_layer_p_size;
+            // Number of neurons in second hidden layer.
+            unsigned int m_layer_q_size;
+            // Number of neurons in the output layer.
+            unsigned int m_layer_r_size;
+
+            // Maxtrix that will store weights between input layer and first hidden layer
+            std::vector<std::vector<float> > m_W1;
+            // Maxtrix that will store weights between first hidden layer and second hidden layer.
+            std::vector<std::vector<float> > m_W2;
+            // Maxtrix that will store weights between second hidden layer and output layer.
+            std::vector<std::vector<float> > m_W3;
+
+    };
+}
+
+#endif // End of CPU_NEURAL_NETWORK
