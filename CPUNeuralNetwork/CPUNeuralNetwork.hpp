@@ -3,7 +3,15 @@
 
 #include <vector>
 
+
 namespace cpu {
+    /** 
+     * Class NeuralNetwork
+     * 
+     * A three layer artificial neural network where the sizes of each
+     * layer are set during instantiating. 
+     * 
+     */
     class NeuralNetwork{
         public:
             NeuralNetwork(unsigned int input_size,
@@ -19,7 +27,20 @@ namespace cpu {
             void fit();
 
             void forward_propegation();
-                    
+            
+            void compute_outputs(std::vector<float> &z, 
+                                 std::vector<std::vector<float> > &W, std::vector<float> &a,  
+                                      const unsigned int &layer_i_size, 
+                                      const unsigned int &layer_j_size);
+
+            void relu_activation(std::vector<float> &a, 
+                                 std::vector<float> &z,
+                                 const unsigned int &layer_j_size);
+
+            void sigmoid_activation(std::vector<float> &a, 
+                                    std::vector<float> &z,
+                                    const unsigned int &layer_j_size);
+
         private:
 
             // Number of input layer neurons.
@@ -31,12 +52,25 @@ namespace cpu {
             // Number of neurons in the output layer.
             unsigned int m_layer_r_size;
 
+            // Store the output of the neurons for each layer, excluding the input layer.
+            std::vector<float> m_z1;
+            std::vector<float> m_z2;
+            std::vector<float> m_z3;
+
+            // Store the activations of the neurons for each layer, excluding the input layer.
+            // m_a1 is equal to the input values.
+            std::vector<float> m_a1;
+            std::vector<float> m_a2;
+            std::vector<float> m_a3;
+
             // Maxtrix that will store weights between input layer and first hidden layer
             std::vector<std::vector<float> > m_W1;
             // Maxtrix that will store weights between first hidden layer and second hidden layer.
             std::vector<std::vector<float> > m_W2;
             // Maxtrix that will store weights between second hidden layer and output layer.
             std::vector<std::vector<float> > m_W3;
+
+
 
     };
 }
