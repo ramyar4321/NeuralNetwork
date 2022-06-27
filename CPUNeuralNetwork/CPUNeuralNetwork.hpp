@@ -28,18 +28,22 @@ namespace cpu {
 
             void forward_propegation();
             
-            void compute_outputs(std::vector<float> &z, 
-                                 std::vector<std::vector<float> > &W, std::vector<float> &a,  
+            void compute_outputs(std::vector<float> &z,
+                                      const std::vector<std::vector<float> > &W, const std::vector<float> &a,  
                                       const unsigned int &layer_i_size, 
                                       const unsigned int &layer_j_size);
 
             void relu_activation(std::vector<float> &a, 
-                                 std::vector<float> &z,
-                                 const unsigned int &layer_j_size);
+                                         const std::vector<float> &z,
+                                         const unsigned int &layer_j_size);
 
             void sigmoid_activation(std::vector<float> &a, 
-                                    std::vector<float> &z,
-                                    const unsigned int &layer_j_size);
+                                            const std::vector<float> &z,
+                                            const unsigned int &layer_j_size);
+
+            float compute_loss(const std::vector<float> &y, 
+                               const std::vector<float> &a,
+                               const unsigned int &layer_j_size);
 
         private:
 
