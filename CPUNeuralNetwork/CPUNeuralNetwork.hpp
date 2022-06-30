@@ -13,33 +13,31 @@ namespace cpu {
      * 
      */
     class NeuralNetwork{
+        friend class Test;
         public:
             NeuralNetwork(unsigned int input_size,
                                   unsigned int layer_p_size,
                                   unsigned int layer_q_size,
                                   unsigned int layer_r_size);
 
-            void weight_initialization(std::vector<std::vector<float> > &W, 
-                                        const unsigned int &layer_i_size, 
-                                        const unsigned int &layer_j_size);
+            std::vector<std::vector<float> > weight_initialization( const unsigned int &layer_i_size, 
+                                                                    const unsigned int &layer_j_size);
 
             
             void fit();
 
-            void forward_propegation();
+            //void forward_propegation();
             
-            void compute_outputs(std::vector<float> &z,
-                                      const std::vector<std::vector<float> > &W, const std::vector<float> &a,  
-                                      const unsigned int &layer_i_size, 
-                                      const unsigned int &layer_j_size);
+            std::vector<float> compute_outputs(const std::vector<std::vector<float> > &W, 
+                                               const std::vector<float> &a,  
+                                               const unsigned int &layer_i_size, 
+                                               const unsigned int &layer_j_size);
 
-            void relu_activation(std::vector<float> &a, 
-                                         const std::vector<float> &z,
-                                         const unsigned int &layer_j_size);
+            std::vector<float> relu_activation(const std::vector<float> &z,
+                                 const unsigned int &layer_j_size);
 
-            void sigmoid_activation(std::vector<float> &a, 
-                                            const std::vector<float> &z,
-                                            const unsigned int &layer_j_size);
+            std::vector<float> sigmoid_activation(const std::vector<float> &z,
+                                    const unsigned int &layer_j_size);
 
             float compute_loss(const std::vector<float> &y, 
                                const std::vector<float> &a,

@@ -32,11 +32,11 @@ cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
  */
 void cpu::NeuralNetwork::fit(){
 
-    weight_initialization(m_W1, m_input_size, m_layer_p_size);
-    weight_initialization(m_W2, m_layer_p_size, m_layer_q_size );
-    weight_initialization(m_W3, m_layer_q_size, m_layer_r_size);
+    m_W1 = weight_initialization(m_input_size, m_layer_p_size);
+    m_W2 = weight_initialization(m_layer_p_size, m_layer_q_size );
+    m_W3 = weight_initialization(m_layer_q_size, m_layer_r_size);
 
-    forward_propegation();
+    //forward_propegation();
 }
 
 /**
@@ -44,14 +44,18 @@ void cpu::NeuralNetwork::fit(){
  * from a Gaussian Distribtuion centered at 0 with standard deviations of 
  * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
  * 
- * @param W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
  * @param layer_i_size The number of neurons in layer I.
  * @param layer_j_size The number of neurons in layer J.
  * 
+ * @return W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
+ * 
  */
-void cpu::NeuralNetwork::weight_initialization(std::vector<std::vector<float> > &W, 
-                                                const unsigned int &layer_i_size, 
-                                                const unsigned int &layer_j_size){
+std::vector<std::vector<float> > cpu::NeuralNetwork::weight_initialization( const unsigned int &layer_i_size, 
+                                                                            const unsigned int &layer_j_size)
+{
+
+    std::vector<std::vector<float> > W(layer_j_size, std::vector<float>(layer_i_size, 1.1f));
+
     std::mt19937 generator;
     float mean = 0.0f;
     float stddev = std::sqrt(1 / static_cast<float>(layer_i_size) ); 
@@ -61,6 +65,8 @@ void cpu::NeuralNetwork::weight_initialization(std::vector<std::vector<float> > 
             W[j][i] = normal(generator);
         }
     } 
+
+    return W;
 }
 
 /**
@@ -69,23 +75,28 @@ void cpu::NeuralNetwork::weight_initialization(std::vector<std::vector<float> > 
  * @f$z_j = \sum_{i}^I w_{ji} a_i$ where @f$a_i$ is the output of neuron i
  * from the pervious layer I.
  * 
- * @param z The vector that contains the output of each neuron in layer J
  * @param W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
  * @param a The vector that contains the activations of each neuron in layer I
  * @param layer_i_size The number of neurons in layer I.
  * @param layer_j_size The number of neurons in layer J.
  * 
+ * @return z The vector that contains the output of each neuron in layer J
+ * 
  */
-void cpu::NeuralNetwork::compute_outputs(std::vector<float> &z,
-                                      const std::vector<std::vector<float> > &W, const std::vector<float> &a,  
-                                      const unsigned int &layer_i_size, 
-                                      const unsigned int &layer_j_size)
+std::vector<float> cpu::NeuralNetwork::compute_outputs(const std::vector<std::vector<float> > &W, 
+                                   const std::vector<float> &a,  
+                                   const unsigned int &layer_i_size, 
+                                   const unsigned int &layer_j_size)
 {
-    for (unsigned int j=0; j<layer_j_size; ++j) {
-        for (unsigned int i=0; i<layer_i_size; ++i) {
+    std::vector<float> z(layer_j_size, 0.0f);
+
+    for (unsigned int j=0; j<layer_j_size; j++) {
+        for (unsigned int i=0; i<layer_i_size; i++) {
             z[j] += W[j][i] * a[i];
         }
     } 
+
+    return z;
 }
 
 /**
@@ -95,22 +106,26 @@ void cpu::NeuralNetwork::compute_outputs(std::vector<float> &z,
  * hidden layers of the neural network.
  * 
  * @param z The vector that contains the output of each neuron in layer J
- * @param a The vector that contains the activations of each neuron in layer J
  * @param layer_j_size The number of neurons in layer J.
  * 
+ * @return a The vector that contains the activations of each neuron in layer J
+ * 
  */
-void cpu::NeuralNetwork::relu_activation(std::vector<float> &a, 
-                                         const std::vector<float> &z,
-                                         const unsigned int &layer_j_size)
+std::vector<float> cpu::NeuralNetwork::relu_activation(const std::vector<float> &z,
+                                   const unsigned int &layer_j_size)
 
 {
-    for (unsigned int j=0; j<layer_j_size; ++j) {
+    std::vector<float> a(layer_j_size, 0.0f); 
+
+    for (unsigned int j=0; j<layer_j_size; j++) {
         if(z[j] > 0.0f ){
             a[j] = z[j];
         }else{
             a[j] = 0.0f;
         }
     } 
+
+    return a;
 }
 
 /**
@@ -128,22 +143,25 @@ void cpu::NeuralNetwork::relu_activation(std::vector<float> &a,
  * 
  * @param z The vector that contains the output of each neuron in layer J
  *          where J is the output layer
- * @param a The vector that contains the activations of each neuron in layer J
- *          where J is the output layer
  * @param layer_j_size The number of neurons in layer J.
  * 
+ * @return a The vector that contains the activations of each neuron in layer J
+ *          where J is the output layer
+ * 
  */
-void cpu::NeuralNetwork::sigmoid_activation(std::vector<float> &a, 
-                                            const std::vector<float> &z,
-                                            const unsigned int &layer_j_size)
+std::vector<float> cpu::NeuralNetwork::sigmoid_activation(const std::vector<float> &z,
+                                      const unsigned int &layer_j_size)
 {
-    for (unsigned int j=0; j<layer_j_size; ++j) {
+    std::vector<float> a(layer_j_size, 0.0f); 
+    for (unsigned int j=0; j<layer_j_size; j++) {
         if (z[j] >= 0.0f) {
             a[j] = 1.0f / (1.0f + std::exp(-z[j]));
         } else {
             a[j] = std::exp(z[j]) / (1.0f + std::exp(z[j]));
         }
     } 
+
+    return a;
 }
 
 /**
@@ -165,7 +183,9 @@ float cpu::NeuralNetwork::compute_loss(const std::vector<float> &y,
                                        const unsigned int &layer_j_size){
     float loss = 0.0f;
 
-    for (unsigned int j=0; j<layer_j_size; ++j) {
+    for (unsigned int j=0; j<layer_j_size; j++) {
         loss += y[j]*std::log(a[j]) + (1-y[j])*std::log(1-a[j]);
     }
+
+    return loss;
 }
