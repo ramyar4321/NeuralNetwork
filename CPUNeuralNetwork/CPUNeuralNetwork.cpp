@@ -177,15 +177,27 @@ std::vector<float> cpu::NeuralNetwork::sigmoid_activation(const std::vector<floa
  *          outcome of the neural network.
  * @param layer_j_size The number of neurons in layer J.
  * 
+ * @return entropy loss 
+ * 
+ * Assumptions: The values of activations are greater than zero since they are 
+ * the result of sigmoid activation.
+ * 
  */
 float cpu::NeuralNetwork::compute_loss(const std::vector<float> &y, 
                                        const std::vector<float> &a,
-                                       const unsigned int &layer_j_size){
+                                       const unsigned int &layer_i_size){
     float loss = 0.0f;
+    // Use epsilon since log of zero is undefined.
+    float epsilon = 0.0001; 
 
-    for (unsigned int j=0; j<layer_j_size; j++) {
-        loss += y[j]*std::log(a[j]) + (1-y[j])*std::log(1-a[j]);
+    float term1 = 0.0f;
+    float term2 = 0.0f;
+
+    for (unsigned int j=0; j<layer_i_size; j++) {
+        loss += -y[j]*std::log(a[j] + epsilon) - (1-y[j])*std::log(1-a[j] + epsilon);
+
     }
+
 
     return loss;
 }

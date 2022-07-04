@@ -7,6 +7,9 @@ int main(){
 
     cpu::Testing test;
     test.test_compute_outputs();
+    test.test_relu_activation();
+    test.test_sigmoid_activation();
+    test.test_compute_loss();
     
 
     return 0;
