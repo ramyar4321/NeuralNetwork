@@ -17,7 +17,7 @@ namespace cpu {
 
         // Helper functions
 
-        static bool areFloatEqual(float a, float b);
+        static bool areFloatEqual(double a, double b);
 
     };
 }

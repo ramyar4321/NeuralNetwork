@@ -3,7 +3,7 @@
 #include "random"
 
 /**
- * Intialize Neural Network memeber variables.
+ * Initialize Neural Network memeber variables.
  */
 cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
                                   unsigned int layer_p_size,
@@ -13,18 +13,18 @@ cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
                                   m_layer_p_size(layer_p_size),
                                   m_layer_q_size(layer_q_size),
                                   m_layer_r_size(layer_r_size),
-                                  m_z1(layer_p_size, 1),
-                                  m_z2(layer_q_size, 1),
-                                  m_z3(layer_r_size, 1),
-                                  m_a1(layer_p_size, 1),
-                                  m_a2(layer_q_size, 1),
-                                  m_a3(layer_r_size, 1),
-                                  // Initialize weights of the neural network to be ones.
+                                  m_z1(layer_p_size, 0.0),
+                                  m_z2(layer_q_size, 0.0),
+                                  m_z3(0.0),
+                                  m_a1(layer_p_size, 0.0),
+                                  m_a2(layer_q_size, 0.0),
+                                  m_a3(0.0),
+                                  // Initialize weights of the neural network to be zeros.
                                   // Later on, the weights will be re-initialized using a more 
                                   // sophicticated methode.
-                                  m_W1(layer_p_size, std::vector<float>(input_size, 1)),
-                                  m_W2(layer_q_size, std::vector<float>(layer_p_size,1)),
-                                  m_W3(layer_r_size, std::vector<float>(layer_q_size, 1))
+                                  m_W1(layer_p_size, std::vector<double>(input_size, 0.0)),
+                                  m_W2(layer_q_size, std::vector<double>(layer_p_size,0.0)),
+                                  m_W3(layer_r_size, std::vector<double>(layer_q_size, 0.0))
 {}
 
 /**
@@ -50,15 +50,15 @@ void cpu::NeuralNetwork::fit(){
  * @return W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
  * 
  */
-std::vector<std::vector<float> > cpu::NeuralNetwork::weight_initialization( const unsigned int &layer_i_size, 
+std::vector<std::vector<double> > cpu::NeuralNetwork::weight_initialization(const unsigned int &layer_i_size, 
                                                                             const unsigned int &layer_j_size)
 {
 
-    std::vector<std::vector<float> > W(layer_j_size, std::vector<float>(layer_i_size, 1.1f));
+    std::vector<std::vector<double> > W(layer_j_size, std::vector<double>(layer_i_size, 1.1f));
 
     std::mt19937 generator;
-    float mean = 0.0f;
-    float stddev = std::sqrt(1 / static_cast<float>(layer_i_size) ); 
+    double mean = 0.0f;
+    double stddev = std::sqrt(1 / static_cast<double>(layer_i_size) ); 
     std::normal_distribution<double> normal(mean, stddev);
     for (unsigned int j=0; j<layer_j_size; ++j) {
         for (unsigned int i=0; i<layer_i_size; ++i) {
@@ -83,12 +83,12 @@ std::vector<std::vector<float> > cpu::NeuralNetwork::weight_initialization( cons
  * @return z The vector that contains the output of each neuron in layer J
  * 
  */
-std::vector<float> cpu::NeuralNetwork::compute_outputs(const std::vector<std::vector<float> > &W, 
-                                   const std::vector<float> &a,  
-                                   const unsigned int &layer_i_size, 
-                                   const unsigned int &layer_j_size)
+std::vector<double> cpu::NeuralNetwork::compute_outputs(const std::vector<std::vector<double> > &W, 
+                                                       const std::vector<double> &a,  
+                                                       const unsigned int &layer_i_size, 
+                                                       const unsigned int &layer_j_size)
 {
-    std::vector<float> z(layer_j_size, 0.0f);
+    std::vector<double> z(layer_j_size, 0.0f);
 
     for (unsigned int j=0; j<layer_j_size; j++) {
         for (unsigned int i=0; i<layer_i_size; i++) {
@@ -111,11 +111,11 @@ std::vector<float> cpu::NeuralNetwork::compute_outputs(const std::vector<std::ve
  * @return a The vector that contains the activations of each neuron in layer J
  * 
  */
-std::vector<float> cpu::NeuralNetwork::relu_activation(const std::vector<float> &z,
-                                   const unsigned int &layer_j_size)
+std::vector<double> cpu::NeuralNetwork::relu_activation(const std::vector<double> &z,
+                                                        const unsigned int &layer_j_size)
 
 {
-    std::vector<float> a(layer_j_size, 0.0f); 
+    std::vector<double> a(layer_j_size, 0.0f); 
 
     for (unsigned int j=0; j<layer_j_size; j++) {
         if(z[j] > 0.0f ){
@@ -129,37 +129,31 @@ std::vector<float> cpu::NeuralNetwork::relu_activation(const std::vector<float> 
 }
 
 /**
- * Compute the activation of each neuron j in layer J using the sigmoid activation function. 
+ * Compute the sigmoid activation of the output neuron.
  * 
- * The sigmoid activation function for a given neuron j of layer J can be defined as the following
- * @f$\sigma (z_j) = \frac{1}{1+ \exp (- z_j)} = \frac{\exp (z_j)}{1+ \exp ( z_j)}$. 
- * If z_j is positive and its magnitude large, it can cause overflow when computing @f$\exp ( z_j)$ and
- * if z_j is negative and its magnitude is too large, it can cause overflow when computing @f$\exp (- z_j)$.
- * In order to avoid numerical instability, let @f$\sigma (z_j) = \frac{1}{1+ \exp (- z_j)}$ for @f$ z_j >=0 $
- * and let @f$\sigma (z_j) = \frac{\exp (z_j)}{1+ \exp ( z_j)}$ for @f$ z_j < 0 $.
+ * The sigmoid activation function for the output neuron can be defined as the following
+ * @f$\sigma (z_3) = \frac{1}{1+ \exp (- z_3)} = \frac{\exp (z_3)}{1+ \exp ( z_3)}$. 
+ * If z_3 is positive and its magnitude large, it can cause overflow when computing @f$\exp ( z_3)$ and
+ * if z_3 is negative and its magnitude is too large, it can cause overflow when computing @f$\exp (- z_3)$.
+ * In order to avoid numerical instability, let @f$\sigma (z_3) = \frac{1}{1+ \exp (- z_3)}$ for @f$ z_3 >=0 $
+ * and let @f$\sigma (z_3) = \frac{\exp (z_3)}{1+ \exp ( z_3)}$ for @f$ z_3 < 0 $.
  * 
  * @see https://stackoverflow.com/questions/41800604/need-help-understanding-the-caffe-code-for-sigmoidcrossentropylosslayer-for-mult
  * @see https://stackoverflow.com/questions/40353672/caffe-sigmoidcrossentropyloss-layer-loss-function
  * 
- * @param z The vector that contains the output of each neuron in layer J
- *          where J is the output layer
- * @param layer_j_size The number of neurons in layer J.
+ * @param z The output of the output nueron in the last layer.
  * 
- * @return a The vector that contains the activations of each neuron in layer J
- *          where J is the output layer
+ * @return a The activation of the output neuron.
  * 
  */
-std::vector<float> cpu::NeuralNetwork::sigmoid_activation(const std::vector<float> &z,
-                                      const unsigned int &layer_j_size)
+double cpu::NeuralNetwork::sigmoid_activation(const double &z)
 {
-    std::vector<float> a(layer_j_size, 0.0f); 
-    for (unsigned int j=0; j<layer_j_size; j++) {
-        if (z[j] >= 0.0f) {
-            a[j] = 1.0f / (1.0f + std::exp(-z[j]));
-        } else {
-            a[j] = std::exp(z[j]) / (1.0f + std::exp(z[j]));
-        }
-    } 
+    double a = 0.0; 
+    if (z >= 0.0f) {
+        a = 1.0f / (1.0f + std::exp(-z));
+    } else {
+        a = std::exp(z) / (1.0f + std::exp(z));
+    }
 
     return a;
 }
@@ -183,20 +177,15 @@ std::vector<float> cpu::NeuralNetwork::sigmoid_activation(const std::vector<floa
  * the result of sigmoid activation.
  * 
  */
-float cpu::NeuralNetwork::compute_loss(const std::vector<float> &y, 
-                                       const std::vector<float> &a,
-                                       const unsigned int &layer_i_size){
-    float loss = 0.0f;
+double cpu::NeuralNetwork::compute_loss(const double &y, 
+                                       const double &a){
+    double loss = 0.0f;
     // Use epsilon since log of zero is undefined.
-    float epsilon = 0.0001; 
+    double epsilon = 0.0001; 
 
-    float term1 = 0.0f;
-    float term2 = 0.0f;
 
-    for (unsigned int j=0; j<layer_i_size; j++) {
-        loss += -y[j]*std::log(a[j] + epsilon) - (1-y[j])*std::log(1-a[j] + epsilon);
+    loss += -y*std::log(a + epsilon) - (1-y)*std::log(1-a + epsilon);
 
-    }
 
 
     return loss;
