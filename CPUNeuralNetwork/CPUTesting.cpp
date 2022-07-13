@@ -1,8 +1,13 @@
 #include "CPUTesting.hpp"
 #include "CPUNeuralNetwork.hpp"
+#include "Dataset.hpp"
 #include <vector>
 #include <iostream>
 #include <functional>
+
+
+/*----------------------------------------------*/
+// Testing methodes of the NeuralNetowrk class
 
 /**
  * This methode is used to test the compute_outputs method of
@@ -235,6 +240,239 @@ void cpu::Testing::test_compute_loss(){
 
 }
 
+/*----------------------------------------------*/
+// Testing methodes for Dataset class methodes
+
+/**
+ * The methode tests the import_dataset
+ * methode of the Dataset class. Testing to determine if 
+ * every single element of the data file was successfully stored
+ * is not feasible. Only the values of the first and last row
+ * of the dataset will be test to determine if they were 
+ * successfully stored.
+ *
+ */
+void cpu::Testing::test_import_dataset(){
+
+    // Instantiate Dataset object and call methode to be tested.
+    cpu::Dataset dat(4, 306,0.75);
+    std::string filename = "../Data/haberman.data";
+    dat.import_dataset(filename);
+    std::vector<std::vector<double> > dataset = dat.get_dataet();
+
+    // The actual values
+    double actual_value1 = dataset[0][0];
+    double actual_value2 = dataset[0][1];
+    double actual_value3 = dataset[0][2];
+    double actual_value4 = dataset[0][3];
+
+    double actual_value5 = dataset[305][0];
+    double actual_value6 = dataset[305][1];
+    double actual_value7 = dataset[305][2];
+    double actual_value8 = dataset[305][3];
+
+    // The expected values
+    double expected_value1 = 30;
+    double expected_value2 = 64;
+    double expected_value3 = 1;
+    double expected_value4 = 1;
+
+    double expected_value5 = 83;
+    double expected_value6 = 58;
+    double expected_value7 = 2;
+    double expected_value8 = 2;
+
+    // Test if expected values are the same as the actual values
+    if ( areFloatEqual(actual_value1, expected_value1) &&
+         areFloatEqual(actual_value2, expected_value2) &&
+         areFloatEqual(actual_value3, expected_value3) &&
+         areFloatEqual(actual_value4, expected_value4))
+        std::cout << "The first four data values of the CSV file successfully imported.\n";
+    else
+        std::cout << "The first four data values of the CSV file failed to imported.\n";
+    if ( areFloatEqual(actual_value5, expected_value5) &&
+         areFloatEqual(actual_value6, expected_value6) &&
+         areFloatEqual(actual_value7, expected_value7) &&
+         areFloatEqual(actual_value8, expected_value8))
+        std::cout << "The last four data values of the CSV file successfully imported.\n";
+    else
+        std::cout << "The last four data values of the CSV file failed to imported.\n";
+}
+
+/**
+ *
+ * This methode tests the X_train_split of the Dataset class.
+ * 
+ */
+void cpu::Testing::test_X_train_split(){
+
+    // Instantiate objects and initialize variables
+
+    // Instantiate Dataset object
+    // Train test ratio will be set to 0.99.
+    cpu::Dataset dat(4, 306,0.99);
+    //Import the dataset
+    std::string filename = "../Data/haberman.data";
+    dat.import_dataset(filename);
+    std::vector<std::vector<double> > dataset = dat.get_dataet();
+
+    // Call methode to be tested.
+    std::vector<std::vector<double> > train_dataset = dat.X_train_split();
+
+    // Actual size of the X train set data
+    unsigned int actual_col_size = train_dataset[0].size();
+    unsigned int actual_row_size = train_dataset.size();
+ 
+    // Expected size of the X train set data.
+    // The expected number of columns is 3 since
+    // the training set includes all the columns of the dataset except 
+    // the outcome column.
+    unsigned int expected_col_size = 3;
+    // The expected number of rows is 
+    // floor((train test ratio)*(number of rows of the dataset)) = floor(0.99*306) = 302 
+    unsigned int expected_row_size = 302;
+
+    // The actual values of the first row of the X train dataset
+    double actual_value1 = train_dataset[0][0];
+    double actual_value2 = train_dataset[0][1];
+    double actual_value3 = train_dataset[0][2];
+
+    // The actual values of the last row of the X train dataset
+    double actual_value4 = train_dataset[301][0];
+    double actual_value5 = train_dataset[301][1];
+    double actual_value6 = train_dataset[301][2];
+
+    // The expected values for the first row of the X train dataset
+    // are the values for the first row of the dataset.
+    double expected_value1 = 30;
+    double expected_value2 = 64;
+    double expected_value3 = 1;
+
+    // The expected values for the last row of the X train dataset
+    // are the values for the train_sizeth row of the dataset.
+    double expected_value4 = 75;
+    double expected_value5 = 62;
+    double expected_value6 = 1;
+
+    // Conduct tests
+
+    // Test if train dataset is of expected size
+    if (actual_col_size == expected_col_size){
+        std::cout << "First test succeeded! X training set number has expected number of columns.\n";
+    } else{
+        std::cout << "First test failed! X training set number has unexpected number of columns.\n";
+    }
+
+    if (actual_row_size == expected_row_size){
+        std::cout << "Second test succeeded! X training set number has expected number of rows.\n";
+    } else{
+        std::cout << "Second test failed! X training set number has unexpected number of rows.\n";
+    }
+
+    // Test if train dataset has expected values
+    if ( areFloatEqual(actual_value1, expected_value1) &&
+         areFloatEqual(actual_value2, expected_value2) &&
+         areFloatEqual(actual_value3, expected_value3) )
+        std::cout << "Third test succeeded! The first row of the X train dataset has expected values.\n ";
+    else
+        std::cout << "Third test failed! The first row of the X train dataset has expected values.\n ";
+    if ( areFloatEqual(actual_value4, expected_value4) &&
+         areFloatEqual(actual_value5, expected_value5) &&
+         areFloatEqual(actual_value6, expected_value6))
+        std::cout << "Fourth Test succeeded! The last row of the X train dataset has expected value.\n";
+    else
+        std::cout << "Fourth test failed! The last row of the X train dataset has unexpected values.\n";
+
+}
+
+/**
+ *
+ * This methode tests the X_test_split of the Dataset class.
+ * 
+ */
+void cpu::Testing::test_X_test_split(){
+
+    // Instantiate objects and initialize variables
+
+    // Instantiate Dataset object
+    // Train test ratio will be set to 0.99.
+    cpu::Dataset dat(4, 306,0.99);
+    //Import the dataset
+    std::string filename = "../Data/haberman.data";
+    dat.import_dataset(filename);
+    std::vector<std::vector<double> > dataset = dat.get_dataet();
+
+    // Call methode to be tested.
+    std::vector<std::vector<double> > test_dataset = dat.X_test_split();
+
+    // Actual size of the X test set data
+    unsigned int actual_col_size = test_dataset[0].size();
+    unsigned int actual_row_size = test_dataset.size();
+ 
+    // Expected size of the X test set data.
+    // The expected number of columns is 3 since
+    // the test set includes all the columns of the dataset except 
+    // the outcome column.
+    unsigned int expected_col_size = 3;
+    // The expected number of rows is 
+    // ceiling((1- train test ratio)*(number of rows of the dataset)) = ceiling(0.01*306) = 4
+    unsigned int expected_row_size = 4;
+
+    // The actual values of the first row of the X test dataset
+    double actual_value1 = test_dataset[0][0];
+    double actual_value2 = test_dataset[0][1];
+    double actual_value3 = test_dataset[0][2];
+
+    // The actual values of the last row of the X test dataset
+    double actual_value4 = test_dataset[3][0];
+    double actual_value5 = test_dataset[3][1];
+    double actual_value6 = test_dataset[3][2];
+
+    // The expected values for the first row of the X test dataset
+    // are the values for the train_sizeth + 1 row of the dataset.
+    double expected_value1 = 76;
+    double expected_value2 = 67;
+    double expected_value3 = 0;
+
+    // The expected values for the last row of the X test dataset
+    // are the values for the last row of the dataset.
+    double expected_value4 = 83;
+    double expected_value5 = 58;
+    double expected_value6 = 2;
+
+    // Conduct tests
+
+    // Test if test data set is of expected size
+    if (actual_col_size == expected_col_size){
+        std::cout << "First test succeeded! X testing set number has expected number of columns.\n";
+    } else{
+        std::cout << "First test failed! X testing set number has unexpected number of columns.\n";
+    }
+
+    if (actual_row_size == expected_row_size){
+        std::cout << "Second test succeeded! X testing set number has expected number of rows.\n";
+    } else{
+        std::cout << "Second test failed! X testing set number has unexpected number of rows.\n";
+    }
+
+    // Test if test data set has expected values
+    if ( areFloatEqual(actual_value1, expected_value1) &&
+         areFloatEqual(actual_value2, expected_value2) &&
+         areFloatEqual(actual_value3, expected_value3) )
+        std::cout << "Third test succeeded! The first row of the X test dataset has expected values.\n ";
+    else
+        std::cout << "Third test failed! The first row of the X test dataset has expected values.\n ";
+    if ( areFloatEqual(actual_value4, expected_value4) &&
+         areFloatEqual(actual_value5, expected_value5) &&
+         areFloatEqual(actual_value6, expected_value6))
+        std::cout << "Fourth Test succeeded! The last row of the X test dataset has expected value.\n";
+    else
+        std::cout << "Fourth test failed! The last row of the X test dataset has unexpected values.\n";
+
+}
+
+/*----------------------------------------------*/
+// Helper methodes.
 
 /**
  * Determine if two float values are equal with a fixed error. 

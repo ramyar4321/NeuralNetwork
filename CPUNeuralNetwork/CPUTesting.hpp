@@ -10,10 +10,17 @@ namespace cpu {
 
         public:
 
+        // Test methodes of the NeuralNetwork class
         void test_compute_outputs();
         void test_relu_activation();
         void test_sigmoid_activation();
         void test_compute_loss();
+
+        // Test methodes of the Dataset class
+        void test_import_dataset();
+        void test_X_train_split();
+        void test_X_test_split();
+        
 
         // Helper functions
 

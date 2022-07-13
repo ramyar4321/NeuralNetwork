@@ -9,10 +9,12 @@ namespace cpu {
      * Class NeuralNetwork
      * 
      * A three layer artificial neural network. The size of each layer 
+     * is specified by the user during instantiation of the Neural
+     * Network class.
      * 
      */
     class NeuralNetwork{
-        friend class Test;
+
         public:
             NeuralNetwork(unsigned int input_size,
                           unsigned int layer_p_size,
