@@ -105,9 +105,9 @@ std::vector<double> cpu::Dataset::y_train_split(){
     std::vector<double>  y_train;
     y_train.reserve(train_size);
 
-    for(int j=0;  j < train_size; j++){
-        y_train.emplace_back(m_dataset[j][3]);
-    }
+    // Extract outcome column from dataset into y train vector
+    std::transform(m_dataset.begin(), m_dataset.begin() + train_size, std::back_inserter(y_train),
+                    [](const std::vector<double> &row) {return row[3];});
 
     return y_train;
 
