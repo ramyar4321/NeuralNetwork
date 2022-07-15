@@ -19,8 +19,8 @@ namespace cpu{
 
             std::vector<std::vector<double> > X_train_split();
             std::vector<std::vector<double> > X_test_split();
-            //std::vector<std::vector<double> > y_train_split();
-            //std::vector<std::vector<double> > y_test_split(); 
+            std::vector<double> y_train_split();
+            std::vector<double> y_test_split(); 
 
             std::vector<std::vector<double> > get_dataet();
 

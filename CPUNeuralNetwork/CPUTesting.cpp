@@ -471,6 +471,133 @@ void cpu::Testing::test_X_test_split(){
 
 }
 
+/**
+ *
+ * This methode tests the y_train_split of the Dataset class.
+ * 
+ */
+void cpu::Testing::test_y_train_split(){
+
+    // Instantiate objects and initialize variables
+
+    // Instantiate Dataset object
+    // Train test ratio will be set to 0.99.
+    cpu::Dataset dat(4, 306,0.99);
+    //Import the dataset
+    std::string filename = "../Data/haberman.data";
+    dat.import_dataset(filename);
+    std::vector<std::vector<double> > dataset = dat.get_dataet();
+
+    // Call methode to be tested.
+    std::vector<double> ytrain_dataset = dat.y_train_split();
+
+    // Actual size of the y train vector
+    unsigned int actual_size = ytrain_dataset.size();
+ 
+    // The expected size of y train vector.
+    // floor((train test ratio)*(number of rows of the dataset)) = floor(0.99*306) = 302
+    unsigned int expected_size = 302;
+
+    // The first actual value of y train vector.
+    double actual_value1 = ytrain_dataset[0];
+
+    // The last actual value of the y train vector.
+    double actual_value2 = ytrain_dataset[301];
+
+    // The expected value for the first element of y train vector
+    // is the value of the first element of the outcome from the dataset.
+    double expected_value1 = 1;
+    
+    // The expected value for the last element of y train vector
+    // is the value of the train_sizeth element of the outcome from the dataset.
+    double expected_value2 = 1;
+
+
+    // Conduct tests
+
+    // Test if y train vector is of expected size
+    if (actual_size == expected_size){
+        std::cout << "First test succeeded! y training vector is of expected size.\n";
+    } else{
+        std::cout << "First test failed! y train vector is not of expected size.\n";
+    }
+
+    // Test if y train vector has expected values
+    if ( areFloatEqual(actual_value1, expected_value1) )
+        std::cout << "Second test succeeded! The first element of y train vector is of expected value.\n ";
+    else
+        std::cout << "Second test failed! The first element of y train vector is of unexpected value.\n ";
+    if ( areFloatEqual(actual_value2, expected_value2))
+        std::cout << "Third Test succeeded! The last element of y train vector is of expected value.\n";
+    else
+        std::cout << "Third test failed! The last element of y train vector is of unexpected value.\n";
+
+}
+
+/**
+ *
+ * This methode tests the y_test_split of the Dataset class.
+ * 
+ */
+void cpu::Testing::test_y_test_split(){
+
+    // Instantiate objects and initialize variables
+
+    // Instantiate Dataset object
+    // Train test ratio will be set to 0.99.
+    cpu::Dataset dat(4, 306,0.99);
+    //Import the dataset
+    std::string filename = "../Data/haberman.data";
+    dat.import_dataset(filename);
+    std::vector<std::vector<double> > dataset = dat.get_dataet();
+
+    // Call methode to be tested.
+    std::vector<double> ytest_dataset = dat.y_test_split();
+
+    // Actual size of the y test vector
+    unsigned int actual_size = ytest_dataset.size();
+ 
+    // The expected size of y test vector.
+    // ceiling((1 - train test ratio)*(number of rows of the dataset)) = floor(0.01*306) = 4
+    unsigned int expected_size = 4;
+
+    // The first actual value of y test vector.
+    double actual_value1 = ytest_dataset[0];
+
+    // The last actual value of the y test vector.
+    double actual_value2 = ytest_dataset[3];
+
+    // The expected value for the first element of y test vector
+    // is the value of the train_size+1 element of the outcome from the dataset.
+    double expected_value1 = 1;
+    
+    // The expected value for the last element of y test vector
+    // is the value of the last element of the outcome from the dataset.
+    double expected_value2 = 2;
+
+
+    // Conduct tests
+
+    // Test if y train vector is of expected size
+    if (actual_size == expected_size){
+        std::cout << "First test succeeded! y test vector is of expected size.\n";
+    } else{
+        std::cout << "First test failed! y test vector is not of expected size.\n";
+    }
+
+    // Test if y train vector has expected values
+    if ( areFloatEqual(actual_value1, expected_value1) )
+        std::cout << "Second test succeeded! The first element of y test vector is of expected value.\n ";
+    else
+        std::cout << "Second test failed! The first element of y test vector is of unexpected value.\n ";
+    if ( areFloatEqual(actual_value2, expected_value2))
+        std::cout << "Third Test succeeded! The last element of y test vector is of expected value.\n";
+    else
+        std::cout << "Third test failed! The last element of y test vector is of unexpected value.\n";
+
+}
+
+
 /*----------------------------------------------*/
 // Helper methodes.
 

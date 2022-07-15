@@ -20,6 +20,8 @@ namespace cpu {
         void test_import_dataset();
         void test_X_train_split();
         void test_X_test_split();
+        void test_y_train_split();
+        void test_y_test_split();
         
 
         // Helper functions

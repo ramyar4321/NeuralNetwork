@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 /**
  * Constructor for the Dataset class.
@@ -87,6 +88,56 @@ std::vector<std::vector<double> > cpu::Dataset::X_test_split(){
     }
 
     return x_test;
+}
+
+/**
+ * This methode will produce the y training set
+ * from the dataset. The y training set comprises of
+ * all of the outcomes of the dataset starting 
+ * from the first row up until the train_sizeth row.
+ * 
+ * @return y training set
+ */
+std::vector<double> cpu::Dataset::y_train_split(){
+
+    int train_size = static_cast<int>( m_dataset.size() * m_train_test_ratio );
+
+    std::vector<double>  y_train;
+    y_train.reserve(train_size);
+
+    for(int j=0;  j < train_size; j++){
+        y_train.emplace_back(m_dataset[j][3]);
+    }
+
+    return y_train;
+
+}
+
+/**
+ * This methode will produce the y testing set
+ * from the dataset. The y testing set comprises of
+ * all of the outcomes of the dataset starting 
+ * from the train_sizeth row up until the last row.
+ * 
+ * @return y test set
+ */
+std::vector<double> cpu::Dataset::y_test_split(){
+
+    int train_size = static_cast<int>( m_dataset.size() * m_train_test_ratio );
+
+    int test_size = static_cast<int>(m_dataset.size()) - train_size;
+
+    // Create y test vector
+    std::vector<double> y_test;
+    y_test.reserve(test_size);
+
+    // Extract outcome column from dataset into y test vector
+    std::transform(m_dataset.begin() + train_size, m_dataset.end(), std::back_inserter(y_test),
+                    [](const std::vector<double> &row) {return row[3];});
+
+
+    return y_test;
+
 }
 
 /**
