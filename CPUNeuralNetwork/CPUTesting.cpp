@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include "Matrix.hpp"
 
 
 /*----------------------------------------------*/
@@ -29,9 +30,9 @@ void cpu::Testing::test_compute_outputs(){
     // neuron weights and outputs from forward and back propegations. 
     // They are random values simply used to test the compute_output methode.
 
-    std::vector<std::vector<double> > W1 = {{1.1f}, {2.2f}};
-    std::vector<std::vector<double> > W2 = {{3.3f, 4.4f}, {5.5f, 6.6f}};
-    std::vector<std::vector<double> > W3 = {{7.7f, 8.8f}}; 
+    cpu::Matrix W1( {{1.1f}, {2.2f}} );
+    cpu::Matrix W2 ( {{3.3f, 4.4f}, {5.5f, 6.6f}} );
+    cpu::Matrix W3 ( {{7.7f, 8.8f}} ); 
 
 
     // Note, a3 does not need to be used since the output neuron 

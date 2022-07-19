@@ -22,21 +22,29 @@ cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
                                   // Initialize weights of the neural network to be zeros.
                                   // Later on, the weights will be re-initialized using a more 
                                   // sophicticated methode.
-                                  m_W1(layer_p_size, std::vector<double>(input_size, 0.0)),
-                                  m_W2(layer_q_size, std::vector<double>(layer_p_size,0.0)),
-                                  m_W3(layer_r_size, std::vector<double>(layer_q_size, 0.0))
+                                  m_W1(layer_p_size, input_size),
+                                  m_W2(layer_q_size, layer_p_size),
+                                  m_W3(layer_r_size, layer_q_size)
 {}
 
 /**
  * Use data to train the neural network.
  */
-void cpu::NeuralNetwork::fit(){
+void cpu::NeuralNetwork::fit(std::vector<std::vector<double> > &X){
 
     m_W1 = weight_initialization(m_input_size, m_layer_p_size);
     m_W2 = weight_initialization(m_layer_p_size, m_layer_q_size );
     m_W3 = weight_initialization(m_layer_q_size, m_layer_r_size);
 
-    //forward_propegation();
+    for(int i =0; i < X.size(); i++){
+
+    }
+
+    forward_propegation();
+}
+
+void cpu::NeuralNetwork::forward_propegation(){
+    
 }
 
 /**
@@ -50,11 +58,11 @@ void cpu::NeuralNetwork::fit(){
  * @return W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
  * 
  */
-std::vector<std::vector<double> > cpu::NeuralNetwork::weight_initialization(const unsigned int &layer_i_size, 
-                                                                            const unsigned int &layer_j_size)
+cpu::Matrix cpu::NeuralNetwork::weight_initialization(const unsigned int &layer_i_size, 
+                                                        const unsigned int &layer_j_size)
 {
 
-    std::vector<std::vector<double> > W(layer_j_size, std::vector<double>(layer_i_size, 1.1f));
+    cpu::Matrix W(layer_j_size, layer_i_size);
 
     std::mt19937 generator;
     double mean = 0.0f;
@@ -83,7 +91,7 @@ std::vector<std::vector<double> > cpu::NeuralNetwork::weight_initialization(cons
  * @return z The vector that contains the output of each neuron in layer J
  * 
  */
-std::vector<double> cpu::NeuralNetwork::compute_outputs(const std::vector<std::vector<double> > &W, 
+std::vector<double> cpu::NeuralNetwork::compute_outputs(const cpu::Matrix &W, 
                                                        const std::vector<double> &a,  
                                                        const unsigned int &layer_i_size, 
                                                        const unsigned int &layer_j_size)

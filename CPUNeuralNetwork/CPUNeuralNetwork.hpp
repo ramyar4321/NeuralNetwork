@@ -2,6 +2,7 @@
 #define CPU_NEURAL_NETWORK
 
 #include <vector>
+#include "Matrix.hpp"
 
 
 namespace cpu {
@@ -21,15 +22,15 @@ namespace cpu {
                           unsigned int layer_q_size,
                           unsigned int layer_r_size);
 
-            std::vector<std::vector<double> > weight_initialization( const unsigned int &layer_i_size, 
+            cpu::Matrix weight_initialization( const unsigned int &layer_i_size, 
                                                                     const unsigned int &layer_j_size);
 
             
-            void fit();
+            void fit(std::vector<std::vector<double> > &X);
 
-            //void forward_propegation();
+            void forward_propegation();
             
-            std::vector<double> compute_outputs(const std::vector<std::vector<double> > &W, 
+            std::vector<double> compute_outputs(const cpu::Matrix &W, 
                                                const std::vector<double> &a,  
                                                const unsigned int &layer_i_size, 
                                                const unsigned int &layer_j_size);
@@ -68,11 +69,11 @@ namespace cpu {
             double m_a3;
 
             // Maxtrix that will store weights between input layer and first hidden layer
-            std::vector<std::vector<double> > m_W1;
+            Matrix m_W1;
             // Maxtrix that will store weights between first hidden layer and second hidden layer.
-            std::vector<std::vector<double> > m_W2;
+            Matrix m_W2;
             // Maxtrix that will store weights between second hidden layer and output layer.
-            std::vector<std::vector<double> > m_W3;
+            Matrix m_W3;
 
 
 
