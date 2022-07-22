@@ -259,7 +259,7 @@ void cpu::Testing::test_import_dataset(){
     cpu::Dataset dat(4, 306,0.75);
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataet();
+    Matrix dataset = dat.get_dataet();
 
     // The actual values
     double actual_value1 = dataset[0][0];
@@ -315,14 +315,14 @@ void cpu::Testing::test_X_train_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataet();
+    Matrix dataset = dat.get_dataet();
 
     // Call methode to be tested.
-    std::vector<std::vector<double> > train_dataset = dat.X_train_split();
+    Matrix train_dataset = dat.X_train_split();
 
     // Actual size of the X train set data
-    unsigned int actual_col_size = train_dataset[0].size();
-    unsigned int actual_row_size = train_dataset.size();
+    unsigned int actual_col_size = train_dataset.get_col_num();
+    unsigned int actual_row_size = train_dataset.get_row_num();
  
     // Expected size of the X train set data.
     // The expected number of columns is 3 since
@@ -376,7 +376,7 @@ void cpu::Testing::test_X_train_split(){
          areFloatEqual(actual_value3, expected_value3) )
         std::cout << "Third test succeeded! The first row of the X train dataset has expected values.\n ";
     else
-        std::cout << "Third test failed! The first row of the X train dataset has expected values.\n ";
+        std::cout << "Third test failed! The first row of the X train dataset has unexpected values.\n ";
     if ( areFloatEqual(actual_value4, expected_value4) &&
          areFloatEqual(actual_value5, expected_value5) &&
          areFloatEqual(actual_value6, expected_value6))
@@ -401,14 +401,14 @@ void cpu::Testing::test_X_test_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataet();
+    Matrix dataset = dat.get_dataet();
 
     // Call methode to be tested.
-    std::vector<std::vector<double> > test_dataset = dat.X_test_split();
+    Matrix test_dataset = dat.X_test_split();
 
     // Actual size of the X test set data
-    unsigned int actual_col_size = test_dataset[0].size();
-    unsigned int actual_row_size = test_dataset.size();
+    unsigned int actual_col_size = test_dataset.get_col_num();
+    unsigned int actual_row_size = test_dataset.get_row_num();
  
     // Expected size of the X test set data.
     // The expected number of columns is 3 since
@@ -462,7 +462,7 @@ void cpu::Testing::test_X_test_split(){
          areFloatEqual(actual_value3, expected_value3) )
         std::cout << "Third test succeeded! The first row of the X test dataset has expected values.\n ";
     else
-        std::cout << "Third test failed! The first row of the X test dataset has expected values.\n ";
+        std::cout << "Third test failed! The first row of the X test dataset has unexpected values.\n ";
     if ( areFloatEqual(actual_value4, expected_value4) &&
          areFloatEqual(actual_value5, expected_value5) &&
          areFloatEqual(actual_value6, expected_value6))
@@ -487,7 +487,7 @@ void cpu::Testing::test_y_train_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataet();
+    Matrix dataset = dat.get_dataet();
 
     // Call methode to be tested.
     std::vector<double> ytrain_dataset = dat.y_train_split();
@@ -550,7 +550,7 @@ void cpu::Testing::test_y_test_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataet();
+    Matrix dataset = dat.get_dataet();
 
     // Call methode to be tested.
     std::vector<double> ytest_dataset = dat.y_test_split();

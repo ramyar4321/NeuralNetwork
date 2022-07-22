@@ -1,4 +1,6 @@
 #include "Matrix.hpp"
+#include <cassert>
+#include <iostream>
 
 /**
  * Constructor for Matrix object with number of rows and columns specified. 
@@ -11,7 +13,7 @@ cpu::Matrix::Matrix(int num_rows,
 {}
 
 /**
- * Constructor for Matrix object using std::vector
+ * Constructor for Matrix object using initializer list
  */
 cpu::Matrix::Matrix(std::initializer_list< std::initializer_list<double> > ilist):
     m_mat(ilist.begin(), ilist.end()),
@@ -19,6 +21,20 @@ cpu::Matrix::Matrix(std::initializer_list< std::initializer_list<double> > ilist
     m_num_cols(ilist.begin()->size())
 {}
 
+/**
+ * Copy Constructor. 
+ * Invoked when Matrix mat = rhs
+ * Since no dynamic memory was allocated, simple copy 
+ * member variables from rhs to this matrix. 
+ */
+cpu::Matrix::Matrix(const Matrix& rhs):
+    // Since rhs is of type Matrix, we
+    // can access its private fields
+    m_num_rows(rhs.m_num_rows),
+    m_num_cols(rhs.m_num_cols),
+    //Invoke the copy constrcutor for std::vector
+    m_mat(rhs.m_mat)
+{}
 
 /**
  * Overload assignment operator. 
@@ -75,6 +91,87 @@ const std::vector<double>& cpu::Matrix::operator[](const int &input) const{
 std::vector<double>& cpu::Matrix::operator[](const int &input) {
     return m_mat[input];
 }
+
+/**
+ * This methode will produce a submatrix, a block of entries from the original matrix.
+ * 
+ * @param start_ri The index of the first row of the sub-matrix
+ *                 0 <= start_ri < (number of rows in orginal matrix)
+ * @param end_ri   The index of the last row of the sub-matrix
+ *                 0 <= end_ri < (number of rows in orginal matrix)
+ * @param start_ci The index of the first column of the sub-matrix
+ *                 0 <= start_ci  < (number of columns in the original matrix)
+ * @param end_ci   The index of the last column of the sub-matrix
+ *                 0 <= end_ci  < (number of columns in the original matrix)
+ * 
+ * @return A sub-matrix containing a block of entries of the original matrix.
+ * 
+ */
+cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, int end_ci){
+
+    // Assert that Matrix indices are withing the dimensions of this Matrix
+    assert(start_ri >= 0 && start_ri < m_num_rows);
+    assert(end_ri >= 0 && end_ri < m_num_rows);
+    assert(start_ci >= 0 && start_ci < m_num_cols);
+    assert(start_ci >= 0 && start_ci < m_num_cols);
+    //std::cout << start_ri << std::endl;
+    //std::cout << start_ci << std::endl;
+    //std::cout << end_ri << std::endl;
+    //std::cout << end_ci << std::endl;
+
+    // Calculate dimensions of sub-matrix
+    int submat_num_rows = end_ri - start_ri + 1;
+    int submat_num_cols = end_ci - start_ci + 1;
+
+    //std::cout << submat_num_cols << std::endl;
+    //std::cout << submat_num_rows << std::endl;
+
+    // Create sub-matrix object to be returned
+    Matrix submat(submat_num_rows, submat_num_cols);
+
+    for(int j=0, row = start_ri; row <= end_ri; row++, j++){
+        for(int i=0, col = start_ci; col <= end_ci; col++, i++){
+            submat[j][i] = m_mat[row][col];
+            //std::cout << m_mat[row][col] << " ";
+            //std::cout << submat[j][i] << "\n";
+            //i++;
+        }
+        //j++;
+    }
+    //std::cout << "Hello";
+
+    return submat;
+
+
+}
+
+/**
+ * This methode will return all elements from row index start_ri
+ * until row index end_ri for the column at index ci. If start_ri is zero
+ * and end_ri is equal to the number of rows in this matrix, then this methode
+ * will return the column of the matrix at index ci.Otherwise, it will return 
+ * a segment of the column at index ci.
+ * @param ci       Column index of this matrix corresponding
+ * @param start_ri Row index of this matrix corresponding to the first element 
+ *                 of the column to be returned.
+ * @param end_ri   Row index of this matrix corresponding to the last element 
+ *                 of the column to be returned. 
+ */ 
+ std::vector<double> cpu::Matrix::getCol(int ci, int start_ri, int end_ri){
+    assert(start_ri >= 0 && start_ri < m_num_rows);
+    assert(end_ri >= 0 && end_ri < m_num_rows);
+    assert(ci >= 0 && ci < m_num_cols);
+
+
+    std::vector<double> col;
+
+    for(int j= start_ri; j <= end_ri; j++){
+        col.push_back(m_mat[j][ci]);
+    }
+
+    return col;
+ }
+
 
 /**
  * Get the number of rows in this Matrix.

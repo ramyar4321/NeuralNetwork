@@ -7,10 +7,10 @@
 /**
  * Constructor for the Dataset class.
  */
-cpu::Dataset::Dataset(unsigned int dataset_col_size, 
-                      unsigned int dataset_row_size,
+cpu::Dataset::Dataset(int dataset_col_size, 
+                      int dataset_row_size,
                       float train_test_ratio):
-                      m_dataset(dataset_row_size, std::vector<double>(dataset_col_size)),
+                      m_dataset(dataset_row_size, dataset_col_size),
                       m_train_test_ratio(train_test_ratio)
 {}
 
@@ -49,43 +49,52 @@ void cpu::Dataset::import_dataset(std::string &filename){
 /**
  * This methode will produce the X training set
  * from the dataset. The X training set comprises 
- * all of the rows of the dataset starting from the first fow up until the train_size
+ * all of the rows of the dataset starting from the first fow up until the train_size -1
  * row and all columns of the dataset except the outcome column.
  * 
  * @return X training set
  */
-std::vector<std::vector<double> > cpu::Dataset::X_train_split(){
+cpu::Matrix cpu::Dataset::X_train_split(){
 
-    int train_size = static_cast<int>( m_dataset.size() * m_train_test_ratio );
+    // Determine indices
+    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
 
-    std::vector<std::vector<double> > x_train(m_dataset.begin(), m_dataset.begin() + train_size);
+    // Train data consists of all rows from
+    // 0th row to (train-1)th row
+    int start_ri = 0;
+    int end_ri = train_size - 1;
+    // train data consists of all columns
+    // excluding the outcome column.
+    int start_ci = 0;
+    int end_ci = m_dataset.get_col_num() - 2; // Subtract 2 since there is zero indexing of vectors
 
-    // Remove the outcome column which is the last column of the dataset.
-    for(auto &row: x_train){
-        row.erase(std::next(row.begin(), 3));
-    }
+    Matrix x_train = m_dataset.getSubMatrix(start_ri, end_ri, start_ci, end_ci);
 
 
-    return x_train;
+    return x_train; 
 
 }
 
 /**
  * This methode will produce the X test set from the dataset.
  * The test set comprises of all the rows starting from the
- * training size + 1 row up until the last row of the dataset,
+ * training size row up until the last row of the dataset,
  * and all columns except the outcome caolumn.
  * 
  */
-std::vector<std::vector<double> > cpu::Dataset::X_test_split(){
-    int test_size = static_cast<int>( m_dataset.size() * m_train_test_ratio);
+cpu::Matrix cpu::Dataset::X_test_split(){
+    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
 
-    std::vector<std::vector<double> > x_test(m_dataset.begin() + test_size, m_dataset.end());
+    // Train data consists of all rows from
+    // train_sizeth row up until the last row.
+    int start_ri = train_size;
+    int end_ri = m_dataset.get_row_num() - 1; // Subtract 1 since there is zero indexing of vectors
+    // train data consists of all columns
+    // excluding the outcome column.
+    int start_ci = 0;
+    int end_ci = m_dataset.get_col_num() - 2; // Subtract 2 since there is zero indexing of vectors
 
-    // Remove the outcome column which is the last column of the dataset
-    for(auto &row: x_test){
-        row.erase(std::next(row.begin(), 3));
-    }
+    Matrix x_test = m_dataset.getSubMatrix(start_ri, end_ri, start_ci, end_ci);
 
     return x_test;
 }
@@ -100,14 +109,14 @@ std::vector<std::vector<double> > cpu::Dataset::X_test_split(){
  */
 std::vector<double> cpu::Dataset::y_train_split(){
 
-    int train_size = static_cast<int>( m_dataset.size() * m_train_test_ratio );
+    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
 
-    std::vector<double>  y_train;
-    y_train.reserve(train_size);
+    int ci = 3; // Index of the outcome y column
+    int start_ri = 0;
+    int end_ri = train_size-1;
 
-    // Extract outcome column from dataset into y train vector
-    std::transform(m_dataset.begin(), m_dataset.begin() + train_size, std::back_inserter(y_train),
-                    [](const std::vector<double> &row) {return row[3];});
+
+    std::vector<double>  y_train = m_dataset.getCol(ci, start_ri, end_ri);
 
     return y_train;
 
@@ -123,17 +132,14 @@ std::vector<double> cpu::Dataset::y_train_split(){
  */
 std::vector<double> cpu::Dataset::y_test_split(){
 
-    int train_size = static_cast<int>( m_dataset.size() * m_train_test_ratio );
+    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
 
-    int test_size = static_cast<int>(m_dataset.size()) - train_size;
+    int ci = 3; // Index of the outcome y column
+    int start_ri = train_size;
+    int end_ri = m_dataset.get_row_num()-1;
 
-    // Create y test vector
-    std::vector<double> y_test;
-    y_test.reserve(test_size);
+    std::vector<double>  y_test = m_dataset.getCol(ci, start_ri, end_ri);
 
-    // Extract outcome column from dataset into y test vector
-    std::transform(m_dataset.begin() + train_size, m_dataset.end(), std::back_inserter(y_test),
-                    [](const std::vector<double> &row) {return row[3];});
 
 
     return y_test;
@@ -144,7 +150,7 @@ std::vector<double> cpu::Dataset::y_test_split(){
  * Getter methode for dataset member variable.
  * 
  */
-std::vector<std::vector<double> > cpu::Dataset::get_dataet(){
+cpu::Matrix cpu::Dataset::get_dataet(){
     return m_dataset;
 }
 
