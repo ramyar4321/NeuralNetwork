@@ -45,8 +45,8 @@ cpu::Matrix& cpu::Matrix::operator=(const Matrix& rhs){
         return *this;
     }
 
-    int new_col_num = rhs.get_col_num();
-    int new_row_num = rhs.get_row_num();
+    int new_col_num = rhs.get_num_cols();
+    int new_row_num = rhs.get_num_rows();
 
     // resize this Matrix
     m_mat.resize(new_row_num);
@@ -114,17 +114,10 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
     assert(end_ri >= 0 && end_ri < m_num_rows);
     assert(start_ci >= 0 && start_ci < m_num_cols);
     assert(start_ci >= 0 && start_ci < m_num_cols);
-    //std::cout << start_ri << std::endl;
-    //std::cout << start_ci << std::endl;
-    //std::cout << end_ri << std::endl;
-    //std::cout << end_ci << std::endl;
 
     // Calculate dimensions of sub-matrix
     int submat_num_rows = end_ri - start_ri + 1;
     int submat_num_cols = end_ci - start_ci + 1;
-
-    //std::cout << submat_num_cols << std::endl;
-    //std::cout << submat_num_rows << std::endl;
 
     // Create sub-matrix object to be returned
     Matrix submat(submat_num_rows, submat_num_cols);
@@ -132,13 +125,8 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
     for(int j=0, row = start_ri; row <= end_ri; row++, j++){
         for(int i=0, col = start_ci; col <= end_ci; col++, i++){
             submat[j][i] = m_mat[row][col];
-            //std::cout << m_mat[row][col] << " ";
-            //std::cout << submat[j][i] << "\n";
-            //i++;
         }
-        //j++;
     }
-    //std::cout << "Hello";
 
     return submat;
 
@@ -178,7 +166,7 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
  * 
  * @return Number of rows in this Matrix
  */
-int cpu::Matrix::get_row_num() const{
+int cpu::Matrix::get_num_rows() const{
     return m_num_rows;
 }
 
@@ -187,6 +175,6 @@ int cpu::Matrix::get_row_num() const{
  * 
  * @return Number of columns in this Matrix.
  */
-int cpu::Matrix::get_col_num() const{
+int cpu::Matrix::get_num_cols() const{
     return m_num_cols;
 }

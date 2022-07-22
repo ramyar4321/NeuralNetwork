@@ -57,7 +57,7 @@ void cpu::Dataset::import_dataset(std::string &filename){
 cpu::Matrix cpu::Dataset::X_train_split(){
 
     // Determine indices
-    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
+    int train_size = static_cast<int>( m_dataset.get_num_rows() * m_train_test_ratio );
 
     // Train data consists of all rows from
     // 0th row to (train-1)th row
@@ -66,7 +66,7 @@ cpu::Matrix cpu::Dataset::X_train_split(){
     // train data consists of all columns
     // excluding the outcome column.
     int start_ci = 0;
-    int end_ci = m_dataset.get_col_num() - 2; // Subtract 2 since there is zero indexing of vectors
+    int end_ci = m_dataset.get_num_cols() - 2; // Subtract 2 since there is zero indexing of vectors
 
     Matrix x_train = m_dataset.getSubMatrix(start_ri, end_ri, start_ci, end_ci);
 
@@ -83,16 +83,16 @@ cpu::Matrix cpu::Dataset::X_train_split(){
  * 
  */
 cpu::Matrix cpu::Dataset::X_test_split(){
-    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
+    int train_size = static_cast<int>( m_dataset.get_num_rows() * m_train_test_ratio );
 
     // Train data consists of all rows from
     // train_sizeth row up until the last row.
     int start_ri = train_size;
-    int end_ri = m_dataset.get_row_num() - 1; // Subtract 1 since there is zero indexing of vectors
+    int end_ri = m_dataset.get_num_rows() - 1; // Subtract 1 since there is zero indexing of vectors
     // train data consists of all columns
     // excluding the outcome column.
     int start_ci = 0;
-    int end_ci = m_dataset.get_col_num() - 2; // Subtract 2 since there is zero indexing of vectors
+    int end_ci = m_dataset.get_num_cols() - 2; // Subtract 2 since there is zero indexing of vectors
 
     Matrix x_test = m_dataset.getSubMatrix(start_ri, end_ri, start_ci, end_ci);
 
@@ -109,7 +109,7 @@ cpu::Matrix cpu::Dataset::X_test_split(){
  */
 std::vector<double> cpu::Dataset::y_train_split(){
 
-    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
+    int train_size = static_cast<int>( m_dataset.get_num_rows() * m_train_test_ratio );
 
     int ci = 3; // Index of the outcome y column
     int start_ri = 0;
@@ -132,11 +132,11 @@ std::vector<double> cpu::Dataset::y_train_split(){
  */
 std::vector<double> cpu::Dataset::y_test_split(){
 
-    int train_size = static_cast<int>( m_dataset.get_row_num() * m_train_test_ratio );
+    int train_size = static_cast<int>( m_dataset.get_num_rows() * m_train_test_ratio );
 
     int ci = 3; // Index of the outcome y column
     int start_ri = train_size;
-    int end_ri = m_dataset.get_row_num()-1;
+    int end_ri = m_dataset.get_num_rows()-1;
 
     std::vector<double>  y_test = m_dataset.getCol(ci, start_ri, end_ri);
 

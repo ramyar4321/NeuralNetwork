@@ -321,8 +321,8 @@ void cpu::Testing::test_X_train_split(){
     Matrix train_dataset = dat.X_train_split();
 
     // Actual size of the X train set data
-    unsigned int actual_col_size = train_dataset.get_col_num();
-    unsigned int actual_row_size = train_dataset.get_row_num();
+    unsigned int actual_col_size = train_dataset.get_num_cols();
+    unsigned int actual_row_size = train_dataset.get_num_rows();
  
     // Expected size of the X train set data.
     // The expected number of columns is 3 since
@@ -407,8 +407,8 @@ void cpu::Testing::test_X_test_split(){
     Matrix test_dataset = dat.X_test_split();
 
     // Actual size of the X test set data
-    unsigned int actual_col_size = test_dataset.get_col_num();
-    unsigned int actual_row_size = test_dataset.get_row_num();
+    unsigned int actual_col_size = test_dataset.get_num_cols();
+    unsigned int actual_row_size = test_dataset.get_num_rows();
  
     // Expected size of the X test set data.
     // The expected number of columns is 3 since
