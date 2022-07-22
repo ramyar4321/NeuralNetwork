@@ -598,6 +598,35 @@ void cpu::Testing::test_y_test_split(){
 
 }
 
+/*----------------------------------------------*/
+// Test Matrix methodes
+
+/**
+ * Test the getRow methode of the Matrix class
+ */
+void cpu::Testing::test_getRow(){
+    Matrix mat = {{1,2,3},
+                  {4,5,6},
+                  {7,8,9}};
+
+    // Test to see if first row, considering zero indexing, was retreived.
+    int ri = 1;
+    std::vector<double> actual_results = mat.getRow(ri);
+    std::vector<double> expected_results = {4,5,6};
+
+    // Function pointer to helper function to be used as callback function
+    // when comparing actual and expected values.
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+
+     if ( std::equal(actual_results.begin(), actual_results.end(), expected_results.begin(), f))
+        std::cout << "Test succeeded! getRow methode returned expected results.\n";
+    else
+        std::cout << "Test failed! getROw methode returned unexpected results.\n";
+
+
+
+
+}
 
 /*----------------------------------------------*/
 // Helper methodes.

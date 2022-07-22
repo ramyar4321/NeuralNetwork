@@ -26,7 +26,7 @@ namespace cpu {
                                                                     const unsigned int &layer_j_size);
 
             
-            void fit(std::vector<std::vector<double> > &X);
+            void fit(Matrix &X);
 
             void forward_propegation();
             

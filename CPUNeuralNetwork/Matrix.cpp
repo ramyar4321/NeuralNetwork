@@ -135,15 +135,15 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
 
 /**
  * This methode will return all elements from row index start_ri
- * until row index end_ri for the column at index ci. If start_ri is zero
- * and end_ri is equal to the number of rows in this matrix, then this methode
- * will return the column of the matrix at index ci.Otherwise, it will return 
- * a segment of the column at index ci.
+ * until row index end_ri for the column at index ci. 
  * @param ci       Column index of this matrix corresponding
  * @param start_ri Row index of this matrix corresponding to the first element 
  *                 of the column to be returned.
  * @param end_ri   Row index of this matrix corresponding to the last element 
  *                 of the column to be returned. 
+ * @return If start_ri is zero and end_ri is equal to the number of rows in this matrix, 
+ *         then this methode will return the column of the matrix at index ci.
+ *         Otherwise, it will return a continous segment of the column at index ci. 
  */ 
  std::vector<double> cpu::Matrix::getCol(int ci, int start_ri, int end_ri){
     assert(start_ri >= 0 && start_ri < m_num_rows);
@@ -160,6 +160,22 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
     return col;
  }
 
+/**
+ * Return row of matrix.
+ * 
+ * @param ri Index of the row of this matrix to be returned
+ * 
+ * @return Row of matrix at index ri.
+ */
+std::vector<double> cpu::Matrix::getRow(int ri){
+    std::vector<double> row;
+
+    for(int i; i <= m_num_cols; i++){
+        row.push_back(m_mat[ri][i]);
+    }
+
+    return row;
+}
 
 /**
  * Get the number of rows in this Matrix.

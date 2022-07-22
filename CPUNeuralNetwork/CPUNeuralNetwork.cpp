@@ -30,15 +30,15 @@ cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
 /**
  * Use data to train the neural network.
  */
-void cpu::NeuralNetwork::fit(std::vector<std::vector<double> > &X){
+void cpu::NeuralNetwork::fit(Matrix &X){
 
     m_W1 = weight_initialization(m_input_size, m_layer_p_size);
     m_W2 = weight_initialization(m_layer_p_size, m_layer_q_size );
     m_W3 = weight_initialization(m_layer_q_size, m_layer_r_size);
 
-    for(int i =0; i < X.size(); i++){
+    /*for(int i =0; i < X.size(); i++){
 
-    }
+    }*/
 
     forward_propegation();
 }

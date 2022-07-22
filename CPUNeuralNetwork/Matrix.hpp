@@ -38,6 +38,7 @@ namespace cpu{
 
             Matrix getSubMatrix(int start_ri, int end_ri, int start_ci, int end_ci);
             std::vector<double> getCol(int ci, int start_ri, int end_ri);
+            std::vector<double> getRow(int ri);
 
             int get_num_rows() const;
             int get_num_cols() const;

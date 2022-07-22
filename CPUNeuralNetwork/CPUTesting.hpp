@@ -22,6 +22,9 @@ namespace cpu {
         void test_X_test_split();
         void test_y_train_split();
         void test_y_test_split();
+
+        // Tests methodes for Matrix class
+        void test_getRow();
         
 
         // Helper functions
