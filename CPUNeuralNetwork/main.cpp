@@ -19,6 +19,10 @@ int main(){
     //test.test_y_test_split();
 
     //test.test_getRow();
+    //test.test_getColumn();
+    //test.test_computeMean();
+    //test.test_computeStd();
+    test.test_standardizeMatrix();
 
 
     //cpu::Dataset dat(4, 306, 0.99);

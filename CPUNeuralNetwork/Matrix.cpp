@@ -1,6 +1,9 @@
 #include "Matrix.hpp"
 #include <cassert>
 #include <iostream>
+#include <algorithm>
+#include <numeric>
+#include <math.h>
 
 /**
  * Constructor for Matrix object with number of rows and columns specified. 
@@ -69,6 +72,48 @@ cpu::Matrix& cpu::Matrix::operator=(const Matrix& rhs){
     // Since it will persist after this methode call,
     // dereferencing is safe.
     return *this;
+}
+
+/**
+ * Overload equality operator.
+ * 
+ * Two matrices are equal if and only if
+ * they have the same dimensions and their
+ * corresonding elements are equal.
+ * 
+ * return true if two matrices are equal,
+ *        false otherwise
+ */
+bool cpu::Matrix::operator==(const Matrix& rhs) const{
+
+    bool areEqual = true;
+
+    // Variables to store the element of matrices to be compared
+    double this_val = 0.0;
+    double rhs_val = 0.0;
+
+    // Fixed error for comparison between two given values
+    constexpr double epsilon = 0.01; 
+
+    //Check if the dimensions of the two matrices are equal
+    if( this->m_num_rows != rhs.get_num_rows() ||
+        this->m_num_cols != rhs.get_num_cols()){
+            areEqual = false;
+    }else{
+        // Check if corresponding elements of the two matracies are equal
+        for (int j = 0; j < this->m_num_rows; j++){
+            for(int i = 0; i < this->m_num_cols; i++){
+                this_val = this->m_mat[j][i];
+                rhs_val = rhs[j][i];
+                if(!(std::abs(this_val - rhs_val) < epsilon)){
+                    areEqual = false;
+                }
+            }
+        }
+    }
+
+    return areEqual;
+
 }
 
 /**
@@ -153,28 +198,148 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
 
     std::vector<double> col;
 
-    for(int j= start_ri; j <= end_ri; j++){
+    for(int j= start_ri; j < end_ri; j++){
         col.push_back(m_mat[j][ci]);
     }
 
     return col;
  }
 
+ /**
+  * Return column of matrix
+  * 
+  * @param ci Index of the column of this matrix to be returned
+  * 
+  * @return Column of matrix
+  * 
+  */
+std::vector<double> cpu::Matrix::getCol(int ci){
+    std::vector<double> col(m_num_rows);
+
+    for(int j = 0; j < m_num_rows; j++){
+        col[j] = m_mat[j][ci];
+    }
+
+    return col;
+}
+
+
 /**
  * Return row of matrix.
  * 
  * @param ri Index of the row of this matrix to be returned
  * 
- * @return Row of matrix at index ri.
+ * @return Row of matrix.
  */
 std::vector<double> cpu::Matrix::getRow(int ri){
-    std::vector<double> row;
+    std::vector<double> row(m_num_cols);
+    //row.reserve(m_num_cols);
 
-    for(int i; i <= m_num_cols; i++){
-        row.push_back(m_mat[ri][i]);
+    for(int i = 0; i < m_num_cols; i++){
+        row[i] = m_mat[ri][i];
     }
 
     return row;
+}
+
+/**
+ * Compute the mean of values from a given column.
+ * 
+ * @param ci Column index for the column of interest from this matrix
+ * 
+ * @return mean computed for the values from the given column
+ */
+double cpu::Matrix::computeMean(int& ci){
+    std::vector<double> col = getCol(ci);
+
+    double sum = std::accumulate(col.begin(), col.end(), 0.0);
+    double mean = sum/col.size();
+
+    return mean;
+}
+
+/**
+ * Compute the sample standard deviation for the values
+ * in a given column. Standard deviation will be computed as such
+ * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j - \overline{x})}{{n_J}-1}}$
+ * where @f$n_J$ is the size of the given column, @f$x_j$ is an element in the 
+ * given column, and @f$\overline{x}$ is the mean of for the given column.
+ * 
+ * Note, that computing the Standard deviation using the following formula
+ * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j)^2}{{n_J}-1}} -\overline{x}^2$
+ * is more prone to overflow or underflow, thus it will not be used here.
+ * 
+ * @param col A given column from a matrix.
+ * 
+ * @return Standard deviation for the given column
+ */
+double cpu::Matrix::computeStd(int& ci){
+    std::vector<double> col = getCol(ci);
+
+    double mean  = computeMean(ci);
+
+    double accum = 0.0;
+    std::for_each(col.begin(), col.end(), [&](const double x) {
+    accum += (x - mean) * (x - mean);
+    });
+
+    double std = sqrt(accum/(col.size() -1));
+
+    return std;
+}
+
+/**
+ * Compute the sample standard deviation for the values
+ * in a given column. Standard deviation will be computed as such
+ * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j - \overline{x})}{{n_J}-1}}$
+ * where @f$n_J$ is the size of the given column, @f$x_j$ is an element in the 
+ * given column, and @f$\overline{x}$ is the mean of for the given column.
+ * 
+ * Note, that computing the Standard deviation using the following formula
+ * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j)^2}{{n_J}-1}} -\overline{x}^2$
+ * is more prone to overflow or underflow, thus it will not be used here.
+ * 
+ * @param col AThe column for which we want the standard deviation
+ * @param mean The column for which we want the mean
+ * 
+ * @return Standard deviation for the given column
+ */
+double cpu::Matrix::computeStd(int& ci, double& mean){
+    std::vector<double> col = getCol(ci);
+
+    double accum = 0.0;
+    std::for_each(col.begin(), col.end(), [&](const double x) {
+    accum += (x - mean) * (x - mean);
+    });
+
+    double std = sqrt(accum/(col.size() -1));
+
+    return std;
+}
+
+/**
+ * Rescale the data to have a mean of 0 and standard deviation of 1.
+ * More percisely, compute the z-score for each element of the matrix.
+ * 
+ * @return A matrix containing the z-score for each element of this matrix
+ * 
+ */
+cpu::Matrix cpu::Matrix::standardizeMatrix(){
+    double col_mean = 0.0;
+    double col_std= 0.0;
+
+    Matrix stand_mat(this->m_num_rows, this->m_num_cols);
+
+    for(int i=0; i < this->m_num_cols; i++){
+        col_mean = this->computeMean(i);
+        col_std = this->computeStd(i);
+        for(int j=0; j < this->m_num_rows; j++){
+            stand_mat[j][i] = (static_cast<double>(m_mat[j][i]) - col_mean)/col_std;
+        }
+    }
+
+    return stand_mat;
+
 }
 
 /**

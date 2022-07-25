@@ -598,6 +598,96 @@ void cpu::Testing::test_y_test_split(){
 
 }
 
+/**
+ * This methode tests the computeMean methode 
+ * of the matrix clas.
+ */
+void cpu::Testing::test_computeMean(){
+    // Matrix used for testing
+    Matrix mat = {{1,2,3},
+                  {4,5,6},
+                  {7,8,9}};
+
+    int ci = 0;
+
+    // Test to see if zeroth column, considering zero indexing, mean was correctly computed.
+    double actual_result= mat.computeMean(ci);
+    double expected_result = 4;
+
+    // Function pointer to helper function to be used as callback function
+    // when comparing actual and expected values.
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+
+     if ( areFloatEqual(actual_result, expected_result))
+        std::cout << "Test succeeded! computeMean methode returned expected results.\n";
+    else
+        std::cout << "Test failed! computeMean methode returned unexpected results.\n";
+
+    
+}
+
+/**
+ * This methode will test both overload computeStd methodes.
+ * There will be two tests, one for each overload methode.
+ */
+void cpu::Testing::test_computeStd(){
+
+    // Matrix used for testing
+    Matrix mat = {{1,2,3},
+                  {4,5,6},
+                  {7,8,9}};
+
+    int ci = 0;
+
+    // Test to determine if both computeStd methodes
+    // compute the correct Standard deviation for the zeroth column.
+    double actual_result1= mat.computeStd(ci);
+
+    double mean  = mat.computeMean(ci);
+    double actual_result2 = mat.computeStd(ci, mean);
+    
+    double expected_result = 3;
+
+    // Function pointer to helper function to be used as callback function
+    // when comparing actual and expected values.
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+
+     if ( areFloatEqual(actual_result1, expected_result))
+        std::cout << "Test succeeded! computeStd(ci) methode returned expected results.\n";
+    else
+        std::cout << "Test failed! computeStd(ci) methode returned unexpected results.\n";
+        if ( areFloatEqual(actual_result2, expected_result))
+        std::cout << "Test succeeded! computeStd(ci, mean) methode returned expected results.\n";
+    else
+        std::cout << "Test failed! computeStd(ci, mean) methode returned unexpected results.\n";
+
+}
+
+void cpu::Testing::test_standardizeMatrix(){
+    
+    Matrix mat = {{1,2,3},  // Matrix used for testing
+                  {4,5,6},
+                  {7,8,9},
+                  {10,11,12}};
+
+    Matrix actual_result = mat.standardizeMatrix();
+
+    Matrix expected_result = {{-1.1619,-1.1619,-1.1619},
+                              {-0.387298,-0.387298,-0.387298},
+                              {0.387298,0.387298,0.387298},
+                              {1.1619,1.1619,1.1619}};
+
+
+    // Test if standardizeMatrix produced expected output.
+    if ( actual_result == expected_result)
+        std::cout << "Test succeeded! standardizeMatrix methode returned expected results.\n";
+    else
+        std::cout << "Test failed! standardizeMatrix methode returned unexpected results.\n";
+
+
+                  
+}
+
 /*----------------------------------------------*/
 // Test Matrix methodes
 
@@ -605,6 +695,7 @@ void cpu::Testing::test_y_test_split(){
  * Test the getRow methode of the Matrix class
  */
 void cpu::Testing::test_getRow(){
+    // Matrix used for testing
     Matrix mat = {{1,2,3},
                   {4,5,6},
                   {7,8,9}};
@@ -623,7 +714,46 @@ void cpu::Testing::test_getRow(){
     else
         std::cout << "Test failed! getROw methode returned unexpected results.\n";
 
+}
 
+/**
+ * This methode will test both overload getColumn methodes.
+ * There will be two tests, one for each overload methode.
+ */
+void cpu::Testing::test_getColumn(){
+    
+    //Matrix used for testing
+    Matrix mat = {{1,2,3,4},
+                  {5,6,7,8},
+                  {9,10,11,12},
+                  {13,14,15,16}};
+
+    // Test if the first column, considering zero indexing, was retreived
+    int ci = 1;
+
+    int start_ri = 0;
+    int end_ri = 2;
+    std::vector<double> actual_results1 = mat.getCol(ci, start_ri, end_ri);
+    std::vector<double> expected_results1 = {2,6,10};
+
+    
+    std::vector<double> actual_results2 = mat.getCol(ci);
+    std::vector<double> expected_results2 = {2,6,10,14};
+
+    // Function pointer to helper function to be used as callback function
+    // when comparing actual and expected values.
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+
+     if ( std::equal(actual_results1.begin(), actual_results1.end(), expected_results1.begin(), f))
+        std::cout << "Test succeeded! getCol(ci, start_ri, end_ri) methode returned expected results.\n";
+    else
+        std::cout << "Test failed! getCol(ci, start_ri, end_ri) methode returned unexpected results.\n";
+
+    if ( std::equal(actual_results2.begin(), actual_results2.end(), expected_results2.begin(), f))
+        std::cout << "Test succeeded! getCol(ci) methode returned expected results.\n";
+    else
+        std::cout << "Test failed! getCol(ci) methode returned unexpected results.\n";
+    
 
 
 }
