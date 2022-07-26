@@ -37,10 +37,10 @@ namespace cpu{
             const std::vector<double>& operator[](const int &input) const;
             std::vector<double>& operator[](const int &input);
 
-            Matrix getSubMatrix(int start_ri, int end_ri, int start_ci, int end_ci);
-            std::vector<double> getCol(int ci, int start_ri, int end_ri);
-            std::vector<double> getCol(int ci);
-            std::vector<double> getRow(int ri);
+            Matrix getSubMatrix(int& start_ri, int& end_ri, int& start_ci, int& end_ci);
+            std::vector<double> getCol(int& ci, int& start_ri, int& end_ri);
+            std::vector<double> getCol(int& ci);
+            std::vector<double> getRow(int& ri);
 
             Matrix standardizeMatrix();
 

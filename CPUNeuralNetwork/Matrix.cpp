@@ -152,7 +152,7 @@ std::vector<double>& cpu::Matrix::operator[](const int &input) {
  * @return A sub-matrix containing a block of entries of the original matrix.
  * 
  */
-cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, int end_ci){
+cpu::Matrix cpu::Matrix::getSubMatrix(int& start_ri, int& end_ri, int& start_ci, int& end_ci){
 
     // Assert that Matrix indices are withing the dimensions of this Matrix
     assert(start_ri >= 0 && start_ri < m_num_rows);
@@ -190,16 +190,18 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
  *         then this methode will return the column of the matrix at index ci.
  *         Otherwise, it will return a continous segment of the column at index ci. 
  */ 
- std::vector<double> cpu::Matrix::getCol(int ci, int start_ri, int end_ri){
+ std::vector<double> cpu::Matrix::getCol(int& ci, int& start_ri, int& end_ri){
     assert(start_ri >= 0 && start_ri < m_num_rows);
     assert(end_ri >= 0 && end_ri < m_num_rows);
     assert(ci >= 0 && ci < m_num_cols);
 
+    int col_size = end_ri -start_ri +1;
 
-    std::vector<double> col;
 
-    for(int j= start_ri; j < end_ri; j++){
-        col.push_back(m_mat[j][ci]);
+    std::vector<double> col(col_size);
+
+    for(int j= 0, row_i = start_ri; row_i <= end_ri; j++, row_i++){
+        col[j] = m_mat[row_i][ci];
     }
 
     return col;
@@ -213,10 +215,10 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int start_ri, int end_ri, int start_ci, in
   * @return Column of matrix
   * 
   */
-std::vector<double> cpu::Matrix::getCol(int ci){
+std::vector<double> cpu::Matrix::getCol(int& ci){
     std::vector<double> col(m_num_rows);
 
-    for(int j = 0; j < m_num_rows; j++){
+    for(int j = 0 ; j < m_num_rows; j++){
         col[j] = m_mat[j][ci];
     }
 
@@ -231,7 +233,7 @@ std::vector<double> cpu::Matrix::getCol(int ci){
  * 
  * @return Row of matrix.
  */
-std::vector<double> cpu::Matrix::getRow(int ri){
+std::vector<double> cpu::Matrix::getRow(int& ri){
     std::vector<double> row(m_num_cols);
     //row.reserve(m_num_cols);
 

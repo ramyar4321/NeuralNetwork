@@ -21,10 +21,10 @@ void cpu::Testing::test_compute_outputs(){
     // Declare and initialize variables that will be used as
     // input the compute_outputs methode.
 
-    unsigned int input_size = 1;
-    unsigned int layer_p_size = 2;
-    unsigned int layer_q_size = 2;
-    unsigned int layer_r_size = 1;
+
+    int layer_p_size = 2;
+    int layer_q_size = 2;
+
 
     // Note, the weights and outputs initialized do not correspond to actual
     // neuron weights and outputs from forward and back propegations. 
@@ -52,13 +52,13 @@ void cpu::Testing::test_compute_outputs(){
     std::vector<double> expected_z3 = {74.8f};
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(input_size,layer_p_size,layer_q_size,layer_r_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
 
     // Use mock inputs to test if methode produces expected results
 
-    std::vector<double> actual_z1 = net.compute_outputs(W1, x, input_size, layer_p_size);
-    std::vector<double> actual_z2 = net.compute_outputs(W2, a1, layer_p_size, layer_q_size);
-    std::vector<double> actual_z3 = net.compute_outputs(W3, a2, layer_q_size, layer_r_size);
+    std::vector<double> actual_z1 = net.compute_outputs(W1, x);
+    std::vector<double> actual_z2 = net.compute_outputs(W2, a1);
+    std::vector<double> actual_z3 = net.compute_outputs(W3, a2);
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
@@ -91,10 +91,8 @@ void cpu::Testing::test_relu_activation(){
     // Declare and initialize variables that will be used as
     // input the relu_activation methode.
 
-    unsigned int input_size = 1;
-    unsigned int layer_p_size = 2;
-    unsigned int layer_q_size = 2;
-    unsigned int layer_r_size = 1;
+    int layer_p_size = 2;
+    int layer_q_size = 2;
 
     std::vector<double> z1 = {2.28f, 4.19f};
     std::vector<double> z2 = {-2.28f, -4.19f};
@@ -107,11 +105,11 @@ void cpu::Testing::test_relu_activation(){
     std::vector<double> expected_a2 = {0.0f, 0.0f}; 
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(input_size,layer_p_size,layer_q_size,layer_r_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
 
     // Use mock inputs to test if methode produces expected results
-    std::vector<double> actual_a1 = net.relu_activation(z1, layer_p_size);
-    std::vector<double> actual_a2 = net.relu_activation(z2, layer_q_size);
+    std::vector<double> actual_a1 = net.relu_activation(z1);
+    std::vector<double> actual_a2 = net.relu_activation(z2);
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
@@ -141,10 +139,9 @@ void cpu::Testing::test_sigmoid_activation(){
     // Declare and initialize variables that will be used as
     // input the sigmoid_activation methode.
 
-    unsigned int input_size = 1;
-    unsigned int layer_p_size = 2;
-    unsigned int layer_q_size = 2;
-    unsigned int layer_r_size = 1;
+
+    int layer_p_size = 2;
+    int layer_q_size = 2;
 
     double z_1 = 3.3;
     double z_2 = -3.3;
@@ -161,7 +158,7 @@ void cpu::Testing::test_sigmoid_activation(){
     double expected_a_3 = 0.5;
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(input_size,layer_p_size,layer_q_size,layer_r_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
 
     // Use mock inputs to test if methode produces expected results
     double actual_a_1 = net.sigmoid_activation(z_1);
@@ -206,10 +203,9 @@ void cpu::Testing::test_compute_loss(){
     // Declare and initialize variables that will be used as
     // input the sigmoid_activation methode.
 
-    unsigned int input_size = 1;
-    unsigned int layer_p_size = 2;
-    unsigned int layer_q_size = 2;
-    unsigned int layer_r_size = 1;
+    int layer_p_size = 2;
+    int layer_q_size = 2;
+
 
     double y_1 = 1.0;
     double a_1 = 0.0;
@@ -223,7 +219,7 @@ void cpu::Testing::test_compute_loss(){
     float expected_loss = 9.21; // Expected loss for both tests.
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(input_size,layer_p_size,layer_q_size,layer_r_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
 
     // Use mock inputs to test if methode produces expected results
     float actual_loss_1 = net.compute_loss(y_1, a_1);

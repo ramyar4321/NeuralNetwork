@@ -5,14 +5,8 @@
 /**
  * Initialize Neural Network memeber variables.
  */
-cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
-                                  unsigned int layer_p_size,
-                                  unsigned int layer_q_size,
-                                  unsigned int layer_r_size):
-                                  m_input_size(input_size),
-                                  m_layer_p_size(layer_p_size),
-                                  m_layer_q_size(layer_q_size),
-                                  m_layer_r_size(layer_r_size),
+cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
+                                  int layer_q_size):
                                   m_z1(layer_p_size, 0.0),
                                   m_z2(layer_q_size, 0.0),
                                   m_z3(0.0),
@@ -22,59 +16,96 @@ cpu::NeuralNetwork::NeuralNetwork(unsigned int input_size,
                                   // Initialize weights of the neural network to be zeros.
                                   // Later on, the weights will be re-initialized using a more 
                                   // sophicticated methode.
-                                  m_W1(layer_p_size, input_size),
+                                  m_W1(layer_p_size, 3),
                                   m_W2(layer_q_size, layer_p_size),
-                                  m_W3(layer_r_size, layer_q_size)
+                                  m_W3(layer_q_size)
 {}
 
 /**
  * Use data to train the neural network.
+ * 
+ * @param X_train_stand The X train dataset used to train the Neural Network.
+ *                      The X train dataset is assumed to be z-score standardized.
+ * @param y_train       The y train dataset used to train the Neural Network.
+ *                      The y train dataset is assumed to have values of 0 or 1.
  */
-void cpu::NeuralNetwork::fit(Matrix &X){
+void cpu::NeuralNetwork::fit(Matrix &X_train_stand, std::vector<double>& y_train){
 
-    m_W1 = weight_initialization(m_input_size, m_layer_p_size);
-    m_W2 = weight_initialization(m_layer_p_size, m_layer_q_size );
-    m_W3 = weight_initialization(m_layer_q_size, m_layer_r_size);
+    weight_initialization(m_W1);
+    weight_initialization(m_W2);
+    weight_initialization(m_W3);
 
-    /*for(int i =0; i < X.size(); i++){
+    for (int j=0; j < X_train_stand.get_num_rows(); j++){
+        this->m_x = X_train_stand.getRow(j);
 
-    }*/
-
-    forward_propegation();
-}
-
-void cpu::NeuralNetwork::forward_propegation(){
-    
+        this->forward_propegation();
+    }
 }
 
 /**
- * Initialize the weigths of the neural network to random values that come
+ * Perform forward propegation.
+ * 
+ * TODO currently implementation 
+ * has unnessesary copying of vectors.
+ */
+void cpu::NeuralNetwork::forward_propegation(){
+    m_z1 = compute_outputs(m_W1, m_x);
+    m_a1 = relu_activation(m_z1);
+
+    m_z2 = compute_outputs(m_W2, m_a1);
+    m_a2 = relu_activation(m_z2);
+
+    m_z3 = computeOutputLastLayer(m_W3, m_a2);
+    m_a3 = sigmoid_activation(m_z3);
+}
+
+/**
+ * Initialize the weigths of the layer to random values that come
  * from a Gaussian Distribtuion centered at 0 with standard deviations of 
  * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
  * 
- * @param layer_i_size The number of neurons in layer I.
- * @param layer_j_size The number of neurons in layer J.
- * 
- * @return W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
+ * @param W The matrix that contains the weigths connecting 
+ *          the neurons of layer I to the neurons of layer J.
  * 
  */
-cpu::Matrix cpu::NeuralNetwork::weight_initialization(const unsigned int &layer_i_size, 
-                                                        const unsigned int &layer_j_size)
+void cpu::NeuralNetwork::weight_initialization(cpu::Matrix& W)
 {
 
-    cpu::Matrix W(layer_j_size, layer_i_size);
 
     std::mt19937 generator;
     double mean = 0.0f;
-    double stddev = std::sqrt(1 / static_cast<double>(layer_i_size) ); 
+    double stddev = std::sqrt(1 / static_cast<double>(W.get_num_cols()) ); 
     std::normal_distribution<double> normal(mean, stddev);
-    for (unsigned int j=0; j<layer_j_size; ++j) {
-        for (unsigned int i=0; i<layer_i_size; ++i) {
+    for (unsigned int j=0; j< W.get_num_rows(); ++j) {
+        for (unsigned int i=0; i< W.get_num_cols(); ++i) {
             W[j][i] = normal(generator);
         }
     } 
 
-    return W;
+}
+
+/**
+ * Initialize the weigths of the layer to random values that come
+ * from a Gaussian Distribtuion centered at 0 with standard deviations of 
+ * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
+ * 
+ * @param W The vector that contains the weigths connecting 
+ *          the neurons of layer I to the neuron of the last layer.
+ * 
+ */
+void cpu::NeuralNetwork::weight_initialization(std::vector<double>& W)
+{
+
+
+    std::mt19937 generator;
+    double mean = 0.0f;
+    double stddev = std::sqrt(1 / static_cast<double>(W.size()) ); 
+    std::normal_distribution<double> normal(mean, stddev);
+    for (unsigned int i=0; i< W.size(); ++i) {
+        W[i] = normal(generator);
+    }
+
+
 }
 
 /**
@@ -83,28 +114,45 @@ cpu::Matrix cpu::NeuralNetwork::weight_initialization(const unsigned int &layer_
  * @f$z_j = \sum_{i}^I w_{ji} a_i$ where @f$a_i$ is the output of neuron i
  * from the pervious layer I.
  * 
- * @param W The matrix that contains the weigths connecting the neurons of layer I to the neurons of layer J.
+ * @param W The matrix that contains the weigths connecting the neurons of layer I 
+ *          to the neurons of layer J.
  * @param a The vector that contains the activations of each neuron in layer I
- * @param layer_i_size The number of neurons in layer I.
- * @param layer_j_size The number of neurons in layer J.
  * 
  * @return z The vector that contains the output of each neuron in layer J
  * 
  */
 std::vector<double> cpu::NeuralNetwork::compute_outputs(const cpu::Matrix &W, 
-                                                       const std::vector<double> &a,  
-                                                       const unsigned int &layer_i_size, 
-                                                       const unsigned int &layer_j_size)
+                                                       const std::vector<double> &a)
 {
-    std::vector<double> z(layer_j_size, 0.0f);
+    std::vector<double> z(W.get_num_rows(), 0.0f);
 
-    for (unsigned int j=0; j<layer_j_size; j++) {
-        for (unsigned int i=0; i<layer_i_size; i++) {
+    for (unsigned int j=0; j< W.get_num_rows(); j++) {
+        for (unsigned int i=0; i< W.get_num_cols(); i++) {
             z[j] += W[j][i] * a[i];
         }
     } 
 
     return z;
+}
+
+/**
+ * This function computes the output of the neuron
+ * in the last layer of the neural network. 
+ * The output for such a neuron can be computed as follows 
+ * @f$z = \sum_{i}^I w_{i} a_i$ where @f$a_i$ is the output of neuron i
+ * from the pervious layer I.
+ */
+double cpu::NeuralNetwork::computeOutputLastLayer(const std::vector<double> &W, 
+                                           const std::vector<double> &a){
+
+    double z;
+
+    for (unsigned int i=0; i< W.size(); i++) {
+        z += W[i] * a[i];
+    }
+
+    return z;
+
 }
 
 /**
@@ -114,18 +162,16 @@ std::vector<double> cpu::NeuralNetwork::compute_outputs(const cpu::Matrix &W,
  * hidden layers of the neural network.
  * 
  * @param z The vector that contains the output of each neuron in layer J
- * @param layer_j_size The number of neurons in layer J.
  * 
  * @return a The vector that contains the activations of each neuron in layer J
  * 
  */
-std::vector<double> cpu::NeuralNetwork::relu_activation(const std::vector<double> &z,
-                                                        const unsigned int &layer_j_size)
+std::vector<double> cpu::NeuralNetwork::relu_activation(const std::vector<double> &z)
 
 {
-    std::vector<double> a(layer_j_size, 0.0f); 
+    std::vector<double> a(z.size(), 0.0f); 
 
-    for (unsigned int j=0; j<layer_j_size; j++) {
+    for (unsigned int j=0; j<z.size(); j++) {
         if(z[j] > 0.0f ){
             a[j] = z[j];
         }else{
@@ -163,6 +209,8 @@ double cpu::NeuralNetwork::sigmoid_activation(const double &z)
         a = std::exp(z) / (1.0f + std::exp(z));
     }
 
+    std::cout << a << std::endl;
+
     return a;
 }
 
@@ -177,7 +225,6 @@ double cpu::NeuralNetwork::sigmoid_activation(const double &z)
  * @param a The vector that contains the activations of each neuron in layer J
  *          where J is the output layer. In this case, a is the perdicted 
  *          outcome of the neural network.
- * @param layer_j_size The number of neurons in layer J.
  * 
  * @return entropy loss 
  * 
