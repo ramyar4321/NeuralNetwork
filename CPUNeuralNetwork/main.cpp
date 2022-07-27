@@ -35,6 +35,7 @@ int main(){
     test.test_computeMean();
     test.test_computeStd();
     test.test_standardizeMatrix();
+    test.test_setValue();
 
     //cpu::Dataset dat(4, 306, 0.99);
     //dat.X_train_split();

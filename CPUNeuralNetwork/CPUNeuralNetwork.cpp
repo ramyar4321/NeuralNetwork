@@ -209,8 +209,6 @@ double cpu::NeuralNetwork::sigmoid_activation(const double &z)
         a = std::exp(z) / (1.0f + std::exp(z));
     }
 
-    std::cout << a << std::endl;
-
     return a;
 }
 

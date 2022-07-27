@@ -23,12 +23,15 @@ namespace cpu {
         void test_y_train_split();
         void test_y_test_split();
 
-        void test_computeMean();
-        void test_computeStd();
-        void test_standardizeMatrix();
+        void test_setValue();
+
+
 
 
         // Tests methodes for Matrix class
+        void test_computeMean();
+        void test_computeStd();
+        void test_standardizeMatrix();
         void test_getRow();
         void test_getColumn();
         

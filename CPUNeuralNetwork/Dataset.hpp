@@ -23,7 +23,8 @@ namespace cpu{
             std::vector<double> y_train_split();
             std::vector<double> y_test_split(); 
 
-            Matrix standardizeDataset();
+            //Matrix standardizeDataset();
+            void setValues(std::vector<double>& y);
 
             Matrix get_dataet();
 

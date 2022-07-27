@@ -595,8 +595,36 @@ void cpu::Testing::test_y_test_split(){
 }
 
 /**
+ * This methode tests the setValue methode of the Dataset class.
+ */
+void cpu::Testing::test_setValue(){
+
+    // Instantiated Dataset object.
+    // The parameters are not important. We smiply
+    // need an object to access the setValue methode.
+    cpu::Dataset dat(4, 306,0.99);
+
+    std::vector<double> y_actual = {2,1,2,1};
+
+    std::vector<double> y_expect = {1,0,1,0};
+
+    dat.setValues(y_actual);
+
+    // Function pointer to helper function to be used as callback function
+    // when comparing actual and expected values.
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+
+    // Test of setValue returned expected results.
+    if ( std::equal(y_actual.begin(), y_actual.end(), y_expect.begin(),f))
+        std::cout << "Test succeeded! setValue methode returned expected results.\n";
+    else
+        std::cout << "Test failed! setValue methode returned unexpected results.\n";
+
+}
+
+/**
  * This methode tests the computeMean methode 
- * of the matrix clas.
+ * of the Matrix clas.
  */
 void cpu::Testing::test_computeMean(){
     // Matrix used for testing

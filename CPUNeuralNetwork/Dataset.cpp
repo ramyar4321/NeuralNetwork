@@ -147,7 +147,24 @@ std::vector<double> cpu::Dataset::y_test_split(){
 
 }
 
+/**
+ * The y vector holding the outcomes of the Haberman dataset have 
+ * values of 1 and 2. Since the sigmoid activation of the output neuron
+ * has values between 0 and 1, it would be best to setValues of the
+ * y vector to values of 0 and 1. That is, this methode will set
+ * value of 1 to 0 and value 2 to 1 for the y vector holding the outcomes.
+ * This will be done inplace since there is no need, for now, to make
+ * waseful copies.
+ * 
+ * @param y A reference to the y vector storing the outcomes.
+ * 
+ */
+void cpu::Dataset::setValues(std::vector<double>& y){
 
+    std::replace(y.begin(), y.end(), 1, 0);
+    std::replace(y.begin(), y.end(), 2, 1);
+
+}
 
 
 /**
