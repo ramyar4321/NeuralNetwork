@@ -25,7 +25,6 @@ namespace cpu {
             void weight_initialization( Matrix& W);
             void weight_initialization( std::vector<double>& W);
 
-            
             void fit(Matrix &X_train_stand, std::vector<double>& y_train);
 
             void forward_propegation();
@@ -38,6 +37,10 @@ namespace cpu {
             std::vector<double> relu_activation(const std::vector<double> &z);
 
             double sigmoid_activation(const double &z);
+
+            std::vector<double> perdict(Matrix &X_test_stand, const double& threeshold);
+
+            double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 
             double compute_loss(const double &y, 
                                 const double &a);

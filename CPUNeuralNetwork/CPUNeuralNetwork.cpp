@@ -213,6 +213,75 @@ double cpu::NeuralNetwork::sigmoid_activation(const double &z)
 }
 
 /**
+ * Make perdictions from the given z-score standardized test data.
+ * The perdictions are made as follows.
+ *      1. Iterate through the dataset.
+ *      2. For each sample in the test set, perform forward propegation.
+ *      3. Take the output m_a3 of the sigmoid activivation from the last layer
+ *         can convert the value to 0 or 1 based of the given threeshold
+ *         which will the perdiction for that given sample.
+ *      4. Store the prediction in y_pred array. 
+ * 
+ * @param X_test_stand z-score standardized test data.
+ * @param threeshold If m_a2 > threeshold, then the prediction is 1.
+ *                   Otherwise, the prediction is 0.
+ * 
+ * @return A vector with predictions for each corresponding sample of
+ *         X_test_stand.
+ * 
+ */
+std::vector<double> cpu::NeuralNetwork::perdict( Matrix &X_test_stand, const double& threeshold){
+    
+    std::vector<double> y_pred(X_test_stand.get_num_rows());
+
+
+    for (int j=0; j < X_test_stand.get_num_rows(); j++){
+        this->m_x = X_test_stand.getRow(j);
+
+        this->forward_propegation();
+
+        if(m_a3 > threeshold){
+            y_pred[j] = 1.0;
+        }else{
+            y_pred[j] = 0.0;
+        }
+    }
+
+    return y_pred;
+}
+
+/**
+ * 
+ * Compute the accuracy of the model using the following formula
+ * @f$accuracy = \frac{correct predictions}{ total number of perdictions}$
+ * 
+ * @param y_pred The vector holding the perdictions of the model for every test sample
+ * @param y_test The vector holding the true outcome for every test sample.
+ * 
+ * Assumption: y_pred and y_test are of the same size.
+ * 
+ * @return The accuracy score.
+ * 
+ */
+double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test){
+    double accuracy = 0.0;
+
+    for (int j=0; j < y_test.size(); j++){
+        if(y_pred[j] == y_test[j]){
+            accuracy++;
+        }
+    }
+
+    std::cout << accuracy << std::endl;
+
+    std::cout << y_test.size() << std::endl;
+
+    accuracy = accuracy/static_cast<double>(y_test.size());
+
+    return accuracy;
+}
+
+/**
  * 
  * Compute the loss of the neural network using the 
  * Corss-Entropy loss function.
