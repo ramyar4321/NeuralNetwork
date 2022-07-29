@@ -161,9 +161,9 @@ void cpu::Testing::test_sigmoid_activation(){
     cpu::NeuralNetwork net(layer_p_size,layer_q_size);
 
     // Use mock inputs to test if methode produces expected results
-    double actual_a_1 = net.sigmoid_activation(z_1);
-    double actual_a_2 = net.sigmoid_activation(z_2);
-    double actual_a_3 = net.sigmoid_activation(z_3);
+    double actual_a_1 = net.sigmoid(z_1);
+    double actual_a_2 = net.sigmoid(z_2);
+    double actual_a_3 = net.sigmoid(z_3);
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
@@ -222,8 +222,8 @@ void cpu::Testing::test_compute_loss(){
     cpu::NeuralNetwork net(layer_p_size,layer_q_size);
 
     // Use mock inputs to test if methode produces expected results
-    float actual_loss_1 = net.compute_loss(y_1, a_1);
-    float actual_loss_2 = net.compute_loss(y_2, a_2);
+    float actual_loss_1 = net.bceLoss(y_1, a_1);
+    float actual_loss_2 = net.bceLoss(y_2, a_2);
 
     if ( areFloatEqual(expected_loss, actual_loss_1))
         std::cout << "First test succeeded for the entropy loss methode.\n";

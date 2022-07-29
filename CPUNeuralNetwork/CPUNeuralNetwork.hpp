@@ -36,13 +36,16 @@ namespace cpu {
 
             std::vector<double> relu_activation(const std::vector<double> &z);
 
-            double sigmoid_activation(const double &z);
+            double sigmoid(const double& z);
+            double sigmoidPrime(const double& z);
 
             std::vector<double> perdict(Matrix &X_test_stand, const double& threeshold);
 
             double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 
-            double compute_loss(const double &y, 
+            double bceLoss(const double &y, 
+                                const double &a);                               
+            double bceLossPrime(const double &y, 
                                 const double &a);
 
         private:

@@ -195,12 +195,12 @@ std::vector<double> cpu::NeuralNetwork::relu_activation(const std::vector<double
  * @see https://stackoverflow.com/questions/41800604/need-help-understanding-the-caffe-code-for-sigmoidcrossentropylosslayer-for-mult
  * @see https://stackoverflow.com/questions/40353672/caffe-sigmoidcrossentropyloss-layer-loss-function
  * 
- * @param z The output of the output nueron in the last layer.
+ * @param z The output of the output neuron in the last layer.
  * 
  * @return a The activation of the output neuron.
  * 
  */
-double cpu::NeuralNetwork::sigmoid_activation(const double &z)
+double cpu::NeuralNetwork::sigmoid(const double &z)
 {
     double a = 0.0; 
     if (z >= 0.0f) {
@@ -208,6 +208,21 @@ double cpu::NeuralNetwork::sigmoid_activation(const double &z)
     } else {
         a = std::exp(z) / (1.0f + std::exp(z));
     }
+
+    return a;
+}
+
+/**
+ * Compute the derivative of the sigmoid activiation which can be defined as
+ * @f$\sigma^{'} = \sigma(1-\sigma)$.
+ * 
+ * @param z The output of the output neuron in the last layer.
+ * 
+ * @return a The sigmoid prime activation.
+ */
+double cpu::NeuralNetwork::sigmoidPrime(const double& z){
+
+    double a = sigmoid(z)*(1.0 - sigmoid(z));
 
     return a;
 }
@@ -272,26 +287,42 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
         }
     }
 
-    std::cout << accuracy << std::endl;
-
-    std::cout << y_test.size() << std::endl;
-
     accuracy = accuracy/static_cast<double>(y_test.size());
 
     return accuracy;
 }
 
 /**
+ * Compute the derivative of binary cross entropy loss function
+ * @f$\frac{\partial L}{\partial a} = - \frac{y}{a} + \fra{1-y}{1-a}$.
+ * Since division by zero can cause issues, an small value, called epsilon,
+ * will be added to the denominator terms.
+ * 
+ * @param y The outcomes.
+ * @param a The output of the sigmoid activation neuron.
+ * 
+ * @return The derivative of the cross entropy loss function with
+ *         respect to the signmoid activation a, in other words, f'(z)
+ */
+double bceLossPrime(const double &y, const double &a){
+
+    double loss = 0.0;
+    double epsilon = 0.0001;
+
+    loss += -(y/(a+epsilon)) + ((1-y)/(1-a+epsilon));
+
+    return loss;
+}
+
+/**
  * 
  * Compute the loss of the neural network using the 
- * Corss-Entropy loss function.
+ * Cross-Entropy loss function.
  * 
  * @see https://en.wikipedia.org/wiki/Cross_entropy
  * 
- * @param y The vector that contains the actual outcomes.
- * @param a The vector that contains the activations of each neuron in layer J
- *          where J is the output layer. In this case, a is the perdicted 
- *          outcome of the neural network.
+ * @param y The actual outcomes.
+ * @param a The output of the sigmoid activation neuron.
  * 
  * @return entropy loss 
  * 
@@ -299,7 +330,7 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
  * the result of sigmoid activation.
  * 
  */
-double cpu::NeuralNetwork::compute_loss(const double &y, 
+double cpu::NeuralNetwork::bceLoss(const double &y, 
                                        const double &a){
     double loss = 0.0f;
     // Use epsilon since log of zero is undefined.
