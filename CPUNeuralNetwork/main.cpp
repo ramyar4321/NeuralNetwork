@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(){
-    cpu::NeuralNetwork net(3,3);
+    /*cpu::NeuralNetwork net(3,3);
 
     cpu::Dataset dat(4, 306,0.99);
     std::string filename = "../Data/haberman.data";
@@ -23,27 +23,27 @@ int main(){
     double threeshold = 0.5;
     std::vector<double> y_pred = net.perdict(x_test_stand, threeshold);
     double acc = net.computeAccuracy(y_pred, y_test);
+    */
 
-    std::cout << acc << std::endl;
-
-    /*cpu::Testing test;
-    test.test_compute_outputs();
-    test.test_relu_activation();
-    test.test_sigmoid_activation();
-    test.test_compute_loss();
+    cpu::Testing test;
+    //test.test_compute_outputs();
+    //test.test_relu_activation();
+    //test.test_sigmoid_activation();
+    //test.test_compute_loss();
+    test.test_backPropegationInit();
     
-    test.test_import_dataset();
-    test.test_X_train_split();
-    test.test_X_test_split();
-    test.test_y_train_split();
-    test.test_y_test_split();
+    //test.test_import_dataset();
+    //test.test_X_train_split();
+    //test.test_X_test_split();
+    //test.test_y_train_split();
+    //test.test_y_test_split();
 
-    test.test_getRow();
-    test.test_getColumn();
-    test.test_computeMean();
-    test.test_computeStd();
-    test.test_standardizeMatrix();
-    test.test_setValue();*/
+    //test.test_getRow();
+    //test.test_getColumn();
+    //test.test_computeMean();
+    //test.test_computeStd();
+    //test.test_standardizeMatrix();
+    //test.test_setValue();
 
     //cpu::Dataset dat(4, 306, 0.99);
     //dat.X_train_split();

@@ -18,7 +18,10 @@ cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
                                   // sophicticated methode.
                                   m_W1(layer_p_size, 3),
                                   m_W2(layer_q_size, layer_p_size),
-                                  m_W3(layer_q_size)
+                                  m_W3(layer_q_size),
+                                  m_dLdW1(layer_p_size, 3),
+                                  m_dLdW2(layer_q_size, layer_p_size),
+                                  m_dLdW3(layer_q_size)
 {}
 
 /**
@@ -56,7 +59,7 @@ void cpu::NeuralNetwork::forward_propegation(){
     m_a2 = relu_activation(m_z2);
 
     m_z3 = computeOutputLastLayer(m_W3, m_a2);
-    m_a3 = sigmoid_activation(m_z3);
+    m_a3 = sigmoid(m_z3);
 }
 
 /**
@@ -213,21 +216,6 @@ double cpu::NeuralNetwork::sigmoid(const double &z)
 }
 
 /**
- * Compute the derivative of the sigmoid activiation which can be defined as
- * @f$\sigma^{'} = \sigma(1-\sigma)$.
- * 
- * @param z The output of the output neuron in the last layer.
- * 
- * @return a The sigmoid prime activation.
- */
-double cpu::NeuralNetwork::sigmoidPrime(const double& z){
-
-    double a = sigmoid(z)*(1.0 - sigmoid(z));
-
-    return a;
-}
-
-/**
  * Make perdictions from the given z-score standardized test data.
  * The perdictions are made as follows.
  *      1. Iterate through the dataset.
@@ -293,28 +281,6 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
 }
 
 /**
- * Compute the derivative of binary cross entropy loss function
- * @f$\frac{\partial L}{\partial a} = - \frac{y}{a} + \fra{1-y}{1-a}$.
- * Since division by zero can cause issues, an small value, called epsilon,
- * will be added to the denominator terms.
- * 
- * @param y The outcomes.
- * @param a The output of the sigmoid activation neuron.
- * 
- * @return The derivative of the cross entropy loss function with
- *         respect to the signmoid activation a, in other words, f'(z)
- */
-double bceLossPrime(const double &y, const double &a){
-
-    double loss = 0.0;
-    double epsilon = 0.0001;
-
-    loss += -(y/(a+epsilon)) + ((1-y)/(1-a+epsilon));
-
-    return loss;
-}
-
-/**
  * 
  * Compute the loss of the neural network using the 
  * Cross-Entropy loss function.
@@ -342,4 +308,128 @@ double cpu::NeuralNetwork::bceLoss(const double &y,
 
 
     return loss;
+}
+
+/**
+ * Compute the derivative of binary cross entropy loss function
+ * @f$\frac{\partial L}{\partial a} = - \frac{y}{a} + \fra{1-y}{1-a}$ where
+ * @f$a$ is the output of the output neuron.
+ * Since division by zero can cause numerical issues, a small value, called epsilon,
+ * will be added to the denominator terms.
+ * 
+ * @param y The outcomes.
+ * @param a The output of the sigmoid activation neuron.
+ * 
+ * @return The derivative of the cross entropy loss function with
+ *         respect to the signmoid activation a, in other words, f'(z)
+ */
+double cpu::NeuralNetwork::bceLossPrime(const double &y, const double &a){
+
+    double loss = 0.0;
+    double epsilon = 0.0001;
+
+    loss += -(y/(a+epsilon)) + ((1-y)/(1-a+epsilon));
+
+    return loss;
+}
+
+/**
+ * Compute the derivative of the sigmoid activiation which can be defined as
+ * @f$\sigma^{'} = \sigma(1-\sigma)$.
+ * 
+ * @param z The output of the output neuron in the last layer.
+ * 
+ * @return a The sigmoid prime activation.
+ */
+double cpu::NeuralNetwork::sigmoidPrime(const double& z){
+
+    double a = sigmoid(z)*(1.0 - sigmoid(z));
+
+    return a;
+}
+
+/**
+ * Compute the error term associated with the output neuron j in the last layer.
+ * The error term is commonly referred to as delta and is defined as the following
+ * @f$\delta_j = f'(z)\frac{\partial L}{\partial a} = $
+ * @f$         \sigma^{'}(z) (- \frac{y}{a} + \fra{1-y}{1-a})$
+ * 
+ * This function serves as a helper function for computeGradientInit.
+ * 
+ * @param y The outcomes from the dataset
+ * @param a The activation of the sigmoid neuron
+ * @param z the output of the sigmoid neuron TODO check if this correct.
+ * 
+ * @return The error term associated with the output neuron.
+ */
+double cpu::NeuralNetwork::computeDeltaInit(const double& y,
+                                            const double& a,
+                                            const double& z){
+    double delta = sigmoidPrime(z) * bceLossPrime(y, a);
+
+    return delta;
+}
+
+/**
+ * 
+ * Compute the gradient of the weight between the second hidden layer
+ * and the output layer.
+ * @f$dL/dW = \delta a$
+ * 
+ * @param delta The delta term from the output neuron.
+ * @param a     A vector containing the outputs of the second hidden layer.
+ * 
+ * @return dL/dW 
+ * 
+ */
+std::vector<double> cpu::NeuralNetwork::computeGradientInit(const double& delta,
+                                        const std::vector<double>& a){
+    std::vector<double> dW(a.size()); 
+
+    for(int i =0; i < a.size(); i++){
+        dW[i] = delta*a[i];
+    }
+
+    return dW;
+}
+
+
+cpu::Matrix& cpu::NeuralNetwork::W1(){
+    return m_W1;
+}
+
+
+cpu::Matrix& cpu::NeuralNetwork::W2(){
+    return m_W2;
+}
+
+
+std::vector<double>& cpu::NeuralNetwork::W3(){
+    return m_W3;
+}
+
+void cpu::NeuralNetwork::W1(const Matrix& _W1){
+    this->m_W1 = _W1;
+}
+
+void cpu::NeuralNetwork::W2(const Matrix& _W2){
+    this->m_W2 = _W2;
+}
+
+void cpu::NeuralNetwork::W3(const std::vector<double>& _W3){
+    this->m_W3 = _W3;
+}
+
+const cpu::Matrix& cpu::NeuralNetwork::W1() const{
+    return m_W1;
+}
+
+
+const cpu::Matrix& cpu::NeuralNetwork::W2() const{
+    return m_W2;
+}
+
+
+const std::vector<double>& cpu::NeuralNetwork::W3() const{
+    return m_W3;
 }

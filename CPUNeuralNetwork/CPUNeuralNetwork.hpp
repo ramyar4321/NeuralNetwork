@@ -37,16 +37,42 @@ namespace cpu {
             std::vector<double> relu_activation(const std::vector<double> &z);
 
             double sigmoid(const double& z);
-            double sigmoidPrime(const double& z);
 
             std::vector<double> perdict(Matrix &X_test_stand, const double& threeshold);
 
             double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 
             double bceLoss(const double &y, 
-                                const double &a);                               
+                                const double &a);
+
+            double sigmoidPrime(const double& z);
+                               
             double bceLossPrime(const double &y, 
                                 const double &a);
+
+            double computeDeltaInit(const double& y,
+                                    const double& a,
+                                    const double& z);
+
+            std::vector<double> computeGradientInit(const double& delta,
+                                                    const std::vector<double>& a);
+
+            // Setter methodes
+
+            cpu::Matrix& W1();
+            cpu::Matrix& W2();
+            std::vector<double>& W3();
+
+            void W1(const Matrix& _W1);
+            void W2(const Matrix& _W2);
+            void W3(const std::vector<double>& _W3);
+
+            //Getter methodes
+            const cpu::Matrix& W1() const;
+            const cpu::Matrix& W2() const;
+            const std::vector<double>& W3() const;
+
+                     
 
         private:
 
@@ -63,6 +89,11 @@ namespace cpu {
             // The last layer has only one neuron so an std::vector is unnecessary.
             double m_a3;
 
+            // Store the error terms for each layer
+            std::vector<double> m_delta1;
+            std::vector<double> m_delta2;
+            double m_delta3;
+
             // Maxtrix that will store weights between input layer and first hidden layer
             Matrix m_W1;
             // Maxtrix that will store weights between first hidden layer and second hidden layer.
@@ -70,6 +101,10 @@ namespace cpu {
             // Vector that will store weights between second hidden layer and output layer.
             std::vector<double> m_W3;
 
+            // Store the gradient of the weights for each layer 
+            Matrix m_dLdW1;
+            Matrix m_dLdW2;
+            std::vector<double> m_dLdW3;
 
 
     };

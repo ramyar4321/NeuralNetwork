@@ -138,6 +138,74 @@ std::vector<double>& cpu::Matrix::operator[](const int &input) {
 }
 
 /**
+ * 
+ * Overload addition operator without assigment to allow
+ * scalar element-wise addition to be performed on a Matrix object.
+ * 
+ */
+cpu::Matrix cpu::Matrix::operator+(const double& rhs){
+    cpu::Matrix mat(this->m_num_rows, this->m_num_cols);
+
+    for(int j = 0;  j < this->m_num_rows; j++){
+        for(int i = 0; i < this->m_num_cols; i++){
+            mat[j][i] = this->m_mat[j][i] + rhs;
+        }
+    }
+
+    return mat;
+}
+
+/**
+ * 
+ * Overload subtraction operator without assigment to allow
+ * scalar element-wise subtraction to be performed on a Matrix object.
+ * 
+ */
+cpu::Matrix cpu::Matrix::operator-(const double& rhs){
+    cpu::Matrix mat(this->m_num_rows, this->m_num_cols);
+
+    for(int j = 0;  j < this->m_num_rows; j++){
+        for(int i = 0; i < this->m_num_cols; i++){
+            mat[j][i] = this->m_mat[j][i] - rhs;
+        }
+    }
+
+    return mat;
+}
+
+/**
+ * 
+ * Overload addition operator with assigment to allow
+ * scalar element-wise addition to be performed to this Matrix.
+ * 
+ */
+cpu::Matrix& cpu::Matrix::operator+=(const double& rhs){
+    for(int j = 0;  j < this->m_num_rows; j++){
+        for(int i = 0; i < this->m_num_cols; i++){
+            this->m_mat[j][i] += rhs;
+        }
+    }
+
+    return *this;
+}
+
+/**
+ * 
+ * Overload subtraction operator with assigment to allow
+ * scalar element-wise subtraction to be performed to this Matrix.
+ * 
+ */
+cpu::Matrix& cpu::Matrix::operator-=(const double& rhs){
+    for(int j = 0;  j < this->m_num_rows; j++){
+        for(int i = 0; i < this->m_num_cols; i++){
+            this->m_mat[j][i] -= rhs;
+        }
+    }
+
+    return *this;
+}
+
+/**
  * This methode will produce a submatrix, a block of entries from the original matrix.
  * 
  * @param start_ri The index of the first row of the sub-matrix
@@ -242,6 +310,17 @@ std::vector<double> cpu::Matrix::getRow(int& ri){
     }
 
     return row;
+}
+
+/**
+ * Print the contents of this Matrix.
+ */
+void cpu::Matrix::printMat(){
+    for(int j = 0; j < this->m_num_rows; j++){
+        for(int i = 0; i<this->m_num_cols; i++){
+            std::cout << this->m_mat[i][j] << std::endl;
+        }
+    }
 }
 
 /**

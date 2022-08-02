@@ -237,6 +237,51 @@ void cpu::Testing::test_compute_loss(){
 
 }
 
+/**
+ * 
+ * This methode tests both the computeDeltaInit
+ * and computeGradientInit. That is, this if the correct
+ * gradients are compute for m_dLdW3.
+ * 
+ * The finite difference will be used to approximate the
+ * expected gradient. 
+ * 
+ */
+void cpu::Testing::test_backPropegationInit(){
+
+    cpu::NeuralNetwork net(3,3);
+
+    cpu::Matrix W1(3,3);
+    cpu::Matrix W2(3,3);
+    std::vector<double> W3(3);
+
+    double perturb = 0.0001;
+
+    net.weight_initialization(W1);
+    net.weight_initialization(W2);
+    net.weight_initialization(W3);
+
+    cpu::Matrix W1_minus = W1 - perturb;
+    cpu::Matrix W2_minus = W2 - perturb;
+    std::vector<double> W3_minus;
+    std::transform(W3_minus.begin(), W3_minus.end(), W3_minus.begin(), 
+                    [&](auto& value){ return value-perturb; });
+
+    cpu::Matrix W1_plus(3,3);
+    cpu::Matrix W2_plus(3,3);
+    std::vector<double> W3_plus(3);
+
+    
+
+
+    cpu::Matrix W1_ = net.W1();
+
+    W1_.printMat();
+
+    
+}
+
+
 /*----------------------------------------------*/
 // Testing methodes for Dataset class methodes
 

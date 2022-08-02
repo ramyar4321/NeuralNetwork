@@ -16,6 +16,8 @@ namespace cpu {
         void test_sigmoid_activation();
         void test_compute_loss();
 
+        void test_backPropegationInit();
+
         // Test methodes of the Dataset class
         void test_import_dataset();
         void test_X_train_split();
