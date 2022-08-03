@@ -240,7 +240,7 @@ void cpu::Testing::test_compute_loss(){
 /**
  * 
  * This methode tests both the computeDeltaInit
- * and computeGradientInit. That is, this if the correct
+ * and computeGradientInit. That is, test if the correct
  * gradients are compute for m_dLdW3.
  * 
  * The finite difference will be used to approximate the
@@ -249,35 +249,68 @@ void cpu::Testing::test_compute_loss(){
  */
 void cpu::Testing::test_backPropegationInit(){
 
-    cpu::NeuralNetwork net(3,3);
+    cpu::NeuralNetwork net(10,10);
 
-    cpu::Matrix W1(3,3);
-    cpu::Matrix W2(3,3);
-    std::vector<double> W3(3);
+    std::vector<double> x = {-2.11764, 0.3571 , -0.423171};
+    double y = 0;
+
+    cpu::Matrix W1(10,3);
+    cpu::Matrix W2(10,10);
+    std::vector<double> W3(10);
+
+    double a3;
+
+    std::vector<double> W3_minus(10);
+    std::vector<double> W3_plus(10);
+
+    std::vector<double> numericGradient(10);
 
     double perturb = 0.0001;
+
+    double loss_minus;
+    double loss_plus;
 
     net.weight_initialization(W1);
     net.weight_initialization(W2);
     net.weight_initialization(W3);
 
-    cpu::Matrix W1_minus = W1 - perturb;
-    cpu::Matrix W2_minus = W2 - perturb;
-    std::vector<double> W3_minus;
-    std::transform(W3_minus.begin(), W3_minus.end(), W3_minus.begin(), 
-                    [&](auto& value){ return value-perturb; });
+    net.x(x);
+    net.W1(W1);
+    net.W2(W2);
+    net.W3(W3);
+    net.y(y);
 
-    cpu::Matrix W1_plus(3,3);
-    cpu::Matrix W2_plus(3,3);
-    std::vector<double> W3_plus(3);
+    net.forward_propegation();
+    net.backPropegation();
 
-    
+    const std::vector<double> &actual_dLdW3 = net.dLdW3();
 
+    for(int i=0; i < W3.size(); i++){
+        W3_minus = W3;
+        W3_plus = W3;
+        W3_minus[i] -= perturb;
+        W3_plus[i] += perturb;
 
-    cpu::Matrix W1_ = net.W1();
+        net.W3(W3_minus);
+        net.forward_propegation();
 
-    W1_.printMat();
+        a3= net.a3();
 
+        loss_minus = net.bceLoss(y,a3);
+
+        net.W3(W3_plus);
+        net.forward_propegation();
+        a3 = net.a3();
+        loss_plus =net.bceLoss(y, a3);
+
+        numericGradient[i] = (loss_plus-loss_minus)/(2*perturb);      
+    }
+
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+    if ( std::equal(actual_dLdW3.begin(), actual_dLdW3.end(), numericGradient.begin(), f))
+        std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
+    else
+        std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for last layer.\n";
     
 }
 
@@ -778,7 +811,7 @@ void cpu::Testing::test_getRow(){
     // when comparing actual and expected values.
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
 
-     if ( std::equal(actual_results.begin(), actual_results.end(), expected_results.begin(), f))
+    if ( std::equal(actual_results.begin(), actual_results.end(), expected_results.begin(), f))
         std::cout << "Test succeeded! getRow methode returned expected results.\n";
     else
         std::cout << "Test failed! getROw methode returned unexpected results.\n";

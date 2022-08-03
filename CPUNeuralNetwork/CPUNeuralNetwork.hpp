@@ -43,7 +43,9 @@ namespace cpu {
             double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 
             double bceLoss(const double &y, 
-                                const double &a);
+                            const double &a);
+
+            void backPropegation();
 
             double sigmoidPrime(const double& z);
                                
@@ -57,22 +59,17 @@ namespace cpu {
             std::vector<double> computeGradientInit(const double& delta,
                                                     const std::vector<double>& a);
 
-            // Setter methodes
+            // Setter and getter methodes
 
-            cpu::Matrix& W1();
-            cpu::Matrix& W2();
-            std::vector<double>& W3();
-
-            void W1(const Matrix& _W1);
-            void W2(const Matrix& _W2);
+            void x(const std::vector<double>& _x);
+            void W1(const cpu::Matrix& _W1);
+            void W2(const cpu::Matrix& _W2);
             void W3(const std::vector<double>& _W3);
+            void y(const double& _y);
 
-            //Getter methodes
-            const cpu::Matrix& W1() const;
-            const cpu::Matrix& W2() const;
-            const std::vector<double>& W3() const;
+            double& a3();
 
-                     
+            const std::vector<double>& dLdW3() const;
 
         private:
 
@@ -83,11 +80,15 @@ namespace cpu {
             double m_z3;
 
             // Store the activations of the neurons for each layer.
-            std::vector<double> m_x;
             std::vector<double> m_a1;
             std::vector<double> m_a2;
             // The last layer has only one neuron so an std::vector is unnecessary.
             double m_a3;
+
+            // Store the sample input the neural network x
+            // and the expected outcome y.
+            std::vector<double> m_x;
+            double m_y;
 
             // Store the error terms for each layer
             std::vector<double> m_delta1;

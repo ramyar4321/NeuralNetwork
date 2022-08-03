@@ -13,6 +13,8 @@ cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
                                   m_a1(layer_p_size, 0.0),
                                   m_a2(layer_q_size, 0.0),
                                   m_a3(0.0),
+                                  m_x(3, 0.0),
+                                  m_y(0.0),
                                   // Initialize weights of the neural network to be zeros.
                                   // Later on, the weights will be re-initialized using a more 
                                   // sophicticated methode.
@@ -310,6 +312,11 @@ double cpu::NeuralNetwork::bceLoss(const double &y,
     return loss;
 }
 
+void cpu::NeuralNetwork::backPropegation(){
+    this->m_delta3 = this->computeDeltaInit(this->m_y, this->m_a3, this->m_z3);
+    this->m_dLdW3 =  this->computeGradientInit(this->m_delta3, this->m_a2);
+}
+
 /**
  * Compute the derivative of binary cross entropy loss function
  * @f$\frac{\partial L}{\partial a} = - \frac{y}{a} + \fra{1-y}{1-a}$ where
@@ -393,43 +400,33 @@ std::vector<double> cpu::NeuralNetwork::computeGradientInit(const double& delta,
     return dW;
 }
 
-
-cpu::Matrix& cpu::NeuralNetwork::W1(){
-    return m_W1;
+void cpu::NeuralNetwork::x(const std::vector<double>& _x){
+    this->m_x = _x;
 }
 
 
-cpu::Matrix& cpu::NeuralNetwork::W2(){
-    return m_W2;
-}
-
-
-std::vector<double>& cpu::NeuralNetwork::W3(){
-    return m_W3;
-}
-
-void cpu::NeuralNetwork::W1(const Matrix& _W1){
+void cpu::NeuralNetwork::W1(const cpu::Matrix& _W1){
     this->m_W1 = _W1;
 }
 
-void cpu::NeuralNetwork::W2(const Matrix& _W2){
+
+void cpu::NeuralNetwork::W2(const cpu::Matrix& _W2){
     this->m_W2 = _W2;
 }
+
 
 void cpu::NeuralNetwork::W3(const std::vector<double>& _W3){
     this->m_W3 = _W3;
 }
 
-const cpu::Matrix& cpu::NeuralNetwork::W1() const{
-    return m_W1;
+void cpu::NeuralNetwork::y(const double& _y){
+    this->m_y = _y;
 }
 
-
-const cpu::Matrix& cpu::NeuralNetwork::W2() const{
-    return m_W2;
+double& cpu::NeuralNetwork::a3(){
+    return this->m_a3;
 }
 
-
-const std::vector<double>& cpu::NeuralNetwork::W3() const{
-    return m_W3;
+const std::vector<double>& cpu::NeuralNetwork::dLdW3() const{
+    return m_dLdW3;
 }
