@@ -241,11 +241,29 @@ void cpu::Testing::test_compute_loss(){
  * 
  * This methode tests both the computeDeltaInit
  * and computeGradientInit. That is, test if the correct
- * gradients are compute for m_dLdW3.
+ * gradients are compute for m_dLdW3.The finite difference 
+ * will be used to approximate the expected gradient. 
  * 
- * The finite difference will be used to approximate the
- * expected gradient. 
- * 
+ * The algorithm is as follows:
+ * 1. Radomly initialize weight of neural network from a Guassian distribution. 
+ * 2. Perform forward and backpropegation to determine the gradients computed
+ *    for the last layer of the neural network and store the result. 
+ * 3. For each gradient w of the last weight:
+ *      - compute negative perturbation: w_minus = w- perturb
+ *      - perform forward propegation of neural network 
+ *        with w_minus instead of w
+ *      - compute loss_minus which is the loss of the neural network
+ *         by replacing w with w_minus.
+ *      - compute positve pertubation: w_positive = w + perturb
+ *      - perform forward propegation of neural network with 
+ *        w_positive instead of w
+ *      - compute loss_positive which is the loss of the neural network
+ *        by replacing w with w_positive.
+ *      - estimate numerical gradient for w by using the finite difference methode
+ *        numericGradient = (loss_positive - loss_negative)/2*perturb
+ *      - store numericGradient.
+ * 4. Compare the gradients for the last layer produced by backpropegation
+ *    with the numerical estimated gradients.
  */
 void cpu::Testing::test_backPropegationInit(){
 

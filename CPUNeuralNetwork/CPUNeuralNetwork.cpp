@@ -356,6 +356,38 @@ double cpu::NeuralNetwork::sigmoidPrime(const double& z){
 }
 
 /**
+ * Compute activation of neuron i of layer I using the derivative of ReLu
+ * activation function.
+ * @f$\begin{math}
+        f'(z_i)=\left\{
+            \begin{array}{ll}
+                0, & \mbox{if $x<0$}.\\
+                1, & \mbox{if $x>0$}.
+            \end{array}
+        \right.
+    \end{math}$
+ * The derivative is undefined at z_i = 0 but it can be set to zero
+ * in order to produce sparse vector.
+ * 
+ * @param z A vector that contains the output of each neuron in layer I
+ * 
+ * @return A vector containing f' for each neuron in layer I
+ */
+std::vector<double> reluPrime(const std::vector<double> &z){
+    std::vector<double> f_prime(z.size());
+
+    for (int i = 0; i < z.size(); i++){
+        if(z[i] <= 0){
+            f_prime[i] = 0;
+        }else{
+            f_prime[i] = 1;
+        }
+    }
+
+    return f_prime;
+}
+
+/**
  * Compute the error term associated with the output neuron j in the last layer.
  * The error term is commonly referred to as delta and is defined as the following
  * @f$\delta_j = f'(z)\frac{\partial L}{\partial a} = $

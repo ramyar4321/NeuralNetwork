@@ -48,6 +48,8 @@ namespace cpu {
             void backPropegation();
 
             double sigmoidPrime(const double& z);
+
+            std::vector<double> reluPrime(const std::vector<double> &z);
                                
             double bceLossPrime(const double &y, 
                                 const double &a);
@@ -58,6 +60,10 @@ namespace cpu {
 
             std::vector<double> computeGradientInit(const double& delta,
                                                     const std::vector<double>& a);
+
+            std::vector<double> computeDelta(const Matrix& W, 
+                                             const std::vector<double>& delta_j,
+                                             const std::vector<double>& z);
 
             // Setter and getter methodes
 
