@@ -62,8 +62,11 @@ namespace cpu {
                                                     const std::vector<double>& a);
 
             std::vector<double> computeDelta(const Matrix& W, 
-                                             const std::vector<double>& delta_j,
+                                             const std::vector<double>& delta_J,
                                              const std::vector<double>& z);
+
+            std::vector<double> computeGradient(const std::vector<double>& delta,
+                                                const std::vector<double>& a);
 
             // Setter and getter methodes
 

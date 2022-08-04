@@ -373,7 +373,7 @@ double cpu::NeuralNetwork::sigmoidPrime(const double& z){
  * 
  * @return A vector containing f' for each neuron in layer I
  */
-std::vector<double> reluPrime(const std::vector<double> &z){
+std::vector<double> cpu::NeuralNetwork::reluPrime(const std::vector<double> &z){
     std::vector<double> f_prime(z.size());
 
     for (int i = 0; i < z.size(); i++){
@@ -430,6 +430,40 @@ std::vector<double> cpu::NeuralNetwork::computeGradientInit(const double& delta,
     }
 
     return dW;
+}
+
+/**
+ * Compute the error term associated with each neuron i of layer I.
+ * @f$\delta_i = f'(z_i)\sum_{i=0}^{n_I} w_{ji} \delta_j$ where
+ * @f$f'$ is the derivative of the ReLu activation function,
+ * @f$z_i$ is the output of neuron i of layer I, @f$n_I$
+ * is the number of neurons in layer I, @f$w_{ji}$ is the
+ * weight from neuron i of layer I to neuron j of layer J,
+ * and @f$\delta_j$ is the error term of neuron j of layer J.
+ * 
+ * @param W A matrix containing the weigths between layer I and J
+ * @param delta_j A vector cotaining the error terms of each neuron j of layer J
+ * @param z a vector containing the output of neuron i of layer I
+ * 
+ * @return A vector containing the error terms of each neuron i of layer I
+ * 
+ */
+std::vector<double> cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W, 
+                                 const std::vector<double>& delta_J,
+                                 const std::vector<double>& z){
+
+    std::vector<double> delta(W.get_num_cols(), 0.0);
+
+    std::vector<double> f_prime = this->reluPrime(z);
+
+    for(int i=0; i < W.get_num_cols(); i++){
+        for(int j=0; j < W.get_num_rows(); j++){
+            delta[i] += W[j][i] * delta_J[j];
+        }
+        delta[i] *= f_prime[i];
+    }
+
+    return delta;
 }
 
 void cpu::NeuralNetwork::x(const std::vector<double>& _x){
