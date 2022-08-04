@@ -20,7 +20,7 @@ cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
                                   // sophicticated methode.
                                   m_W1(layer_p_size, 3),
                                   m_W2(layer_q_size, layer_p_size),
-                                  m_W3(layer_q_size),
+                                  m_W3(0, layer_q_size),
                                   m_dLdW1(layer_p_size, 3),
                                   m_dLdW2(layer_q_size, layer_p_size),
                                   m_dLdW3(layer_q_size)
@@ -312,9 +312,20 @@ double cpu::NeuralNetwork::bceLoss(const double &y,
     return loss;
 }
 
+/**
+ * Perform back propegation
+ */
 void cpu::NeuralNetwork::backPropegation(){
     this->m_delta3 = this->computeDeltaInit(this->m_y, this->m_a3, this->m_z3);
     this->m_dLdW3 =  this->computeGradientInit(this->m_delta3, this->m_a2);
+
+    this->m_delta2 = this->computeDeltaInit(this->m_W3, this->m_delta3, this->m_z2);
+    std::cout << "Hello";
+    this->m_dLdW2 =  this->computeGradient(this->m_delta2, this->m_a1);
+
+    this->m_delta1 = this->computeDelta(this->m_W2, this->m_delta2, this->m_z1);
+    this->m_dLdW1 = this->computeGradient(this->m_delta1, this->m_x);
+
 }
 
 /**
@@ -401,10 +412,47 @@ std::vector<double> cpu::NeuralNetwork::reluPrime(const std::vector<double> &z){
  * 
  * @return The error term associated with the output neuron.
  */
-double cpu::NeuralNetwork::computeDeltaInit(const double& y,
+std::vector<double> cpu::NeuralNetwork::computeDeltaInit(const double& y,
                                             const double& a,
                                             const double& z){
-    double delta = sigmoidPrime(z) * bceLossPrime(y, a);
+
+    std::vector<double> delta = {sigmoidPrime(z) * bceLossPrime(y, a)};
+
+    return delta;
+}
+
+/**
+ * For layers J < K, compute the error term associated with each neuron j of layer k.
+ * @f$\delta_j = f'(z_j)\sum_{k=0}^{n_K} w_{kj} \delta_k$ where
+ * @f$f'$ is the derivative of the ReLu activation function,
+ * @f$z_j$ is the output of neuron j of layer J, @f$n_K$
+ * is the number of neurons in layer K, @f$w_{ji}$ is the
+ * weight from neuron j of layer J to neuron k of layer K,
+ * and @f$\delta_k$ is the error term of neuron k of layer K.
+ * 
+ * @param W A matrix containing the weigths between layer I and J
+ * @param delta_ A vector cotaining the error terms of each neuron k of layer K
+ * @param z a vector containing the output of neuron i of layer I
+ * 
+ * @return A vector containing the error terms of each neuron i of layer I
+ * 
+ */
+std::vector<double> cpu::NeuralNetwork::computeDeltaInit(const std::vector<double>& W, 
+                                 const std::vector<double>& delta_,
+                                 const std::vector<double>& z){
+
+    std::vector<double> delta(W.size(), 0.0);
+
+    std::vector<double> f_prime = this->reluPrime(z);
+
+
+    for(int j=0; j < W.size(); j++){
+
+        delta[j] += W[j] * delta_[0];
+
+        delta[j] *= f_prime[j];
+    }
+
 
     return delta;
 }
@@ -421,49 +469,70 @@ double cpu::NeuralNetwork::computeDeltaInit(const double& y,
  * @return dL/dW 
  * 
  */
-std::vector<double> cpu::NeuralNetwork::computeGradientInit(const double& delta,
+std::vector<double> cpu::NeuralNetwork::computeGradientInit(const std::vector<double>& delta,
                                         const std::vector<double>& a){
     std::vector<double> dW(a.size()); 
 
+
     for(int i =0; i < a.size(); i++){
-        dW[i] = delta*a[i];
+        dW[i] = delta[0]*a[i];
     }
 
     return dW;
 }
 
+
+
 /**
- * Compute the error term associated with each neuron i of layer I.
- * @f$\delta_i = f'(z_i)\sum_{i=0}^{n_I} w_{ji} \delta_j$ where
+ * For layers J < K, compute the error term associated with each neuron j of layer k.
+ * @f$\delta_j = f'(z_j)\sum_{k=0}^{n_K} w_{kj} \delta_k$ where
  * @f$f'$ is the derivative of the ReLu activation function,
- * @f$z_i$ is the output of neuron i of layer I, @f$n_I$
- * is the number of neurons in layer I, @f$w_{ji}$ is the
- * weight from neuron i of layer I to neuron j of layer J,
- * and @f$\delta_j$ is the error term of neuron j of layer J.
+ * @f$z_j$ is the output of neuron j of layer J, @f$n_K$
+ * is the number of neurons in layer K, @f$w_{ji}$ is the
+ * weight from neuron j of layer J to neuron k of layer K,
+ * and @f$\delta_k$ is the error term of neuron k of layer K.
  * 
  * @param W A matrix containing the weigths between layer I and J
- * @param delta_j A vector cotaining the error terms of each neuron j of layer J
+ * @param delta_k A vector cotaining the error terms of each neuron j of layer J
  * @param z a vector containing the output of neuron i of layer I
  * 
  * @return A vector containing the error terms of each neuron i of layer I
  * 
  */
 std::vector<double> cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W, 
-                                 const std::vector<double>& delta_J,
+                                 const std::vector<double>& delta_,
                                  const std::vector<double>& z){
 
-    std::vector<double> delta(W.get_num_cols(), 0.0);
+    std::vector<double> delta(W.get_num_rows(), 0.0);
 
     std::vector<double> f_prime = this->reluPrime(z);
 
-    for(int i=0; i < W.get_num_cols(); i++){
-        for(int j=0; j < W.get_num_rows(); j++){
-            delta[i] += W[j][i] * delta_J[j];
+
+    for(int j=0; j < W.get_num_cols(); j++){
+        for(int k=0; k < W.get_num_rows(); k++){
+            delta[j] += W[k][j] * delta_[k];
         }
-        delta[i] *= f_prime[i];
+        delta[j] *= f_prime[j];
     }
 
+
     return delta;
+}
+
+
+cpu::Matrix cpu::NeuralNetwork::computeGradient(const std::vector<double>& delta,
+                            const std::vector<double>& a){
+    int num_rows = delta.size();
+    int num_cols = a.size();
+    cpu::Matrix dW(num_rows,num_cols );
+
+    for(int i =0; i < num_cols; i++){
+        for (int j=0; j < num_rows; j++){
+            dW[j][i] = a[i]*delta[j];
+        }
+    }
+
+    return dW;
 }
 
 void cpu::NeuralNetwork::x(const std::vector<double>& _x){
@@ -495,4 +564,12 @@ double& cpu::NeuralNetwork::a3(){
 
 const std::vector<double>& cpu::NeuralNetwork::dLdW3() const{
     return m_dLdW3;
+}
+
+const cpu::Matrix& cpu::NeuralNetwork::dLdW2() const{
+    return this->m_dLdW2;
+}
+
+const cpu::Matrix& cpu::NeuralNetwork::dLdW1() const{
+    return this->m_dLdW1;
 }

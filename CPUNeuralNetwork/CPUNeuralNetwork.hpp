@@ -54,19 +54,24 @@ namespace cpu {
             double bceLossPrime(const double &y, 
                                 const double &a);
 
-            double computeDeltaInit(const double& y,
-                                    const double& a,
-                                    const double& z);
+            std::vector<double> computeDeltaInit(const double& y,
+                                                const double& a,
+                                                const double& z);
 
-            std::vector<double> computeGradientInit(const double& delta,
+            std::vector<double> computeDeltaInit(const std::vector<double>& W,
+                                                const std::vector<double>& delta,
+                                                const std::vector<double>& z);
+
+            std::vector<double> computeGradientInit(const std::vector<double>& delta,
                                                     const std::vector<double>& a);
 
             std::vector<double> computeDelta(const Matrix& W, 
-                                             const std::vector<double>& delta_J,
+                                             const std::vector<double>& delta_,
                                              const std::vector<double>& z);
 
-            std::vector<double> computeGradient(const std::vector<double>& delta,
-                                                const std::vector<double>& a);
+            cpu::Matrix computeGradient(const std::vector<double>& delta,
+                                        const std::vector<double>& a);
+
 
             // Setter and getter methodes
 
@@ -79,6 +84,8 @@ namespace cpu {
             double& a3();
 
             const std::vector<double>& dLdW3() const;
+            const cpu::Matrix& dLdW2() const;
+            const cpu::Matrix& dLdW1() const;
 
         private:
 
@@ -102,7 +109,7 @@ namespace cpu {
             // Store the error terms for each layer
             std::vector<double> m_delta1;
             std::vector<double> m_delta2;
-            double m_delta3;
+            std::vector<double> m_delta3; 
 
             // Maxtrix that will store weights between input layer and first hidden layer
             Matrix m_W1;

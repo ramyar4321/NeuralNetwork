@@ -278,10 +278,18 @@ void cpu::Testing::test_backPropegationInit(){
 
     double a3;
 
+    cpu::Matrix W1_minus(10,3);
+    cpu::Matrix W1_plus(10,3);
+
+    cpu::Matrix W2_minus(10,10);
+    cpu::Matrix W2_plus(10,10);
+
     std::vector<double> W3_minus(10);
     std::vector<double> W3_plus(10);
 
-    std::vector<double> numericGradient(10);
+    cpu::Matrix numericdLdW1(10,3);
+    cpu::Matrix numericdLdW2(10,10);
+    std::vector<double> numericdLdW3(10);
 
     double perturb = 0.0001;
 
@@ -302,6 +310,8 @@ void cpu::Testing::test_backPropegationInit(){
     net.backPropegation();
 
     const std::vector<double> &actual_dLdW3 = net.dLdW3();
+    const cpu::Matrix& actual_dLdW2 = net.dLdW2();
+    const cpu::Matrix& actual_dLdW1 = net.dLdW1();
 
     for(int i=0; i < W3.size(); i++){
         W3_minus = W3;
@@ -321,15 +331,86 @@ void cpu::Testing::test_backPropegationInit(){
         a3 = net.a3();
         loss_plus =net.bceLoss(y, a3);
 
-        numericGradient[i] = (loss_plus-loss_minus)/(2*perturb);      
+        numericdLdW3[i] = (loss_plus-loss_minus)/(2*perturb);      
+    }
+
+    for (int j = 0; j < W2.get_num_rows(); j++){
+        for(int i=0; i < W2.get_num_cols(); i++){
+            W2_minus = W2;
+            W2_plus = W2;
+            W2_minus[j][i] -= perturb;
+            W2_plus[j][i] += perturb;
+
+            net.W2(W2_minus);
+            net.forward_propegation();
+
+            a3= net.a3();
+
+            loss_minus = net.bceLoss(y,a3);
+
+            net.W2(W2_plus);
+            net.forward_propegation();
+            a3 = net.a3();
+            loss_plus =net.bceLoss(y, a3);
+
+            numericdLdW2[j][i] = (loss_plus-loss_minus)/(2*perturb);
+        }
+    }
+
+    for (int j = 0; j < W2.get_num_rows(); j++){
+        for(int i=0; i < W2.get_num_cols(); i++){
+            W1_minus = W1;
+            W1_plus = W1;
+            W1_minus[j][i] -= perturb;
+            W1_plus[j][i] += perturb;
+
+            net.W1(W1_minus);
+            net.forward_propegation();
+
+            a3= net.a3();
+
+            loss_minus = net.bceLoss(y,a3);
+
+            net.W1(W1_plus);
+            net.forward_propegation();
+            a3 = net.a3();
+            loss_plus =net.bceLoss(y, a3);
+
+            numericdLdW1[j][i] = (loss_plus-loss_minus)/(2*perturb);
+        }
+    }
+
+    //numericdLdW2.printMat();
+    for(int j = 0; j < numericdLdW2.get_num_rows(); j++){
+        for(int i = 0; i<numericdLdW2.get_num_cols(); i++){
+            std::cout << actual_dLdW2[j][i] << std::endl;
+            std::cout << numericdLdW2[j][i] << std::endl;
+        }
+    }
+    for(int j = 0; j < numericdLdW1.get_num_rows(); j++){
+        for(int i = 0; i<numericdLdW1.get_num_cols(); i++){
+            std::cout << actual_dLdW1[j][i] << std::endl;
+            std::cout << numericdLdW1[j][i] << std::endl;
+        }
     }
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
-    if ( std::equal(actual_dLdW3.begin(), actual_dLdW3.end(), numericGradient.begin(), f))
+    if ( std::equal(actual_dLdW3.begin(), actual_dLdW3.end(), numericdLdW3.begin(), f))
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
     else
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for last layer.\n";
     
+    if(actual_dLdW2 == numericdLdW2){
+        std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for second layer.\n";
+    } else{
+        std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for second layer.\n";
+    }
+
+    if(actual_dLdW2 == numericdLdW2){
+        std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for first layer.\n";
+    } else{
+        std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for first layer.\n";
+    }
 }
 
 
