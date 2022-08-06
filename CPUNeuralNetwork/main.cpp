@@ -4,9 +4,9 @@
 #include <iostream>
 
 int main(){
-    /*cpu::NeuralNetwork net(3,3);
+    cpu::NeuralNetwork net(50,50, 100, 0.001);
 
-    cpu::Dataset dat(4, 306,0.99);
+    cpu::Dataset dat(4, 306,0.90);
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
 
@@ -23,14 +23,15 @@ int main(){
     double threeshold = 0.5;
     std::vector<double> y_pred = net.perdict(x_test_stand, threeshold);
     double acc = net.computeAccuracy(y_pred, y_test);
-    */
-
-    cpu::Testing test;
+    
+    std::cout << acc << std::endl;
+    //cpu::Testing test;
     //test.test_compute_outputs();
     //test.test_relu_activation();
     //test.test_sigmoid_activation();
     //test.test_compute_loss();
-    test.test_backPropegationInit();
+    //test.test_backPropegation();
+    //test.test_gradientDescent();
     
     //test.test_import_dataset();
     //test.test_X_train_split();

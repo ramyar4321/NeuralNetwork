@@ -20,7 +20,9 @@ namespace cpu {
 
         public:
             NeuralNetwork(int layer_p_size,
-                          int layer_q_size);
+                          int layer_q_size,
+                          int epoch,
+                          double alpha);
 
             void weight_initialization( Matrix& W);
             void weight_initialization( std::vector<double>& W);
@@ -72,6 +74,15 @@ namespace cpu {
             cpu::Matrix computeGradient(const std::vector<double>& delta,
                                         const std::vector<double>& a);
 
+            cpu::Matrix gradientDecent(const Matrix& W,
+                                        const double& alpha, 
+                                        const Matrix& dLdW);
+            std::vector<double> gradientDecentInit(const std::vector<double>& W,
+                                                    const double& alpha,
+                                                    const std::vector<double>& dLdW);
+            
+            void updateWeigths();
+
 
             // Setter and getter methodes
 
@@ -117,6 +128,11 @@ namespace cpu {
             Matrix m_W2;
             // Vector that will store weights between second hidden layer and output layer.
             std::vector<double> m_W3;
+
+            // Store the number of iterations of training the neural network.
+            int m_epoch;
+            // Store the step size for gradient descent
+            double m_alpha;
 
             // Store the gradient of the weights for each layer 
             Matrix m_dLdW1;

@@ -6,7 +6,9 @@
  * Initialize Neural Network memeber variables.
  */
 cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
-                                  int layer_q_size):
+                                  int layer_q_size,
+                                  int epoch,
+                                  double alpha):
                                   m_z1(layer_p_size, 0.0),
                                   m_z2(layer_q_size, 0.0),
                                   m_z3(0.0),
@@ -20,7 +22,9 @@ cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
                                   // sophicticated methode.
                                   m_W1(layer_p_size, 3),
                                   m_W2(layer_q_size, layer_p_size),
-                                  m_W3(0, layer_q_size),
+                                  m_W3(layer_q_size),
+                                  m_epoch(epoch),
+                                  m_alpha(alpha),
                                   m_dLdW1(layer_p_size, 3),
                                   m_dLdW2(layer_q_size, layer_p_size),
                                   m_dLdW3(layer_q_size)
@@ -40,10 +44,14 @@ void cpu::NeuralNetwork::fit(Matrix &X_train_stand, std::vector<double>& y_train
     weight_initialization(m_W2);
     weight_initialization(m_W3);
 
-    for (int j=0; j < X_train_stand.get_num_rows(); j++){
-        this->m_x = X_train_stand.getRow(j);
+    for (int e =0; e< this->m_epoch; e++){
+        for (int j=0; j < X_train_stand.get_num_rows(); j++){
+            this->m_x = X_train_stand.getRow(j);
 
-        this->forward_propegation();
+            this->forward_propegation();
+            this->backPropegation();
+            this->updateWeigths();
+        }
     }
 }
 
@@ -320,7 +328,6 @@ void cpu::NeuralNetwork::backPropegation(){
     this->m_dLdW3 =  this->computeGradientInit(this->m_delta3, this->m_a2);
 
     this->m_delta2 = this->computeDeltaInit(this->m_W3, this->m_delta3, this->m_z2);
-    std::cout << "Hello";
     this->m_dLdW2 =  this->computeGradient(this->m_delta2, this->m_a1);
 
     this->m_delta1 = this->computeDelta(this->m_W2, this->m_delta2, this->m_z1);
@@ -503,8 +510,7 @@ std::vector<double> cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W,
                                  const std::vector<double>& delta_,
                                  const std::vector<double>& z){
 
-    std::vector<double> delta(W.get_num_rows(), 0.0);
-
+    std::vector<double> delta(W.get_num_cols(), 0.0);
     std::vector<double> f_prime = this->reluPrime(z);
 
 
@@ -519,7 +525,21 @@ std::vector<double> cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W,
     return delta;
 }
 
-
+/**
+ * 
+ * Compute the gradient for each weight for a 
+ * given layer except the last layer of the neural network.
+ * For layers I < J, the gradient for any given weight can be computed as follows.
+ * @f$\frac{dL}{dw_{ji}} = a_i * \delta_{j}$ where @f$w_{ji}$ is the weight from
+ * neuron i of layer I to neuron j of layer J, @f$a_i$ is the activation of neuron
+ * i of layer I, and @f$\delta_{j}$ is the error term of neuron j of layer J.
+ * 
+ * @param detla A vector containing the error terms for each neuron of layer J
+ * @param a     A vector cotaining the activation of each neuron of layer I
+ * 
+ * @return A Matrix containing the weigth between layer I and layer J
+ * 
+ */
 cpu::Matrix cpu::NeuralNetwork::computeGradient(const std::vector<double>& delta,
                             const std::vector<double>& a){
     int num_rows = delta.size();
@@ -533,6 +553,74 @@ cpu::Matrix cpu::NeuralNetwork::computeGradient(const std::vector<double>& delta
     }
 
     return dW;
+}
+
+/**
+ * 
+ * Perform gradient descent. For any given weight between layers I < J,
+ * the weight can be updated using the following.
+ * @f$ w_{ji} = w_{ji} - \alpha \frac{dL}{dW_{ji}}$
+ * 
+ * @param W The vector containing the weights between layer I and J
+ * @param alpha The step size of gradient descent
+ * @param dLdW The vector containing the derivatives of the weights between layer I and J
+ * 
+ * @return A matrix containing the updated weights between layer I and J
+ * 
+ */
+std::vector<double> cpu::NeuralNetwork::gradientDecentInit(const std::vector<double>& W,
+                                                        const double& alpha,
+                                                        const std::vector<double>& dLdW){
+
+    std::vector<double> updatedWeights(W.size());
+
+    for(int i=0; i < updatedWeights.size(); i++){
+        updatedWeights[i] = updatedWeights[i] - alpha*dLdW[i]; 
+    }
+
+
+    return updatedWeights;
+
+}
+
+/**
+ * 
+ * Perform gradient descent. For any given weight between layers I < J,
+ * the weight can be updated using the following.
+ * @f$ w_{ji} = w_{ji} - \alpha \frac{dL}{dW_{ji}}$
+ * 
+ * @param W The matrix containing the weights between layer I and J
+ * @param alpha The step size of gradient descent
+ * @param dLdW The maxtrix containing the derivatives of the weights between layer I and J
+ * 
+ * @return A matrix containing the updated weights between layer I and J
+ * 
+ */
+cpu::Matrix cpu::NeuralNetwork::gradientDecent(const Matrix& W,
+                                                const double& alpha,
+                                                const Matrix& dLdW){
+
+    cpu::Matrix updatedWeights(W.get_num_rows(), W.get_num_cols());
+
+    for(int j=0; j < updatedWeights.get_num_rows(); j++){
+        for(int i=0; i < updatedWeights.get_num_cols(); i++){
+            updatedWeights[j][i] = updatedWeights[j][i] - alpha*dLdW[j][i]; 
+        }
+    }
+
+    return updatedWeights;
+
+}
+
+/**
+ * 
+ * Update weights using gradient descent.
+ * 
+ */
+void cpu::NeuralNetwork::updateWeigths(){
+    this->m_W3 = this->gradientDecentInit(this->m_W3, this->m_alpha, this->m_dLdW3);
+    this->m_W2 = this->gradientDecent(this->m_W2, this->m_alpha, this->m_dLdW2);
+    this->m_W1 = this->gradientDecent(this->m_W1, this->m_alpha, this->m_dLdW1);
 }
 
 void cpu::NeuralNetwork::x(const std::vector<double>& _x){

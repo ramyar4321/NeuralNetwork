@@ -4,7 +4,6 @@
 #include <vector>
 #include <iostream>
 #include <functional>
-#include "Matrix.hpp"
 
 
 /*----------------------------------------------*/
@@ -24,6 +23,8 @@ void cpu::Testing::test_compute_outputs(){
 
     int layer_p_size = 2;
     int layer_q_size = 2;
+    int epoch = 1;
+    double alpha = 0.01;
 
 
     // Note, the weights and outputs initialized do not correspond to actual
@@ -52,7 +53,7 @@ void cpu::Testing::test_compute_outputs(){
     std::vector<double> expected_z3 = {74.8f};
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size,epoch, alpha);
 
     // Use mock inputs to test if methode produces expected results
 
@@ -93,6 +94,8 @@ void cpu::Testing::test_relu_activation(){
 
     int layer_p_size = 2;
     int layer_q_size = 2;
+    int epoch = 1;
+    double alpha = 0.01;
 
     std::vector<double> z1 = {2.28f, 4.19f};
     std::vector<double> z2 = {-2.28f, -4.19f};
@@ -105,7 +108,7 @@ void cpu::Testing::test_relu_activation(){
     std::vector<double> expected_a2 = {0.0f, 0.0f}; 
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch,alpha);
 
     // Use mock inputs to test if methode produces expected results
     std::vector<double> actual_a1 = net.relu_activation(z1);
@@ -142,6 +145,8 @@ void cpu::Testing::test_sigmoid_activation(){
 
     int layer_p_size = 2;
     int layer_q_size = 2;
+    int epoch = 1;
+    double alpha = 0.01;
 
     double z_1 = 3.3;
     double z_2 = -3.3;
@@ -158,7 +163,7 @@ void cpu::Testing::test_sigmoid_activation(){
     double expected_a_3 = 0.5;
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch, alpha);
 
     // Use mock inputs to test if methode produces expected results
     double actual_a_1 = net.sigmoid(z_1);
@@ -205,6 +210,8 @@ void cpu::Testing::test_compute_loss(){
 
     int layer_p_size = 2;
     int layer_q_size = 2;
+    int epoch = 1;
+    double alpha = 0.01;
 
 
     double y_1 = 1.0;
@@ -219,7 +226,7 @@ void cpu::Testing::test_compute_loss(){
     float expected_loss = 9.21; // Expected loss for both tests.
 
     // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size);
+    cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch, alpha);
 
     // Use mock inputs to test if methode produces expected results
     float actual_loss_1 = net.bceLoss(y_1, a_1);
@@ -248,26 +255,27 @@ void cpu::Testing::test_compute_loss(){
  * 1. Radomly initialize weight of neural network from a Guassian distribution. 
  * 2. Perform forward and backpropegation to determine the gradients computed
  *    for the last layer of the neural network and store the result. 
- * 3. For each gradient w of the last weight:
- *      - compute negative perturbation: w_minus = w- perturb
- *      - perform forward propegation of neural network 
- *        with w_minus instead of w
- *      - compute loss_minus which is the loss of the neural network
- *         by replacing w with w_minus.
- *      - compute positve pertubation: w_positive = w + perturb
- *      - perform forward propegation of neural network with 
- *        w_positive instead of w
- *      - compute loss_positive which is the loss of the neural network
- *        by replacing w with w_positive.
- *      - estimate numerical gradient for w by using the finite difference methode
- *        numericGradient = (loss_positive - loss_negative)/2*perturb
- *      - store numericGradient.
+ * 3. for each layer:
+ *          For each gradient w of the last weight:
+ *              - compute negative perturbation: w_minus = w- perturb
+ *              - perform forward propegation of neural network 
+ *                with w_minus instead of w
+ *              - compute loss_minus which is the loss of the neural network
+ *                 by replacing w with w_minus.
+ *              - compute positve pertubation: w_positive = w + perturb
+ *              - perform forward propegation of neural network with 
+ *                w_positive instead of w
+ *              - compute loss_positive which is the loss of the neural network
+ *                by replacing w with w_positive.
+ *              - estimate numerical gradient for w by using the finite difference methode
+ *                numericGradient = (loss_positive - loss_negative)/2*perturb
+ *              - store numericGradient.
  * 4. Compare the gradients for the last layer produced by backpropegation
  *    with the numerical estimated gradients.
  */
-void cpu::Testing::test_backPropegationInit(){
+void cpu::Testing::test_backPropegation(){
 
-    cpu::NeuralNetwork net(10,10);
+    cpu::NeuralNetwork net(10,10, 0, 0.01);
 
     std::vector<double> x = {-2.11764, 0.3571 , -0.423171};
     double y = 0;
@@ -380,19 +388,13 @@ void cpu::Testing::test_backPropegationInit(){
         }
     }
 
-    //numericdLdW2.printMat();
-    for(int j = 0; j < numericdLdW2.get_num_rows(); j++){
-        for(int i = 0; i<numericdLdW2.get_num_cols(); i++){
-            std::cout << actual_dLdW2[j][i] << std::endl;
-            std::cout << numericdLdW2[j][i] << std::endl;
-        }
-    }
-    for(int j = 0; j < numericdLdW1.get_num_rows(); j++){
-        for(int i = 0; i<numericdLdW1.get_num_cols(); i++){
+    for(int j = 0; j < actual_dLdW1.get_num_rows(); j++){
+        for(int i=0; i < actual_dLdW1.get_num_cols(); i++){
             std::cout << actual_dLdW1[j][i] << std::endl;
             std::cout << numericdLdW1[j][i] << std::endl;
         }
     }
+
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
     if ( std::equal(actual_dLdW3.begin(), actual_dLdW3.end(), numericdLdW3.begin(), f))
@@ -406,13 +408,58 @@ void cpu::Testing::test_backPropegationInit(){
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for second layer.\n";
     }
 
-    if(actual_dLdW2 == numericdLdW2){
+    if(actual_dLdW1 == numericdLdW1){
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for first layer.\n";
     } else{
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for first layer.\n";
     }
 }
 
+/**
+ * This methode tests the gradientDescent methode of Neural Network class.
+ * 
+ * The gradient decent methode must produce a series of 
+ * non-decreasing objectives in order for this test to pass.
+ * The details of this test is as follows.
+ * Let @f$L = w^2$ and then @f$dLdw = 2w$ with step size of @f$\alpha = 0.01$.
+ * The initial starting position will be @f$w=100$ and the number of iterations
+ * will be 5. The choices of these numbers are random. If after each iteration,
+ * the loss for the new position is smaller than the loss for the old position,
+ * then this test will pass.
+ * 
+ */
+void cpu::Testing::test_gradientDescent(){
+
+    // The sizes of the hidden layers is not important.
+    // We simply need a neural network object in order
+    // to access its gradeint descent methode/
+    double alpha = 0.01;
+    cpu::NeuralNetwork net(3,3, 1, alpha); 
+
+    bool testPass = true;
+
+    int numIter = 5;
+
+    cpu::Matrix w = {{4}};
+    double loss = computeQuadraticLoss(w);
+    double prev_loss;
+    cpu::Matrix dLdw = computeGradientQuadraticLoss(w);
+
+    for(int i = 0; i < numIter; i++){
+        prev_loss = loss;
+        w = net.gradientDecent(w, alpha, dLdw);
+        loss = computeQuadraticLoss(w);
+        if(loss > prev_loss){
+            testPass = false;
+        }
+    }
+
+    if(testPass){
+        std::cout << "Gradient descent produces expected results." << std::endl;
+    }else{
+        std::cout << "Gradient descent produces unexpected results." << std::endl;
+    }
+}
 
 /*----------------------------------------------*/
 // Testing methodes for Dataset class methodes
@@ -970,4 +1017,29 @@ void cpu::Testing::test_getColumn(){
 bool cpu::Testing::areFloatEqual(double a, double b){
     constexpr double epsilon = 0.01; 
     return std::abs(a - b) < epsilon;
+}
+
+/**
+ * Compute and return the quadratic loss as follows.
+ * @f$L = w^2$
+ * 
+ */
+double cpu::Testing::computeQuadraticLoss(cpu::Matrix& w){
+    double quadraticLoss = w[0][0]*w[0][0];
+
+    return quadraticLoss;
+}
+
+/**
+ * 
+ * Compute and return the derivative of the
+ * quadratic loss function.
+ * 
+ */
+cpu::Matrix cpu::Testing::computeGradientQuadraticLoss(cpu::Matrix& w){
+    double gradientQuadracticLoss = 2*w[0][0];
+
+    cpu::Matrix gradientQuadracticLoss_ = {{gradientQuadracticLoss}};
+
+    return gradientQuadracticLoss_;
 }

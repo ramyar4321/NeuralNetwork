@@ -1,5 +1,6 @@
 #ifndef CPU_TESTING
 #define CPU_TESTING
+#include "Matrix.hpp"
 
 namespace cpu {
     /**
@@ -16,7 +17,9 @@ namespace cpu {
         void test_sigmoid_activation();
         void test_compute_loss();
 
-        void test_backPropegationInit();
+        //void test_forwardPropegation();
+        void test_backPropegation();
+        void test_gradientDescent();
 
         // Test methodes of the Dataset class
         void test_import_dataset();
@@ -41,6 +44,8 @@ namespace cpu {
         // Helper functions
 
         static bool areFloatEqual(double a, double b);
+        double computeQuadraticLoss(cpu::Matrix& w);
+        cpu::Matrix computeGradientQuadraticLoss(cpu::Matrix& w);
 
     };
 }
