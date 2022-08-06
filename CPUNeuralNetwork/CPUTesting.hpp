@@ -17,7 +17,7 @@ namespace cpu {
         void test_sigmoid_activation();
         void test_compute_loss();
 
-        //void test_forwardPropegation();
+        void test_forwardPropegation();
         void test_backPropegation();
         void test_gradientDescent();
 

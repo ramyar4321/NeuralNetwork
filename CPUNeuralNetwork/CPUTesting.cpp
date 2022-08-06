@@ -365,8 +365,8 @@ void cpu::Testing::test_backPropegation(){
         }
     }
 
-    for (int j = 0; j < W2.get_num_rows(); j++){
-        for(int i=0; i < W2.get_num_cols(); i++){
+    for (int j = 0; j < W1.get_num_rows(); j++){
+        for(int i=0; i < W1.get_num_cols(); i++){
             W1_minus = W1;
             W1_plus = W1;
             W1_minus[j][i] -= perturb;
@@ -388,12 +388,6 @@ void cpu::Testing::test_backPropegation(){
         }
     }
 
-    for(int j = 0; j < actual_dLdW1.get_num_rows(); j++){
-        for(int i=0; i < actual_dLdW1.get_num_cols(); i++){
-            std::cout << actual_dLdW1[j][i] << std::endl;
-            std::cout << numericdLdW1[j][i] << std::endl;
-        }
-    }
 
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
