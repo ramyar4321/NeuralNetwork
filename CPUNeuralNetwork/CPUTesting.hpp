@@ -28,6 +28,8 @@ namespace cpu {
         void test_y_train_split();
         void test_y_test_split();
 
+        void test_getColumn();
+
         void test_setValue();
 
 
@@ -38,7 +40,7 @@ namespace cpu {
         void test_computeStd();
         void test_standardizeMatrix();
         void test_getRow();
-        void test_getColumn();
+    
         
 
         // Helper functions

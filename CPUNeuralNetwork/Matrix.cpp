@@ -1,9 +1,6 @@
 #include "Matrix.hpp"
-#include <cassert>
 #include <iostream>
 #include <algorithm>
-#include <numeric>
-#include <math.h>
 
 /**
  * Constructor for Matrix object with number of rows and columns specified. 
@@ -218,7 +215,6 @@ cpu::Matrix& cpu::Matrix::operator-=(const double& rhs){
  * 
  * @return A sub-matrix containing a block of entries of the original matrix.
  * 
- */
 cpu::Matrix cpu::Matrix::getSubMatrix(int& start_ri, int& end_ri, int& start_ci, int& end_ci){
 
     // Assert that Matrix indices are withing the dimensions of this Matrix
@@ -243,7 +239,7 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int& start_ri, int& end_ri, int& start_ci,
     return submat;
 
 
-}
+}*/
 
 /**
  * This methode will return all elements from row index start_ri
@@ -256,7 +252,6 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int& start_ri, int& end_ri, int& start_ci,
  * @return If start_ri is zero and end_ri is equal to the number of rows in this matrix, 
  *         then this methode will return the column of the matrix at index ci.
  *         Otherwise, it will return a continous segment of the column at index ci. 
- */ 
  std::vector<double> cpu::Matrix::getCol(int& ci, int& start_ri, int& end_ri){
     assert(start_ri >= 0 && start_ri < m_num_rows);
     assert(end_ri >= 0 && end_ri < m_num_rows);
@@ -272,7 +267,7 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int& start_ri, int& end_ri, int& start_ci,
     }
 
     return col;
- }
+ }*/
 
  /**
   * Return column of matrix
@@ -281,7 +276,7 @@ cpu::Matrix cpu::Matrix::getSubMatrix(int& start_ri, int& end_ri, int& start_ci,
   * 
   * @return Column of matrix
   * 
-  */
+  *
 std::vector<double> cpu::Matrix::getCol(int& ci){
     std::vector<double> col(m_num_rows);
 
@@ -290,7 +285,7 @@ std::vector<double> cpu::Matrix::getCol(int& ci){
     }
 
     return col;
-}
+}*/
 
 
 /**
@@ -328,7 +323,7 @@ void cpu::Matrix::printMat(){
  * @param ci Column index for the column of interest from this matrix
  * 
  * @return mean computed for the values from the given column
- */
+ *
 double cpu::Matrix::computeMean(int& ci){
     std::vector<double> col = getCol(ci);
 
@@ -336,7 +331,7 @@ double cpu::Matrix::computeMean(int& ci){
     double mean = sum/col.size();
 
     return mean;
-}
+}*/
 
 /**
  * Compute the sample standard deviation for the values
@@ -352,7 +347,7 @@ double cpu::Matrix::computeMean(int& ci){
  * @param col A given column from a matrix.
  * 
  * @return Standard deviation for the given column
- */
+ *
 double cpu::Matrix::computeStd(int& ci){
     std::vector<double> col = getCol(ci);
 
@@ -366,7 +361,7 @@ double cpu::Matrix::computeStd(int& ci){
     double std = sqrt(accum/(col.size() -1));
 
     return std;
-}
+}*/
 
 /**
  * Compute the sample standard deviation for the values
@@ -383,7 +378,7 @@ double cpu::Matrix::computeStd(int& ci){
  * @param mean The column for which we want the mean
  * 
  * @return Standard deviation for the given column
- */
+ *
 double cpu::Matrix::computeStd(int& ci, double& mean){
     std::vector<double> col = getCol(ci);
 
@@ -395,7 +390,7 @@ double cpu::Matrix::computeStd(int& ci, double& mean){
     double std = sqrt(accum/(col.size() -1));
 
     return std;
-}
+}*/
 
 /**
  * Rescale the data to have a mean of 0 and standard deviation of 1.
@@ -403,7 +398,7 @@ double cpu::Matrix::computeStd(int& ci, double& mean){
  * 
  * @return A matrix containing the z-score for each element of this matrix
  * 
- */
+ *
 cpu::Matrix cpu::Matrix::standardizeMatrix(){
     double col_mean = 0.0;
     double col_std= 0.0;
@@ -420,7 +415,7 @@ cpu::Matrix cpu::Matrix::standardizeMatrix(){
 
     return stand_mat;
 
-}
+}*/
 
 /**
  * Get the number of rows in this Matrix.

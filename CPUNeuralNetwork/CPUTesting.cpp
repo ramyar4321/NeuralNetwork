@@ -470,10 +470,10 @@ void cpu::Testing::test_gradientDescent(){
 void cpu::Testing::test_import_dataset(){
 
     // Instantiate Dataset object and call methode to be tested.
-    cpu::Dataset dat(4, 306,0.75);
+    cpu::Dataset dat(306, 4, 0.75);
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    Matrix dataset = dat.get_dataet();
+    std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // The actual values
     double actual_value1 = dataset[0][0];
@@ -525,11 +525,11 @@ void cpu::Testing::test_X_train_split(){
 
     // Instantiate Dataset object
     // Train test ratio will be set to 0.99.
-    cpu::Dataset dat(4, 306,0.99);
+    cpu::Dataset dat(306, 4, 0.99);
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    Matrix dataset = dat.get_dataet();
+    std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
     Matrix train_dataset = dat.X_train_split();
@@ -611,11 +611,11 @@ void cpu::Testing::test_X_test_split(){
 
     // Instantiate Dataset object
     // Train test ratio will be set to 0.99.
-    cpu::Dataset dat(4, 306,0.99);
+    cpu::Dataset dat(306, 4, 0.99);
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    Matrix dataset = dat.get_dataet();
+    std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
     Matrix test_dataset = dat.X_test_split();
@@ -697,11 +697,11 @@ void cpu::Testing::test_y_train_split(){
 
     // Instantiate Dataset object
     // Train test ratio will be set to 0.99.
-    cpu::Dataset dat(4, 306,0.99);
+    cpu::Dataset dat(306, 4, 0.99);
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    Matrix dataset = dat.get_dataet();
+    std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
     std::vector<double> ytrain_dataset = dat.y_train_split();
@@ -760,11 +760,11 @@ void cpu::Testing::test_y_test_split(){
 
     // Instantiate Dataset object
     // Train test ratio will be set to 0.99.
-    cpu::Dataset dat(4, 306,0.99);
+    cpu::Dataset dat(306, 4, 0.99);
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    Matrix dataset = dat.get_dataet();
+    std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
     std::vector<double> ytest_dataset = dat.y_test_split();
@@ -813,6 +813,46 @@ void cpu::Testing::test_y_test_split(){
 }
 
 /**
+ * This methode will test both overload getColumn methodes.
+ * There will be two tests, one for each overload methode.
+ */
+void cpu::Testing::test_getColumn(){
+    
+    // Matrix used for testing
+    cpu::Dataset dat = {{1,2,3,4},
+                  {5,6,7,8},
+                  {9,10,11,12},
+                  {13,14,15,16}};
+
+    // Test if the first column, considering zero indexing, was retreived
+    int ci = 1;
+
+    int start_ri = 0;
+    int end_ri = 2;
+    std::vector<double> actual_results1 = dat.getCol(ci, start_ri, end_ri);
+    std::vector<double> expected_results1 = {2,6,10};
+
+    
+    std::vector<double> actual_results2 = dat.getCol(ci);
+    std::vector<double> expected_results2 = {2,6,10,14};
+
+    // Function pointer to helper function to be used as callback function
+    // when comparing actual and expected values.
+    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+
+     if ( std::equal(actual_results1.begin(), actual_results1.end(), expected_results1.begin(), f))
+        std::cout << "Test succeeded! getCol(ci, start_ri, end_ri) methode returned expected results.\n";
+    else
+        std::cout << "Test failed! getCol(ci, start_ri, end_ri) methode returned unexpected results.\n";
+
+    if ( std::equal(actual_results2.begin(), actual_results2.end(), expected_results2.begin(), f))
+        std::cout << "Test succeeded! getCol(ci) methode returned expected results.\n";
+    else
+        std::cout << "Test failed! getCol(ci) methode returned unexpected results.\n";
+    
+}
+
+/**
  * This methode tests the setValue methode of the Dataset class.
  */
 void cpu::Testing::test_setValue(){
@@ -820,7 +860,7 @@ void cpu::Testing::test_setValue(){
     // Instantiated Dataset object.
     // The parameters are not important. We smiply
     // need an object to access the setValue methode.
-    cpu::Dataset dat(4, 306,0.99);
+    cpu::Dataset dat(306, 4, 0.99);
 
     std::vector<double> y_actual = {2,1,2,1};
 
@@ -845,15 +885,17 @@ void cpu::Testing::test_setValue(){
  * of the Matrix clas.
  */
 void cpu::Testing::test_computeMean(){
+
+
     // Matrix used for testing
-    Matrix mat = {{1,2,3},
+    cpu::Dataset dat = {{1,2,3},
                   {4,5,6},
                   {7,8,9}};
 
     int ci = 0;
 
     // Test to see if zeroth column, considering zero indexing, mean was correctly computed.
-    double actual_result= mat.computeMean(ci);
+    double actual_result= dat.computeMean(ci);
     double expected_result = 4;
 
     // Function pointer to helper function to be used as callback function
@@ -874,8 +916,9 @@ void cpu::Testing::test_computeMean(){
  */
 void cpu::Testing::test_computeStd(){
 
+
     // Matrix used for testing
-    Matrix mat = {{1,2,3},
+    cpu::Dataset dat = {{1,2,3},
                   {4,5,6},
                   {7,8,9}};
 
@@ -883,10 +926,10 @@ void cpu::Testing::test_computeStd(){
 
     // Test to determine if both computeStd methodes
     // compute the correct Standard deviation for the zeroth column.
-    double actual_result1= mat.computeStd(ci);
+    double actual_result1= dat.computeStd(ci);
 
-    double mean  = mat.computeMean(ci);
-    double actual_result2 = mat.computeStd(ci, mean);
+    double mean  = dat.computeMean(ci);
+    double actual_result2 = dat.computeStd(ci, mean);
     
     double expected_result = 3;
 
@@ -906,15 +949,16 @@ void cpu::Testing::test_computeStd(){
 }
 
 void cpu::Testing::test_standardizeMatrix(){
+
     
-    Matrix mat = {{1,2,3},  // Matrix used for testing
+    cpu::Dataset dat = {{1,2,3},  // Matrix used for testing
                   {4,5,6},
                   {7,8,9},
                   {10,11,12}};
 
-    Matrix actual_result = mat.standardizeMatrix();
+    cpu::Matrix actual_result = dat.standardizeMatrix();
 
-    Matrix expected_result = {{-1.1619,-1.1619,-1.1619},
+    cpu::Matrix expected_result = {{-1.1619,-1.1619,-1.1619},
                               {-0.387298,-0.387298,-0.387298},
                               {0.387298,0.387298,0.387298},
                               {1.1619,1.1619,1.1619}};
@@ -958,47 +1002,6 @@ void cpu::Testing::test_getRow(){
 
 }
 
-/**
- * This methode will test both overload getColumn methodes.
- * There will be two tests, one for each overload methode.
- */
-void cpu::Testing::test_getColumn(){
-    
-    //Matrix used for testing
-    Matrix mat = {{1,2,3,4},
-                  {5,6,7,8},
-                  {9,10,11,12},
-                  {13,14,15,16}};
-
-    // Test if the first column, considering zero indexing, was retreived
-    int ci = 1;
-
-    int start_ri = 0;
-    int end_ri = 2;
-    std::vector<double> actual_results1 = mat.getCol(ci, start_ri, end_ri);
-    std::vector<double> expected_results1 = {2,6,10};
-
-    
-    std::vector<double> actual_results2 = mat.getCol(ci);
-    std::vector<double> expected_results2 = {2,6,10,14};
-
-    // Function pointer to helper function to be used as callback function
-    // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
-
-     if ( std::equal(actual_results1.begin(), actual_results1.end(), expected_results1.begin(), f))
-        std::cout << "Test succeeded! getCol(ci, start_ri, end_ri) methode returned expected results.\n";
-    else
-        std::cout << "Test failed! getCol(ci, start_ri, end_ri) methode returned unexpected results.\n";
-
-    if ( std::equal(actual_results2.begin(), actual_results2.end(), expected_results2.begin(), f))
-        std::cout << "Test succeeded! getCol(ci) methode returned expected results.\n";
-    else
-        std::cout << "Test failed! getCol(ci) methode returned unexpected results.\n";
-    
-
-
-}
 
 /*----------------------------------------------*/
 // Helper methodes.
