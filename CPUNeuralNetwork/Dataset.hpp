@@ -18,8 +18,12 @@ namespace cpu{
 
             void import_dataset(std::string &filename);
 
-            Matrix X_train_split();
-            Matrix X_test_split();
+            const std::vector<double>& operator[](const int &input) const;
+            std::vector<double>& operator[](const int &input);
+            bool operator==(const cpu::Dataset& rhs) const;
+
+            Dataset X_train_split();
+            Dataset X_test_split();
             std::vector<double> y_train_split();
             std::vector<double> y_test_split(); 
 
@@ -28,17 +32,20 @@ namespace cpu{
             std::vector<std::vector<double> > get_dataset();
 
             //Helper fucntion for train test split
-            Matrix getSubDataset(int& start_ri, int& end_ri,
+            Dataset getSubDataset(int& start_ri, int& end_ri,
                                  int& start_ci, int& end_ci);
             std::vector<double> getCol(int& ci, int& start_ri, int& end_ri);
             std::vector<double> getCol(int& ci);
-            //std::vector<double> getRow(int& ri);
+            std::vector<double> getRow(int& ri);
+
+            double get_num_rows() const;
+            double get_num_cols() const;
 
             double computeMean(int& ci);
             double computeStd(int& ci);
             double computeStd(int& ci, double &mean);
 
-            Matrix standardizeMatrix();
+            Dataset standardizeMatrix();
 
 
 

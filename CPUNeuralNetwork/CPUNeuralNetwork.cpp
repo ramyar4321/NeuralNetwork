@@ -38,7 +38,7 @@ cpu::NeuralNetwork::NeuralNetwork(int layer_p_size,
  * @param y_train       The y train dataset used to train the Neural Network.
  *                      The y train dataset is assumed to have values of 0 or 1.
  */
-void cpu::NeuralNetwork::fit(Matrix &X_train_stand, std::vector<double>& y_train){
+void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y_train){
 
     weight_initialization(m_W1);
     weight_initialization(m_W2);
@@ -139,11 +139,7 @@ std::vector<double> cpu::NeuralNetwork::compute_outputs(const cpu::Matrix &W,
 {
     std::vector<double> z(W.get_num_rows(), 0.0f);
 
-    for (unsigned int j=0; j< W.get_num_rows(); j++) {
-        for (unsigned int i=0; i< W.get_num_cols(); i++) {
-            z[j] += W[j][i] * a[i];
-        }
-    } 
+    z = W*a;
 
     return z;
 }
@@ -243,7 +239,7 @@ double cpu::NeuralNetwork::sigmoid(const double &z)
  *         X_test_stand.
  * 
  */
-std::vector<double> cpu::NeuralNetwork::perdict( Matrix &X_test_stand, const double& threeshold){
+std::vector<double> cpu::NeuralNetwork::perdict( cpu::Dataset& X_test_stand, const double& threeshold){
     
     std::vector<double> y_pred(X_test_stand.get_num_rows());
 
@@ -513,11 +509,11 @@ std::vector<double> cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W,
     std::vector<double> delta(W.get_num_cols(), 0.0);
     std::vector<double> f_prime = this->reluPrime(z);
 
+    cpu::Matrix W_tranpose = W.transpose();
+    delta = W_tranpose*delta_;
 
-    for(int j=0; j < W.get_num_cols(); j++){
-        for(int k=0; k < W.get_num_rows(); k++){
-            delta[j] += W[k][j] * delta_[k];
-        }
+
+    for(int j=0; j < delta.size(); j++){
         delta[j] *= f_prime[j];
     }
 
@@ -602,11 +598,7 @@ cpu::Matrix cpu::NeuralNetwork::gradientDecent(const Matrix& W,
 
     cpu::Matrix updatedWeights(W.get_num_rows(), W.get_num_cols());
 
-    for(int j=0; j < updatedWeights.get_num_rows(); j++){
-        for(int i=0; i < updatedWeights.get_num_cols(); i++){
-            updatedWeights[j][i] = updatedWeights[j][i] - alpha*dLdW[j][i]; 
-        }
-    }
+    updatedWeights = updatedWeights - dLdW*alpha;
 
     return updatedWeights;
 

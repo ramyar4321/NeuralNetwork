@@ -388,6 +388,15 @@ void cpu::Testing::test_backPropegation(){
         }
     }
 
+    /*for(int j= 0; j<numericdLdW1.get_num_rows(); j++){
+
+        for( int i=0; i < numericdLdW1.get_num_cols(); i++){
+            std::cout << numericdLdW1[j][i] << std::endl;
+            std::cout << actual_dLdW1[j][i] << std::endl;
+            std::cout << "--" << std::endl;
+        }
+    }*/
+
 
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
@@ -532,7 +541,7 @@ void cpu::Testing::test_X_train_split(){
     std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
-    Matrix train_dataset = dat.X_train_split();
+    cpu::Dataset train_dataset = dat.X_train_split();
 
     // Actual size of the X train set data
     unsigned int actual_col_size = train_dataset.get_num_cols();
@@ -618,7 +627,7 @@ void cpu::Testing::test_X_test_split(){
     std::vector<std::vector<double> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
-    Matrix test_dataset = dat.X_test_split();
+    cpu::Dataset test_dataset = dat.X_test_split();
 
     // Actual size of the X test set data
     unsigned int actual_col_size = test_dataset.get_num_cols();
@@ -956,9 +965,9 @@ void cpu::Testing::test_standardizeMatrix(){
                   {7,8,9},
                   {10,11,12}};
 
-    cpu::Matrix actual_result = dat.standardizeMatrix();
+    cpu::Dataset actual_result = dat.standardizeMatrix();
 
-    cpu::Matrix expected_result = {{-1.1619,-1.1619,-1.1619},
+    cpu::Dataset expected_result = {{-1.1619,-1.1619,-1.1619},
                               {-0.387298,-0.387298,-0.387298},
                               {0.387298,0.387298,0.387298},
                               {1.1619,1.1619,1.1619}};
@@ -982,13 +991,13 @@ void cpu::Testing::test_standardizeMatrix(){
  */
 void cpu::Testing::test_getRow(){
     // Matrix used for testing
-    Matrix mat = {{1,2,3},
+    cpu::Dataset dat = {{1,2,3},
                   {4,5,6},
                   {7,8,9}};
 
     // Test to see if first row, considering zero indexing, was retreived.
     int ri = 1;
-    std::vector<double> actual_results = mat.getRow(ri);
+    std::vector<double> actual_results = dat.getRow(ri);
     std::vector<double> expected_results = {4,5,6};
 
     // Function pointer to helper function to be used as callback function

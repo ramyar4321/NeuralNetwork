@@ -70,6 +70,62 @@ void cpu::Dataset::import_dataset(std::string &filename){
 }
 
 /**
+ * Overload equality operator.
+ * 
+ * Two matrices are equal if and only if
+ * they have the same dimensions and their
+ * corresonding elements are equal.
+ * 
+ * return true if two matrices are equal,
+ *        false otherwise
+ */
+bool cpu::Dataset::operator==(const cpu::Dataset& rhs) const{
+
+    bool areEqual = true;
+
+    // Variables to store the element of matrices to be compared
+    double this_val = 0.0;
+    double rhs_val = 0.0;
+
+    // Fixed error for comparison between two given values
+    constexpr double epsilon = 0.01; 
+
+    //Check if the dimensions of the two matrices are equal
+    if( this->m_num_rows != rhs.get_num_rows() ||
+        this->m_num_cols != rhs.get_num_cols()){
+            areEqual = false;
+    }else{
+        // Check if corresponding elements of the two matracies are equal
+        for (int j = 0; j < this->m_num_rows; j++){
+            for(int i = 0; i < this->m_num_cols; i++){
+                this_val = this->m_dataset[j][i];
+                rhs_val = rhs[j][i];
+                if(!(std::abs(this_val - rhs_val) < epsilon)){
+                    areEqual = false;
+                }
+            }
+        }
+    }
+
+    return areEqual;
+
+}
+
+/**
+ * Overload operator[] for read-only operation on elements of this Dataset.
+ */
+const std::vector<double>& cpu::Dataset::operator[](const int &input) const{
+    return m_dataset[input];
+}
+
+/**
+ * Overload operator[] for write operation on elements of this Dataset.
+ */
+std::vector<double>& cpu::Dataset::operator[](const int &input) {
+    return m_dataset[input];
+}
+
+/**
  * This methode will produce the X training set
  * from the dataset. The X training set comprises 
  * all of the rows of the dataset starting from the first fow up until the train_size -1
@@ -77,7 +133,7 @@ void cpu::Dataset::import_dataset(std::string &filename){
  * 
  * @return X training set
  */
-cpu::Matrix cpu::Dataset::X_train_split(){
+cpu::Dataset cpu::Dataset::X_train_split(){
 
     // Determine indices
     int train_size = static_cast<int>( this->m_num_rows * m_train_test_ratio );
@@ -91,7 +147,7 @@ cpu::Matrix cpu::Dataset::X_train_split(){
     int start_ci = 0;
     int end_ci = this->m_num_cols - 2; // Subtract 2 since there is zero indexing of vectors
 
-    Matrix x_train = this->getSubDataset(start_ri, end_ri, start_ci, end_ci);
+    cpu::Dataset x_train = this->getSubDataset(start_ri, end_ri, start_ci, end_ci);
 
 
     return x_train; 
@@ -105,7 +161,7 @@ cpu::Matrix cpu::Dataset::X_train_split(){
  * and all columns except the outcome caolumn.
  * 
  */
-cpu::Matrix cpu::Dataset::X_test_split(){
+cpu::Dataset cpu::Dataset::X_test_split(){
     int train_size = static_cast<int>( this->m_num_rows * m_train_test_ratio );
 
     // Train data consists of all rows from
@@ -117,7 +173,7 @@ cpu::Matrix cpu::Dataset::X_test_split(){
     int start_ci = 0;
     int end_ci = this->m_num_cols - 2; // Subtract 2 since there is zero indexing of vectors
 
-    Matrix x_test = this->getSubDataset(start_ri, end_ri, start_ci, end_ci);
+    cpu::Dataset x_test = this->getSubDataset(start_ri, end_ri, start_ci, end_ci);
 
     return x_test;
 }
@@ -212,7 +268,7 @@ std::vector<std::vector<double> > cpu::Dataset::get_dataset(){
  * @return A sub-matrix containing a block of entries of the original dataset.
  * 
  */
-cpu::Matrix cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_ci, int& end_ci){
+cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_ci, int& end_ci){
 
     // Assert that Matrix indices are withing the dimensions of this Matrix
     assert(start_ri >= 0 && start_ri < m_num_rows);
@@ -225,7 +281,7 @@ cpu::Matrix cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_c
     int submat_num_cols = end_ci - start_ci + 1;
 
     // Create sub-matrix object to be returned
-    cpu::Matrix submat(submat_num_rows, submat_num_cols);
+    cpu::Dataset submat(submat_num_rows, submat_num_cols);
 
     for(int j=0, row = start_ri; row <= end_ri; row++, j++){
         for(int i=0, col = start_ci; col <= end_ci; col++, i++){
@@ -285,6 +341,31 @@ std::vector<double> cpu::Dataset::getCol(int& ci){
     return col;
 }
 
+/**
+ * Return row of dataset.
+ * 
+ * @param ri Index of the row of this dataset to be returned
+ * 
+ * @return Row of dataset.
+ */
+std::vector<double> cpu::Dataset::getRow(int& ri){
+    std::vector<double> row(m_num_cols);
+
+
+    for(int i = 0; i < m_num_cols; i++){
+        row[i] = m_dataset[ri][i];
+    }
+
+    return row;
+}
+
+double cpu::Dataset::get_num_rows() const{
+    return this->m_num_rows;
+}
+
+double cpu::Dataset::get_num_cols() const{
+    return this->m_num_cols;
+}
 
 /**
  * Compute the mean of values from a given column.
@@ -368,11 +449,11 @@ double cpu::Dataset::computeStd(int& ci, double& mean){
  * @return A matrix containing the z-score for each element of this matrix
  * 
  */
-cpu::Matrix cpu::Dataset::standardizeMatrix(){
+cpu::Dataset cpu::Dataset::standardizeMatrix(){
     double col_mean = 0.0;
     double col_std= 0.0;
 
-    Matrix stand_mat(this->m_num_rows, this->m_num_cols);
+    cpu::Dataset stand_mat(this->m_num_rows, this->m_num_cols);
 
     for(int i=0; i < this->m_num_cols; i++){
         col_mean = this->computeMean(i);

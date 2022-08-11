@@ -2,6 +2,7 @@
 #define CPU_NEURAL_NETWORK
 
 #include <vector>
+#include "Dataset.hpp"
 #include "Matrix.hpp"
 
 
@@ -27,7 +28,7 @@ namespace cpu {
             void weight_initialization( Matrix& W);
             void weight_initialization( std::vector<double>& W);
 
-            void fit(Matrix &X_train_stand, std::vector<double>& y_train);
+            void fit(Dataset& X_train_stand, std::vector<double>& y_train);
 
             void forward_propegation();
             
@@ -40,7 +41,7 @@ namespace cpu {
 
             double sigmoid(const double& z);
 
-            std::vector<double> perdict(Matrix &X_test_stand, const double& threeshold);
+            std::vector<double> perdict(Dataset& X_test_stand, const double& threeshold);
 
             double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 

@@ -36,22 +36,16 @@ namespace cpu{
             bool operator==(const Matrix& rhs) const;
             const std::vector<double>& operator[](const int &input) const;
             std::vector<double>& operator[](const int &input);
-            //Matrix operator+(const double& rhs);
-            //Matrix& operator+=(const double& rhs);
-            //Matrix operator-(const double& rhs);
-            //Matrix& operator-=(const double& rhs);
+            Matrix operator-(const Matrix& rhs) const;
+            Matrix& operator-=(const Matrix& rhs);
+            Matrix operator*(const double& rhs) const;
+            Matrix& operator*=(const double& rhs);
+            std::vector<double> operator*(const std::vector<double>& rhs) const;
+            //Matrix& operator*=(const std::vector<double>& rhs);
 
-            //Matrix getSubMatrix(int& start_ri, int& end_ri, int& start_ci, int& end_ci);
-            //std::vector<double> getCol(int& ci, int& start_ri, int& end_ri);
-            //std::vector<double> getCol(int& ci);
-            std::vector<double> getRow(int& ri);
+            Matrix transpose() const;
             void printMat();
 
-            //Matrix standardizeMatrix();
-
-            //double computeMean(int& ci);
-            //double computeStd(int& ci);
-            //double computeStd(int& ci, double &mean);
 
             int get_num_rows() const;
             int get_num_cols() const;
