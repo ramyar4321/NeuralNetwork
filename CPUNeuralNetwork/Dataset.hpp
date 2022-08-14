@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "Matrix.hpp"
+#include "Vector.hpp"
 
 namespace cpu{
     /**
@@ -36,7 +37,7 @@ namespace cpu{
                                  int& start_ci, int& end_ci);
             std::vector<double> getCol(int& ci, int& start_ri, int& end_ri);
             std::vector<double> getCol(int& ci);
-            std::vector<double> getRow(int& ri);
+            Vector getRow(int& ri);
 
             double get_num_rows() const;
             double get_num_cols() const;

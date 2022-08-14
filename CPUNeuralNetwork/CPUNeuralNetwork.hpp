@@ -4,6 +4,7 @@
 #include <vector>
 #include "Dataset.hpp"
 #include "Matrix.hpp"
+#include "Vector.hpp"
 
 
 namespace cpu {
@@ -25,19 +26,17 @@ namespace cpu {
                           int epoch,
                           double alpha);
 
-            void weight_initialization( Matrix& W);
-            void weight_initialization( std::vector<double>& W);
 
             void fit(Dataset& X_train_stand, std::vector<double>& y_train);
 
             void forward_propegation();
             
-            std::vector<double> compute_outputs(const cpu::Matrix &W, 
-                                               const std::vector<double> &a);
-            double computeOutputLastLayer(const std::vector<double> &W, 
-                                          const std::vector<double> &a);
+            cpu::Vector compute_outputs(const cpu::Matrix &W, 
+                                               const cpu::Vector &a);
+            double compute_outputs(const cpu::Vector &W, 
+                                        const cpu::Vector &a);
 
-            std::vector<double> relu_activation(const std::vector<double> &z);
+            cpu::Vector relu_activation(const cpu::Vector &z);
 
             double sigmoid(const double& z);
 
@@ -52,83 +51,76 @@ namespace cpu {
 
             double sigmoidPrime(const double& z);
 
-            std::vector<double> reluPrime(const std::vector<double> &z);
+            cpu::Vector reluPrime(const cpu::Vector &z);
                                
             double bceLossPrime(const double &y, 
                                 const double &a);
 
-            std::vector<double> computeDeltaInit(const double& y,
+            double computeDeltaInit(const double& y,
                                                 const double& a,
                                                 const double& z);
+            cpu::Vector computeDelta(const Matrix& W, 
+                                             const cpu::Vector& delta_,
+                                             const cpu::Vector& z);
+            cpu::Vector computeDelta(const Vector& W, 
+                                    const double& delta_,
+                                    const cpu::Vector& z);
 
-            std::vector<double> computeDeltaInit(const std::vector<double>& W,
-                                                const std::vector<double>& delta,
-                                                const std::vector<double>& z);
-
-            std::vector<double> computeGradientInit(const std::vector<double>& delta,
-                                                    const std::vector<double>& a);
-
-            std::vector<double> computeDelta(const Matrix& W, 
-                                             const std::vector<double>& delta_,
-                                             const std::vector<double>& z);
-
-            cpu::Matrix computeGradient(const std::vector<double>& delta,
-                                        const std::vector<double>& a);
+            cpu::Matrix computeGradient(const cpu::Vector& delta,
+                                        const cpu::Vector& a);
+            cpu::Vector computeGradientInit(const double& delta,
+                                            const cpu::Vector& a);
 
             cpu::Matrix gradientDecent(const Matrix& W,
                                         const double& alpha, 
                                         const Matrix& dLdW);
-            std::vector<double> gradientDecentInit(const std::vector<double>& W,
-                                                    const double& alpha,
-                                                    const std::vector<double>& dLdW);
+            cpu::Vector gradientDecent(const cpu::Vector& W,
+                                        const double& alpha,
+                                        const cpu::Vector& dLdW);
             
             void updateWeigths();
 
 
             // Setter and getter methodes
 
-            void x(const std::vector<double>& _x);
+            void x(const cpu::Vector& _x);
             void W1(const cpu::Matrix& _W1);
             void W2(const cpu::Matrix& _W2);
-            void W3(const std::vector<double>& _W3);
+            void W3(const cpu::Vector& _W3);
             void y(const double& _y);
 
             double& a3();
 
-            const std::vector<double>& dLdW3() const;
+            const cpu::Vector& dLdW3() const;
             const cpu::Matrix& dLdW2() const;
             const cpu::Matrix& dLdW1() const;
 
         private:
 
             // Store the output of the neurons for each layer, excluding the input layer.
-            std::vector<double> m_z1;
-            std::vector<double> m_z2;
-            // The last layer has only one neuron so an std::vector is unnecessary.
+            cpu::Vector m_z1;
+            cpu::Vector m_z2;
             double m_z3;
 
             // Store the activations of the neurons for each layer.
-            std::vector<double> m_a1;
-            std::vector<double> m_a2;
-            // The last layer has only one neuron so an std::vector is unnecessary.
+            cpu::Vector m_a1;
+            cpu::Vector m_a2;
             double m_a3;
 
             // Store the sample input the neural network x
             // and the expected outcome y.
-            std::vector<double> m_x;
+            cpu::Vector m_x;
             double m_y;
 
             // Store the error terms for each layer
-            std::vector<double> m_delta1;
-            std::vector<double> m_delta2;
-            std::vector<double> m_delta3; 
+            cpu::Vector m_delta1;
+            cpu::Vector m_delta2;
+            double m_delta3; 
 
             // Maxtrix that will store weights between input layer and first hidden layer
             Matrix m_W1;
-            // Maxtrix that will store weights between first hidden layer and second hidden layer.
             Matrix m_W2;
-            // Vector that will store weights between second hidden layer and output layer.
-            std::vector<double> m_W3;
+            Vector m_W3;
 
             // Store the number of iterations of training the neural network.
             int m_epoch;
@@ -138,7 +130,7 @@ namespace cpu {
             // Store the gradient of the weights for each layer 
             Matrix m_dLdW1;
             Matrix m_dLdW2;
-            std::vector<double> m_dLdW3;
+            Vector m_dLdW3;
 
 
     };

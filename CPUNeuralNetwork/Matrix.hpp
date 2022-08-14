@@ -5,6 +5,9 @@
 #include <initializer_list>
 
 namespace cpu{
+    // Forward delcare Vector class to break circular dependancy between
+    // Vector and Matrix classes
+    class Vector;
     /**
      * Matrix class to store two dimensional mathematical matrix and 
      * to perform needed mathematical operations on such a matrix.
@@ -12,13 +15,7 @@ namespace cpu{
      * Each matrix object will be of dimensions num_rows by num_cols. 
      * Each element of the matrix will be intialized to 0.0.
      * 
-     * This matrix class will only support operations needed in the NeuralNetwork and
-     * Dataset classes.
-     * The following operations and operators will be supported:
-     * - Getting a column of a matrix.
-     * - operator=
-     * - operator[] 
-     * - Getting a sub-Matrix 
+     * This matrix class will only support operations needed in the NeuralNetwork class.
      */
     class Matrix{
         private:
@@ -32,6 +29,8 @@ namespace cpu{
             Matrix(const Matrix& other);
             Matrix(std::initializer_list< std::initializer_list<double> > ilist);
 
+            void matrix_initialization();       
+
             Matrix& operator=(const Matrix& rhs);
             bool operator==(const Matrix& rhs) const;
             const std::vector<double>& operator[](const int &input) const;
@@ -40,9 +39,8 @@ namespace cpu{
             Matrix& operator-=(const Matrix& rhs);
             Matrix operator*(const double& rhs) const;
             Matrix& operator*=(const double& rhs);
-            std::vector<double> operator*(const std::vector<double>& rhs) const;
+            Vector operator*(const Vector& rhs) const;
             //Matrix& operator*=(const std::vector<double>& rhs);
-
             Matrix transpose() const;
             void printMat();
 

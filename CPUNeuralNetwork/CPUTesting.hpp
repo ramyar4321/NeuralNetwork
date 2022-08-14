@@ -1,6 +1,7 @@
 #ifndef CPU_TESTING
 #define CPU_TESTING
 #include "Matrix.hpp"
+#include "Vector.hpp"
 
 namespace cpu {
     /**

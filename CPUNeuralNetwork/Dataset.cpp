@@ -348,8 +348,8 @@ std::vector<double> cpu::Dataset::getCol(int& ci){
  * 
  * @return Row of dataset.
  */
-std::vector<double> cpu::Dataset::getRow(int& ri){
-    std::vector<double> row(m_num_cols);
+cpu::Vector cpu::Dataset::getRow(int& ri){
+    cpu::Vector row(m_num_cols, 0.0f);
 
 
     for(int i = 0; i < m_num_cols; i++){

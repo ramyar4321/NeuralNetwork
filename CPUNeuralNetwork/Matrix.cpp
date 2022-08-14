@@ -1,6 +1,8 @@
 #include "Matrix.hpp"
+#include "Vector.hpp"
 #include <iostream>
 #include <algorithm>
+#include "random"
 
 /**
  * Constructor for Matrix object with number of rows and columns specified. 
@@ -35,6 +37,30 @@ cpu::Matrix::Matrix(const Matrix& rhs):
     //Invoke the copy constrcutor for std::vector
     m_mat(rhs.m_mat)
 {}
+
+/**
+ * Initialize the elements of the matrix to random values that come
+ * from a Gaussian Distribtuion centered at 0 with standard deviations of 
+ * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
+ * 
+ */
+void cpu::Matrix::matrix_initialization()
+{
+
+
+    std::mt19937 generator;
+    double mean = 0.0f;
+    double stddev = std::sqrt(1 / static_cast<double>(this->m_num_cols) ); 
+    std::normal_distribution<double> normal(mean, stddev);
+    for (int j=0; j< this->m_num_rows; ++j) {
+        for (int i=0; i< this->m_num_cols; ++i) {
+            this->m_mat[j][i] = normal(generator);
+        }
+    } 
+
+}
+
+
 
 /**
  * Overload assignment operator. 
@@ -116,7 +142,7 @@ bool cpu::Matrix::operator==(const Matrix& rhs) const{
 /**
  * Overload operator[] for read-only operation on elements of this Matrix.
  * The first constant indicates that we are returning a data type that will
- * not be modified. The second const idicates that the methode parameter will not
+ * not be modified. The second const indicates that the methode parameter will not
  * be modified by this methode. The third const indicates that this methode will not
  * modify the memeber variable.
  */
@@ -215,8 +241,8 @@ cpu::Matrix& cpu::Matrix::operator*=(const double& rhs){
  * to be performed on a Matrix object
  * 
  */
-std::vector<double> cpu::Matrix::operator*(const std::vector<double>& rhs) const{
-    std::vector<double> vec(this->m_num_rows, 0.0f);
+cpu::Vector cpu::Matrix::operator*(const cpu::Vector& rhs) const{
+    cpu::Vector vec(this->m_num_rows, 0.0f);
 
     double temp;
 

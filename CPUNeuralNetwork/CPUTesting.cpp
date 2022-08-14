@@ -33,49 +33,45 @@ void cpu::Testing::test_compute_outputs(){
 
     cpu::Matrix W1( {{1.1f}, {2.2f}} );
     cpu::Matrix W2 ( {{3.3f, 4.4f}, {5.5f, 6.6f}} );
-    cpu::Matrix W3 ( {{7.7f, 8.8f}} ); 
+    cpu::Vector W3 ( {{7.7f, 8.8f}} ); 
 
 
     // Note, a3 does not need to be used since the output neuron 
     // is in the last layer and does not feed into any other neuron.
-    std::vector<double> x = {1.1f};
-    std::vector<double> a1 = {2.0, 3.0};
-    std::vector<double> a2 = {4.0, 5.0};
+    cpu::Vector x = {1.1f};
+    cpu::Vector a1 = {2.0, 3.0};
+    cpu::Vector a2 = {4.0, 5.0};
 
     // Declare and initialize the expected output of compute_outputs.
 
     // z1 = { x * W1_11, x * W1_21} = {1.1 * 1.1, 1.1 * 2.2}
-    std::vector<double> expected_z1 = {1.21f, 2.42f};
+    cpu::Vector expected_z1 = {1.21f, 2.42f};
     // z2 = { {a1_1 * W2_11 + a1_2 * W2_12}, {a1_1 * W2_21 + a1_2 * W2_22}}
     // z2 = { {2.0 * 3.3 + 3.0 * 4.4}, {2.0 * 5.5 + 3.0 * 6.6}}
-    std::vector<double> expected_z2 = {19.8f, 30.8f}; 
+    cpu::Vector expected_z2 = {19.8f, 30.8f}; 
     // z3 = {{a2_1 * W3_11 + a2_2 * W3_12}} = {{4.0* 7.7 + 5.0 * 8.8}}
-    std::vector<double> expected_z3 = {74.8f};
+    double expected_z3 = 74.8f;
 
     // Instantiate an instance of the Neural Network class
     cpu::NeuralNetwork net(layer_p_size,layer_q_size,epoch, alpha);
 
     // Use mock inputs to test if methode produces expected results
 
-    std::vector<double> actual_z1 = net.compute_outputs(W1, x);
-    std::vector<double> actual_z2 = net.compute_outputs(W2, a1);
-    std::vector<double> actual_z3 = net.compute_outputs(W3, a2);
+    cpu::Vector actual_z1 = net.compute_outputs(W1, x);
+    cpu::Vector actual_z2 = net.compute_outputs(W2, a1);
+    double actual_z3 = net.compute_outputs(W3, a2);
 
-    // Function pointer to helper function to be used as callback function
-    // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
-
-    if ( std::equal(actual_z1.begin(), actual_z1.end(), expected_z1.begin(),f))
+    if ( actual_z1 == expected_z1)
         std::cout << "Test succeded for z1.\n";
     else
         std::cout << "Test failed for z1.\n";
 
-    if ( std::equal(actual_z2.begin(), actual_z2.end(), expected_z2.begin(),f))
+    if (actual_z2 == expected_z2)
         std::cout << "Test succeded for z2.\n";
     else
         std::cout << "Test failed for z2.\n";
 
-    if ( std::equal(actual_z3.begin(), actual_z3.end(), expected_z3.begin(),f))
+    if ( this->areFloatEqual(actual_z3, expected_z3))
         std::cout << "Test succeded for z3.\n";
     else
         std::cout << "Test failed for z3.\n";
@@ -97,33 +93,30 @@ void cpu::Testing::test_relu_activation(){
     int epoch = 1;
     double alpha = 0.01;
 
-    std::vector<double> z1 = {2.28f, 4.19f};
-    std::vector<double> z2 = {-2.28f, -4.19f};
+    cpu::Vector z1 = {2.28f, 4.19f};
+    cpu::Vector z2 = {-2.28f, -4.19f};
 
     // Declare and initialize the expected output of relu_activation.
 
     // a1 = { max(0, z1_1), max(0, z1_2)} = { max(0, 2.28f), max(0, 4.19f)}
-    std::vector<double> expected_a1 = {2.28f, 4.19f};
+    cpu::Vector expected_a1 = {2.28f, 4.19f};
     // a2 = { max(0, z2_1), max(0, z2_2)} = { max(0, -2.28f), max(0, -4.19f)}
-    std::vector<double> expected_a2 = {0.0f, 0.0f}; 
+    cpu::Vector expected_a2 = {0.0f, 0.0f}; 
 
     // Instantiate an instance of the Neural Network class
     cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch,alpha);
 
     // Use mock inputs to test if methode produces expected results
-    std::vector<double> actual_a1 = net.relu_activation(z1);
-    std::vector<double> actual_a2 = net.relu_activation(z2);
+    cpu::Vector actual_a1 = net.relu_activation(z1);
+    cpu::Vector actual_a2 = net.relu_activation(z2);
 
-    // Function pointer to helper function to be used as callback function
-    // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
 
-     if ( std::equal(actual_a1.begin(), actual_a1.end(), expected_a1.begin(), f))
+     if ( actual_a1 == expected_a1)
         std::cout << "Test succeded for a1.\n";
     else
         std::cout << "Test failed for a1.\n";
 
-    if ( std::equal(actual_a2.begin(), actual_a2.end(), expected_a2.begin(),f))
+    if ( actual_a1 == expected_a1)
         std::cout << "Test succeded for a2.\n";
     else
         std::cout << "Test failed for a2.\n";
@@ -277,12 +270,12 @@ void cpu::Testing::test_backPropegation(){
 
     cpu::NeuralNetwork net(10,10, 0, 0.01);
 
-    std::vector<double> x = {-2.11764, 0.3571 , -0.423171};
+    cpu::Vector x = {-2.11764, 0.3571 , -0.423171};
     double y = 0;
 
     cpu::Matrix W1(10,3);
     cpu::Matrix W2(10,10);
-    std::vector<double> W3(10);
+    cpu::Vector W3(10,0.0f);
 
     double a3;
 
@@ -292,21 +285,21 @@ void cpu::Testing::test_backPropegation(){
     cpu::Matrix W2_minus(10,10);
     cpu::Matrix W2_plus(10,10);
 
-    std::vector<double> W3_minus(10);
-    std::vector<double> W3_plus(10);
+    cpu::Vector W3_minus(10, 0.0f);
+    cpu::Vector W3_plus(10, 0.0f);
 
     cpu::Matrix numericdLdW1(10,3);
     cpu::Matrix numericdLdW2(10,10);
-    std::vector<double> numericdLdW3(10);
+    cpu::Vector numericdLdW3(10, 0.0f);
 
     double perturb = 0.0001;
 
     double loss_minus;
     double loss_plus;
 
-    net.weight_initialization(W1);
-    net.weight_initialization(W2);
-    net.weight_initialization(W3);
+    W1.matrix_initialization();
+    W2.matrix_initialization();
+    W3.vectorInitialization();
 
     net.x(x);
     net.W1(W1);
@@ -317,11 +310,11 @@ void cpu::Testing::test_backPropegation(){
     net.forward_propegation();
     net.backPropegation();
 
-    const std::vector<double> &actual_dLdW3 = net.dLdW3();
+    const cpu::Vector &actual_dLdW3 = net.dLdW3();
     const cpu::Matrix& actual_dLdW2 = net.dLdW2();
     const cpu::Matrix& actual_dLdW1 = net.dLdW1();
 
-    for(int i=0; i < W3.size(); i++){
+    for(int i=0; i < W3.getSize(); i++){
         W3_minus = W3;
         W3_plus = W3;
         W3_minus[i] -= perturb;
@@ -400,7 +393,7 @@ void cpu::Testing::test_backPropegation(){
 
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
-    if ( std::equal(actual_dLdW3.begin(), actual_dLdW3.end(), numericdLdW3.begin(), f))
+    if ( actual_dLdW1 == numericdLdW1)
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
     else
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for last layer.\n";
@@ -997,14 +990,14 @@ void cpu::Testing::test_getRow(){
 
     // Test to see if first row, considering zero indexing, was retreived.
     int ri = 1;
-    std::vector<double> actual_results = dat.getRow(ri);
-    std::vector<double> expected_results = {4,5,6};
+    cpu::Vector actual_results = dat.getRow(ri);
+    cpu::Vector expected_results = {4,5,6};
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
 
-    if ( std::equal(actual_results.begin(), actual_results.end(), expected_results.begin(), f))
+    if ( actual_results == expected_results)
         std::cout << "Test succeeded! getRow methode returned expected results.\n";
     else
         std::cout << "Test failed! getROw methode returned unexpected results.\n";
