@@ -62,7 +62,7 @@ cpu::Matrix cpu::Vector::tensor(const cpu::Vector& rhs)const{
 
     for(int i =0; i < num_cols; i++){
         for (int j=0; j < num_rows; j++){
-            mat[j][i] = this->m_vec[i]*rhs[j];
+            mat(j, i)= this->m_vec[i]*rhs[j];
         }
     }
 

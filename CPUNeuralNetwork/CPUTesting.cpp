@@ -31,9 +31,9 @@ void cpu::Testing::test_compute_outputs(){
     // neuron weights and outputs from forward and back propegations. 
     // They are random values simply used to test the compute_output methode.
 
-    cpu::Matrix W1( {{1.1f}, {2.2f}} );
-    cpu::Matrix W2 ( {{3.3f, 4.4f}, {5.5f, 6.6f}} );
-    cpu::Vector W3 ( {{7.7f, 8.8f}} ); 
+    cpu::Matrix W1(1,2, {1.1f, 2.2f} );
+    cpu::Matrix W2 (2,2,{3.3f, 4.4f, 5.5f, 6.6f} );
+    cpu::Vector W3 ( {7.7f, 8.8f} ); 
 
 
     // Note, a3 does not need to be used since the output neuron 
@@ -339,8 +339,8 @@ void cpu::Testing::test_backPropegation(){
         for(int i=0; i < W2.get_num_cols(); i++){
             W2_minus = W2;
             W2_plus = W2;
-            W2_minus[j][i] -= perturb;
-            W2_plus[j][i] += perturb;
+            W2_minus(j,i) -= perturb;
+            W2_plus(j,i) += perturb;
 
             net.W2(W2_minus);
             net.forward_propegation();
@@ -354,7 +354,7 @@ void cpu::Testing::test_backPropegation(){
             a3 = net.a3();
             loss_plus =net.bceLoss(y, a3);
 
-            numericdLdW2[j][i] = (loss_plus-loss_minus)/(2*perturb);
+            numericdLdW2(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
     }
 
@@ -362,8 +362,8 @@ void cpu::Testing::test_backPropegation(){
         for(int i=0; i < W1.get_num_cols(); i++){
             W1_minus = W1;
             W1_plus = W1;
-            W1_minus[j][i] -= perturb;
-            W1_plus[j][i] += perturb;
+            W1_minus(j,i) -= perturb;
+            W1_plus(j,i) += perturb;
 
             net.W1(W1_minus);
             net.forward_propegation();
@@ -377,7 +377,7 @@ void cpu::Testing::test_backPropegation(){
             a3 = net.a3();
             loss_plus =net.bceLoss(y, a3);
 
-            numericdLdW1[j][i] = (loss_plus-loss_minus)/(2*perturb);
+            numericdLdW1(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
     }
 
@@ -436,7 +436,7 @@ void cpu::Testing::test_gradientDescent(){
 
     int numIter = 5;
 
-    cpu::Matrix w = {{4}};
+    cpu::Matrix w(1,{4});
     double loss = computeQuadraticLoss(w);
     double prev_loss;
     cpu::Matrix dLdw = computeGradientQuadraticLoss(w);
@@ -1024,7 +1024,7 @@ bool cpu::Testing::areFloatEqual(double a, double b){
  * 
  */
 double cpu::Testing::computeQuadraticLoss(cpu::Matrix& w){
-    double quadraticLoss = w[0][0]*w[0][0];
+    double quadraticLoss = w(0,0)*w(0,0);
 
     return quadraticLoss;
 }
@@ -1036,9 +1036,9 @@ double cpu::Testing::computeQuadraticLoss(cpu::Matrix& w){
  * 
  */
 cpu::Matrix cpu::Testing::computeGradientQuadraticLoss(cpu::Matrix& w){
-    double gradientQuadracticLoss = 2*w[0][0];
+    double gradientQuadracticLoss = 2*w(0,0);
 
-    cpu::Matrix gradientQuadracticLoss_ = {{gradientQuadracticLoss}};
+    cpu::Matrix gradientQuadracticLoss_(1,1,{gradientQuadracticLoss});
 
     return gradientQuadracticLoss_;
 }

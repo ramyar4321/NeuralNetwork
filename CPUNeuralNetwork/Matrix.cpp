@@ -11,16 +11,16 @@ cpu::Matrix::Matrix(int num_rows,
                     int num_cols):
                     m_num_rows(num_rows),
                     m_num_cols(num_cols),
-                    m_mat(num_rows, std::vector<double>(num_cols, 0.0f))
+                    m_mat(num_rows*num_cols, 0.0f)
 {}
 
 /**
  * Constructor for Matrix object using initializer list
  */
-cpu::Matrix::Matrix(std::initializer_list< std::initializer_list<double> > ilist):
+cpu::Matrix::Matrix(int num_rows, int num_cols, std::initializer_list<double>  ilist):
     m_mat(ilist.begin(), ilist.end()),
-    m_num_rows(ilist.size()),
-    m_num_cols(ilist.begin()->size())
+    m_num_rows(num_rows),
+    m_num_cols(num_cols)
 {}
 
 /**
@@ -54,7 +54,7 @@ void cpu::Matrix::matrix_initialization()
     std::normal_distribution<double> normal(mean, stddev);
     for (int j=0; j< this->m_num_rows; ++j) {
         for (int i=0; i< this->m_num_cols; ++i) {
-            this->m_mat[j][i] = normal(generator);
+            this->m_mat[j*this->m_num_cols+i] = normal(generator);
         }
     } 
 
@@ -75,15 +75,12 @@ cpu::Matrix& cpu::Matrix::operator=(const Matrix& rhs){
     int new_row_num = rhs.get_num_rows();
 
     // resize this Matrix
-    m_mat.resize(new_row_num);
-    for(int j=0; j < m_mat.size(); j++){
-        m_mat[j].resize(new_col_num);
-    }
+    m_mat.resize(new_row_num*new_col_num);
 
     // Assign this matrix values elementwise
     for(int j=0; j < new_row_num; j++){
         for(int i=0; i < new_col_num; i++){
-            m_mat[j][i] = rhs[j][i];
+            m_mat[j*this->m_num_cols+i] = rhs(j,i);
         }
     }
 
@@ -126,8 +123,8 @@ bool cpu::Matrix::operator==(const Matrix& rhs) const{
         // Check if corresponding elements of the two matracies are equal
         for (int j = 0; j < this->m_num_rows; j++){
             for(int i = 0; i < this->m_num_cols; i++){
-                this_val = this->m_mat[j][i];
-                rhs_val = rhs[j][i];
+                this_val = this->m_mat[j*this->m_num_cols+i];
+                rhs_val = rhs(j,i);
                 if(!(std::abs(this_val - rhs_val) < epsilon)){
                     areEqual = false;
                 }
@@ -141,23 +138,20 @@ bool cpu::Matrix::operator==(const Matrix& rhs) const{
 
 /**
  * Overload operator[] for read-only operation on elements of this Matrix.
- * The first constant indicates that we are returning a data type that will
- * not be modified. The second const indicates that the methode parameter will not
- * be modified by this methode. The third const indicates that this methode will not
- * modify the memeber variable.
+ * Since this matrix is a flatten 2d vector, the index of a given element 
+ * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
-const std::vector<double>& cpu::Matrix::operator[](const int &input) const{
-    return m_mat[input];
+const double& cpu::Matrix::operator()(const int& row, const int& col) const{
+    return this->m_mat[row*this->m_num_cols + col];
 }
 
 /**
  * Overload operator[] for write operation on elements of this Matrix.
- * Note that Matrix[j][i] = 3 is the same as
- *           auto& temp = Matrix[j]
- *           temp[i] = 3
+ * Since this matrix is a flatten 2d vector, the index of a given element 
+ * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
-std::vector<double>& cpu::Matrix::operator[](const int &input) {
-    return m_mat[input];
+double& cpu::Matrix::operator()(const int& row, const int& col) {
+    return this->m_mat[row*this->m_num_cols + col];
 }
 
 
@@ -172,7 +166,7 @@ cpu::Matrix cpu::Matrix::operator-(const cpu::Matrix& rhs) const{
 
     for(int j = 0;  j < this->m_num_rows; j++){
         for(int i = 0; i < this->m_num_cols; i++){
-            mat[j][i] = this->m_mat[j][i] - rhs[j][i];
+            mat(j, i) = this->m_mat[j*this->m_num_cols+i] - rhs(j,i);
         }
     }
 
@@ -191,7 +185,7 @@ cpu::Matrix cpu::Matrix::operator-(const cpu::Matrix& rhs) const{
 cpu::Matrix& cpu::Matrix::operator-=(const Matrix& rhs){
     for(int j = 0;  j < this->m_num_rows; j++){
         for(int i = 0; i < this->m_num_cols; i++){
-            this->m_mat[j][i] -= rhs[j][i];
+            this->m_mat[j*this->m_num_cols+i] -= rhs(j,i);
         }
     }
 
@@ -210,7 +204,7 @@ cpu::Matrix cpu::Matrix::operator*(const double& rhs) const{
 
     for(int j = 0;  j < this->m_num_rows; j++){
         for(int i = 0; i < this->m_num_cols; i++){
-            mat[j][i] = rhs*this->m_mat[j][i];
+            mat(j,i) = rhs*this->m_mat[j*this->m_num_cols+i];
         }
     }
 
@@ -227,7 +221,7 @@ cpu::Matrix cpu::Matrix::operator*(const double& rhs) const{
 cpu::Matrix& cpu::Matrix::operator*=(const double& rhs){
     for(int j = 0;  j < this->m_num_rows; j++){
         for(int i = 0; i < this->m_num_cols; i++){
-            this->m_mat[j][i] *= rhs;
+            this->m_mat[j*this->m_num_cols+i] *= rhs;
         }
     }
 
@@ -249,7 +243,7 @@ cpu::Vector cpu::Matrix::operator*(const cpu::Vector& rhs) const{
     for(int j = 0;  j < this->m_num_rows; j++){
         temp = 0.0f;
         for(int i = 0; i < this->m_num_cols; i++){
-            temp += this->m_mat[j][i]*rhs[i];
+            temp += this->m_mat[j*this->m_num_cols+i]*rhs[i];
         }
         vec[j] = temp;
     }
@@ -258,28 +252,14 @@ cpu::Vector cpu::Matrix::operator*(const cpu::Vector& rhs) const{
 }
 
 /**
- * 
- * Overload mulitplication operator with assignment
- * in order to allows vector multiplication
- * to be performed on this Matrix object
- *
- *
-cpu::Matrix& cpu::Matrix::operator*=(const std::vector<double>& rhs){
-    for(int j = 0;  j < this->m_num_rows; j++){
-        for(int i = 0; i < this->m_num_cols; i++){
-            this->m_mat[j][i] *= rhs[i];
-        }
-    }
-
-    return *this;
-}*/
-
+ * Return a transpose of this matrix.
+ */
 cpu::Matrix cpu::Matrix::transpose() const{
     cpu::Matrix t(this->m_num_rows, this->m_num_cols);
 
     for(int j = 0;  j < this->m_num_rows; j++){
         for(int i = 0; i < this->m_num_cols; i++){
-            t[i][j] = this->m_mat[j][i];
+            t(i,j) = this->m_mat[j*this->m_num_cols+i];
         }
     }
 
@@ -292,7 +272,7 @@ cpu::Matrix cpu::Matrix::transpose() const{
 void cpu::Matrix::printMat(){
     for(int j = 0; j < this->m_num_rows; j++){
         for(int i = 0; i<this->m_num_cols; i++){
-            std::cout << this->m_mat[i][j] << std::endl;
+            std::cout << this->m_mat[j*this->m_num_cols+i] << std::endl;
         }
     }
 }

@@ -6,13 +6,14 @@
 
 namespace cpu{
     // Forward delcare Vector class to break circular dependancy between
-    // Vector and Matrix classes
+    // Vector and Matrix classes.
     class Vector;
     /**
      * Matrix class to store two dimensional mathematical matrix and 
      * to perform needed mathematical operations on such a matrix.
-     * The matrix is stored as a vector of vectors using the std::vector.
-     * Each matrix object will be of dimensions num_rows by num_cols. 
+     * The 2D matrix will be stored in a one dimensional vector.
+     * The index of each element can be computed as 
+     * row_index*number_of_columns + column_index.
      * Each element of the matrix will be intialized to 0.0.
      * 
      * This matrix class will only support operations needed in the NeuralNetwork class.
@@ -21,26 +22,25 @@ namespace cpu{
         private:
             int m_num_rows;
             int m_num_cols;
-            std::vector<std::vector<double> > m_mat;
+            std::vector<double> m_mat;
 
 
         public:
             Matrix(int num_rows, int num_cols);
             Matrix(const Matrix& other);
-            Matrix(std::initializer_list< std::initializer_list<double> > ilist);
+            Matrix(int num_rows, int num_cols, std::initializer_list<double> ilist);
 
             void matrix_initialization();       
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(const Matrix& rhs) const;
-            const std::vector<double>& operator[](const int &input) const;
-            std::vector<double>& operator[](const int &input);
+            const double& operator()(const int& row, const int& col) const;
+            double& operator()(const int& row, const int& col);
             Matrix operator-(const Matrix& rhs) const;
             Matrix& operator-=(const Matrix& rhs);
             Matrix operator*(const double& rhs) const;
             Matrix& operator*=(const double& rhs);
             Vector operator*(const Vector& rhs) const;
-            //Matrix& operator*=(const std::vector<double>& rhs);
             Matrix transpose() const;
             void printMat();
 
