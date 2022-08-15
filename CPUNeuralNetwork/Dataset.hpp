@@ -8,7 +8,7 @@
 
 namespace cpu{
     /**
-     * Dataset used to repersent the dataset used to train
+     * Dataset used to represent the dataset used to train
      * the neural network.
      */
     class Dataset{

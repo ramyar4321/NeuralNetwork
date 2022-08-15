@@ -4,6 +4,10 @@
 #include <algorithm>
 #include "random"
 
+//================================//
+// Constructors.
+//================================//
+
 /**
  * Constructor for Matrix object with number of rows and columns specified. 
  */
@@ -38,29 +42,10 @@ cpu::Matrix::Matrix(const Matrix& rhs):
     m_mat(rhs.m_mat)
 {}
 
-/**
- * Initialize the elements of the matrix to random values that come
- * from a Gaussian Distribtuion centered at 0 with standard deviations of 
- * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
- * 
- */
-void cpu::Matrix::matrix_initialization()
-{
 
-
-    std::mt19937 generator;
-    double mean = 0.0f;
-    double stddev = std::sqrt(1 / static_cast<double>(this->m_num_cols) ); 
-    std::normal_distribution<double> normal(mean, stddev);
-    for (int j=0; j< this->m_num_rows; ++j) {
-        for (int i=0; i< this->m_num_cols; ++i) {
-            this->m_mat[j*this->m_num_cols+i] = normal(generator);
-        }
-    } 
-
-}
-
-
+//================================//
+// Operators.
+//================================//
 
 /**
  * Overload assignment operator. 
@@ -251,6 +236,32 @@ cpu::Vector cpu::Matrix::operator*(const cpu::Vector& rhs) const{
     return vec;
 }
 
+//================================//
+// Matrix operations support.
+//================================//
+
+/**
+ * Initialize the elements of the matrix to random values that come
+ * from a Gaussian Distribtuion centered at 0 with standard deviations of 
+ * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
+ * 
+ */
+void cpu::Matrix::matrix_initialization()
+{
+
+
+    std::mt19937 generator;
+    double mean = 0.0f;
+    double stddev = std::sqrt(1 / static_cast<double>(this->m_num_cols) ); 
+    std::normal_distribution<double> normal(mean, stddev);
+    for (int j=0; j< this->m_num_rows; ++j) {
+        for (int i=0; i< this->m_num_cols; ++i) {
+            this->m_mat[j*this->m_num_cols+i] = normal(generator);
+        }
+    } 
+
+}
+
 /**
  * Return a transpose of this matrix.
  */
@@ -276,6 +287,10 @@ void cpu::Matrix::printMat(){
         }
     }
 }
+
+//================================//
+// Getter methodes.
+//================================//
 
 /**
  * Get the number of rows in this Matrix.

@@ -32,9 +32,9 @@ namespace cpu {
             void forward_propegation();
             
             cpu::Vector compute_outputs(const cpu::Matrix &W, 
-                                               const cpu::Vector &a);
-            double compute_outputs(const cpu::Vector &W, 
                                         const cpu::Vector &a);
+            double compute_outputs(const cpu::Vector &W, 
+                                    const cpu::Vector &a);
 
             cpu::Vector relu_activation(const cpu::Vector &z);
 

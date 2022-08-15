@@ -16,7 +16,8 @@ namespace cpu{
      * row_index*number_of_columns + column_index.
      * Each element of the matrix will be intialized to 0.0.
      * 
-     * This matrix class will only support operations needed in the NeuralNetwork class.
+     * This is not meant to be a general purpose class, rather it will only
+     * have methodes that will be used by the Neural Netowrk class.
      */
     class Matrix{
         private:
@@ -28,9 +29,7 @@ namespace cpu{
         public:
             Matrix(int num_rows, int num_cols);
             Matrix(const Matrix& other);
-            Matrix(int num_rows, int num_cols, std::initializer_list<double> ilist);
-
-            void matrix_initialization();       
+            Matrix(int num_rows, int num_cols, std::initializer_list<double> ilist);      
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(const Matrix& rhs) const;
@@ -41,6 +40,8 @@ namespace cpu{
             Matrix operator*(const double& rhs) const;
             Matrix& operator*=(const double& rhs);
             Vector operator*(const Vector& rhs) const;
+
+            void matrix_initialization(); 
             Matrix transpose() const;
             void printMat();
 
