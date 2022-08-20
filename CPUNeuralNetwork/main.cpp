@@ -25,10 +25,7 @@ int main(){
     double acc = net.computeAccuracy(y_pred, y_test);*/
     
     cpu::Testing test;
-    test.test_compute_outputs();
-    test.test_relu_activation();
-    test.test_sigmoid_activation();
-    test.test_compute_loss();
+    test.test_forwardPropegation();
     test.test_backPropegation();
     test.test_gradientDescent();
     

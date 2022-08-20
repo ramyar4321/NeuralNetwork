@@ -13,11 +13,6 @@ namespace cpu {
         public:
 
         // Test methodes of the NeuralNetwork class
-        void test_compute_outputs();
-        void test_relu_activation();
-        void test_sigmoid_activation();
-        void test_compute_loss();
-
         void test_forwardPropegation();
         void test_backPropegation();
         void test_gradientDescent();

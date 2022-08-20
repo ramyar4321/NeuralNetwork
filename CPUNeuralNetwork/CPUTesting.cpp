@@ -10,239 +10,39 @@
 // Testing methodes of the NeuralNetowrk class
 
 /**
- * This methode is used to test the compute_outputs method of
- * the NeuralNetwork class. The compute_outputs methode will be
- * tested for each layer of the neural network, thus it 
- * will be tested three times.
+ * This methodes tests forward propegation of the Neural Network.
  */
-void cpu::Testing::test_compute_outputs(){
+void cpu::Testing::test_forwardPropegation(){
 
-    // Declare and initialize variables that will be used as
-    // input the compute_outputs methode.
+    cpu::Vector x = {1.0f};
+    cpu::Matrix W1(2,1,{1.0f, 0.0f});
+    cpu::Matrix W2(2,2,{1.0f, 0.0f, 0.0f, 0.0f});
+    cpu::Vector W3 = {1.0f, 0.0f};
 
+    cpu::NeuralNetwork net(2,2, 0, 0.01);
 
-    int layer_p_size = 2;
-    int layer_q_size = 2;
-    int epoch = 1;
-    double alpha = 0.01;
+    net.x(x);
+    net.W1(W1);
+    net.W2(W2);
+    net.W3(W3);
 
+    net.forward_propegation();
 
-    // Note, the weights and outputs initialized do not correspond to actual
-    // neuron weights and outputs from forward and back propegations. 
-    // They are random values simply used to test the compute_output methode.
+    double expected_a3 = 0.731f;
 
-    cpu::Matrix W1(1,2, {1.1f, 2.2f} );
-    cpu::Matrix W2 (2,2,{3.3f, 4.4f, 5.5f, 6.6f} );
-    cpu::Vector W3 ( {7.7f, 8.8f} ); 
+    double actual_a3 = net.a3();
 
-
-    // Note, a3 does not need to be used since the output neuron 
-    // is in the last layer and does not feed into any other neuron.
-    cpu::Vector x = {1.1f};
-    cpu::Vector a1 = {2.0, 3.0};
-    cpu::Vector a2 = {4.0, 5.0};
-
-    // Declare and initialize the expected output of compute_outputs.
-
-    // z1 = { x * W1_11, x * W1_21} = {1.1 * 1.1, 1.1 * 2.2}
-    cpu::Vector expected_z1 = {1.21f, 2.42f};
-    // z2 = { {a1_1 * W2_11 + a1_2 * W2_12}, {a1_1 * W2_21 + a1_2 * W2_22}}
-    // z2 = { {2.0 * 3.3 + 3.0 * 4.4}, {2.0 * 5.5 + 3.0 * 6.6}}
-    cpu::Vector expected_z2 = {19.8f, 30.8f}; 
-    // z3 = {{a2_1 * W3_11 + a2_2 * W3_12}} = {{4.0* 7.7 + 5.0 * 8.8}}
-    double expected_z3 = 74.8f;
-
-    // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size,epoch, alpha);
-
-    // Use mock inputs to test if methode produces expected results
-
-    cpu::Vector actual_z1 = net.compute_outputs(W1, x);
-    cpu::Vector actual_z2 = net.compute_outputs(W2, a1);
-    double actual_z3 = net.compute_outputs(W3, a2);
-
-    if ( actual_z1 == expected_z1)
-        std::cout << "Test succeded for z1.\n";
-    else
-        std::cout << "Test failed for z1.\n";
-
-    if (actual_z2 == expected_z2)
-        std::cout << "Test succeded for z2.\n";
-    else
-        std::cout << "Test failed for z2.\n";
-
-    if ( this->areFloatEqual(actual_z3, expected_z3))
-        std::cout << "Test succeded for z3.\n";
-    else
-        std::cout << "Test failed for z3.\n";
-
-
-}
-
-/**
- * This methode is used to test the relu_activation method of
- * the NeuralNetwork class. 
- */
-void cpu::Testing::test_relu_activation(){
-
-    // Declare and initialize variables that will be used as
-    // input the relu_activation methode.
-
-    int layer_p_size = 2;
-    int layer_q_size = 2;
-    int epoch = 1;
-    double alpha = 0.01;
-
-    cpu::Vector z1 = {2.28f, 4.19f};
-    cpu::Vector z2 = {-2.28f, -4.19f};
-
-    // Declare and initialize the expected output of relu_activation.
-
-    // a1 = { max(0, z1_1), max(0, z1_2)} = { max(0, 2.28f), max(0, 4.19f)}
-    cpu::Vector expected_a1 = {2.28f, 4.19f};
-    // a2 = { max(0, z2_1), max(0, z2_2)} = { max(0, -2.28f), max(0, -4.19f)}
-    cpu::Vector expected_a2 = {0.0f, 0.0f}; 
-
-    // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch,alpha);
-
-    // Use mock inputs to test if methode produces expected results
-    cpu::Vector actual_a1 = net.relu_activation(z1);
-    cpu::Vector actual_a2 = net.relu_activation(z2);
-
-
-     if ( actual_a1 == expected_a1)
-        std::cout << "Test succeded for a1.\n";
-    else
-        std::cout << "Test failed for a1.\n";
-
-    if ( actual_a1 == expected_a1)
-        std::cout << "Test succeded for a2.\n";
-    else
-        std::cout << "Test failed for a2.\n";
-
-
-}
-
-
-/**
- * This methode is used to test the sigmoid_activation method of
- * the NeuralNetwork class. Three tests will be conducted. The sigmoid 
- * method will be tested with positive, negative, and zero values.
- */
-void cpu::Testing::test_sigmoid_activation(){
-
-    // Declare and initialize variables that will be used as
-    // input the sigmoid_activation methode.
-
-
-    int layer_p_size = 2;
-    int layer_q_size = 2;
-    int epoch = 1;
-    double alpha = 0.01;
-
-    double z_1 = 3.3;
-    double z_2 = -3.3;
-    double z_3 = 0.0;
-
-    // Declare and initialize the expected output of sigmoid_activation.
-
-    // a = { 1/ (e^(-3.33)) ,  1/ (e^(+3.33)),  1/ (e^(0))} 
-    // a = 1/ (e^(-3.33))
-    double expected_a_1 = 0.965;
-    // a = 1/ (e^(-3.33))
-    double expected_a_2 = 0.03456;
-    // a = 1/ (e^(0))
-    double expected_a_3 = 0.5;
-
-    // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch, alpha);
-
-    // Use mock inputs to test if methode produces expected results
-    double actual_a_1 = net.sigmoid(z_1);
-    double actual_a_2 = net.sigmoid(z_2);
-    double actual_a_3 = net.sigmoid(z_3);
-
-    // Function pointer to helper function to be used as callback function
-    // when comparing actual and expected values.
-    std::function<bool(float,float)> f = &cpu::Testing::areFloatEqual;
-
-    if ( areFloatEqual(expected_a_1, actual_a_1))
-        std::cout << "Test succeded for a1.\n";
-    else
-        std::cout << "Test failed for a1.\n";
-
-    if ( areFloatEqual(expected_a_2, actual_a_2))
-        std::cout << "Test succeded for a2.\n";
-    else
-        std::cout << "Test failed for a2.\n";
-
-    if ( areFloatEqual(expected_a_3, actual_a_3))
-        std::cout << "Test succeded for a3.\n";
-    else
-        std::cout << "Test failed for a3.\n";
-
-}
-
-/**
- * This methode is used to test the compute_loss method of
- * the NeuralNetwork class. We want to test if logarithm of 
- * the entropy loss function is defined for when a is zero.
- * Two tests will be conducted. 
- * 1. y = 1 and a = 0 where y is the actual outcome for a given sample of the dataset
- *    and a is the output of the output neuron. This test will determine if the logarithm
- *    of the first term of the entropy loss function is undefined for the choose output a.
- * 2. y = 0 and a = 1 where y is the actual outcome for a given sample of the dataset
- *    and a is the output of the output neuron. This test will determine if the logarithm
- *    of the second term of the entropy loss function is undefined for the choose output a.
- */
-void cpu::Testing::test_compute_loss(){
-
-    // Declare and initialize variables that will be used as
-    // input the sigmoid_activation methode.
-
-    int layer_p_size = 2;
-    int layer_q_size = 2;
-    int epoch = 1;
-    double alpha = 0.01;
-
-
-    double y_1 = 1.0;
-    double a_1 = 0.0;
-    double y_2 = 0.0;
-    double a_2 = 1.0;
-
-    // Declare and initialize the expected output of sigmoid_activation.
-
-    // loss = -y*log(a + epsilon) - (1-y)*log(1 - a + epsilon)
-    // loss = -log(0.0001) 4
-    float expected_loss = 9.21; // Expected loss for both tests.
-
-    // Instantiate an instance of the Neural Network class
-    cpu::NeuralNetwork net(layer_p_size,layer_q_size, epoch, alpha);
-
-    // Use mock inputs to test if methode produces expected results
-    float actual_loss_1 = net.bceLoss(y_1, a_1);
-    float actual_loss_2 = net.bceLoss(y_2, a_2);
-
-    if ( areFloatEqual(expected_loss, actual_loss_1))
-        std::cout << "First test succeeded for the entropy loss methode.\n";
-    else
-        std::cout << "Second test failed for the entropy loss methode.\n";
-    if ( areFloatEqual(expected_loss, actual_loss_2))
-        std::cout << "First test succeeded for the entropy loss methode.\n";
-    else
-        std::cout << "SecondTest failed for the entropy loss methode.\n";
-
-
+    if(areFloatEqual(expected_a3, actual_a3)){
+        std::cout << "Test passed! Forward propegation produced expected results." << std::endl;
+    }else{
+        std::cout << "Test failed! Forward propegation produced unexpected results." << std::endl;
+    }
 }
 
 /**
  * 
- * This methode tests both the computeDeltaInit
- * and computeGradientInit. That is, test if the correct
- * gradients are compute for m_dLdW3.The finite difference 
- * will be used to approximate the expected gradient. 
+ * This methode tests if the correct gradient is computed.
+ * The finite difference will be used to approximate the expected gradient. 
  * 
  * The algorithm is as follows:
  * 1. Radomly initialize weight of neural network from a Guassian distribution. 
@@ -381,15 +181,6 @@ void cpu::Testing::test_backPropegation(){
         }
     }
 
-    /*for(int j= 0; j<numericdLdW1.get_num_rows(); j++){
-
-        for( int i=0; i < numericdLdW1.get_num_cols(); i++){
-            std::cout << numericdLdW1[j][i] << std::endl;
-            std::cout << actual_dLdW1[j][i] << std::endl;
-            std::cout << "--" << std::endl;
-        }
-    }*/
-
 
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
@@ -436,14 +227,14 @@ void cpu::Testing::test_gradientDescent(){
 
     int numIter = 5;
 
-    cpu::Matrix w(1,{4});
+    cpu::Matrix w(1,1,{4});
     double loss = computeQuadraticLoss(w);
     double prev_loss;
     cpu::Matrix dLdw = computeGradientQuadraticLoss(w);
 
     for(int i = 0; i < numIter; i++){
         prev_loss = loss;
-        w = net.gradientDecent(w, alpha, dLdw);
+        net.gradientDecent(w, alpha, dLdw);
         loss = computeQuadraticLoss(w);
         if(loss > prev_loss){
             testPass = false;
@@ -451,9 +242,9 @@ void cpu::Testing::test_gradientDescent(){
     }
 
     if(testPass){
-        std::cout << "Gradient descent produces expected results." << std::endl;
+        std::cout << "Test succeeded! Gradient descent produces expected results." << std::endl;
     }else{
-        std::cout << "Gradient descent produces unexpected results." << std::endl;
+        std::cout << "Test failed! Gradient descent produces unexpected results." << std::endl;
     }
 }
 

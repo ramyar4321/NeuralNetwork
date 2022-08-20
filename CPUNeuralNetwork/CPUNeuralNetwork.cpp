@@ -65,13 +65,13 @@ void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y
  * has unnessesary copying of vectors.
  */
 void cpu::NeuralNetwork::forward_propegation(){
-    m_z1 = compute_outputs(m_W1, m_x);
-    m_a1 = relu_activation(m_z1);
+    compute_outputs(m_z1, m_W1, m_x);
+    relu_activation(m_a1, m_z1);
 
-    m_z2 = compute_outputs(m_W2, m_a1);
-    m_a2 = relu_activation(m_z2);
+    compute_outputs(m_z2, m_W2, m_a1);
+    relu_activation(m_a2,m_z2);
 
-    m_z3 = compute_outputs(m_W3, m_a2);
+    compute_outputs(m_z3, m_W3, m_a2);
     m_a3 = sigmoid(m_z3);
 }
 
@@ -90,14 +90,13 @@ void cpu::NeuralNetwork::forward_propegation(){
  * @return z The vector that contains the output of each neuron in layer J
  * 
  */
-cpu::Vector cpu::NeuralNetwork::compute_outputs(const cpu::Matrix &W, 
+void cpu::NeuralNetwork::compute_outputs(cpu::Vector& z, 
+                                                const cpu::Matrix &W, 
                                                 const cpu::Vector &a)
 {
-    cpu::Vector z(W.get_num_rows(), 0.0f);
 
     z = W*a;
 
-    return z;
 }
 
 /**
@@ -107,14 +106,12 @@ cpu::Vector cpu::NeuralNetwork::compute_outputs(const cpu::Matrix &W,
  * @f$z = \sum_{i}^I w_{i} a_i$ where @f$a_i$ is the output of neuron i
  * from the pervious layer I.
  */
-double cpu::NeuralNetwork::compute_outputs(const cpu::Vector &W, 
-                                            const cpu::Vector &a){
+void cpu::NeuralNetwork::compute_outputs(double& z,
+                                        const cpu::Vector &W, 
+                                        const cpu::Vector &a){
 
-    double z;
 
     z = W.dot(a);
-
-    return z;
 
 }
 
@@ -129,10 +126,10 @@ double cpu::NeuralNetwork::compute_outputs(const cpu::Vector &W,
  * @return a The vector that contains the activations of each neuron in layer J
  * 
  */
-cpu::Vector cpu::NeuralNetwork::relu_activation(const cpu::Vector &z)
+void cpu::NeuralNetwork::relu_activation(cpu::Vector& a,
+                                                        const cpu::Vector &z)
 
 {
-    cpu::Vector a(z.getSize(), 0.0f); 
 
     for (int j=0; j<z.getSize(); j++) {
         if(z[j] > 0.0f ){
@@ -141,8 +138,6 @@ cpu::Vector cpu::NeuralNetwork::relu_activation(const cpu::Vector &z)
             a[j] = 0.0f;
         }
     } 
-
-    return a;
 }
 
 /**
@@ -259,7 +254,7 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
  * 
  */
 double cpu::NeuralNetwork::bceLoss(const double &y, 
-                                       const double &a){
+                                    const double &a){
     double loss = 0.0f;
     // Use epsilon since log of zero is undefined.
     double epsilon = 0.0001; 
@@ -276,14 +271,14 @@ double cpu::NeuralNetwork::bceLoss(const double &y,
  * Perform back propegation
  */
 void cpu::NeuralNetwork::backPropegation(){
-    this->m_delta3 = this->computeDeltaInit(this->m_y, this->m_a3, this->m_z3);
-    this->m_dLdW3 =  this->computeGradientInit(this->m_delta3, this->m_a2);
+    this->computeDeltaInit(this->m_delta3, this->m_y, this->m_a3, this->m_z3);
+    this->computeGradientInit(this->m_dLdW3, this->m_delta3, this->m_a2);
 
-    this->m_delta2 = this->computeDelta(this->m_W3, this->m_delta3, this->m_z2);
-    this->m_dLdW2 =  this->computeGradient(this->m_delta2, this->m_a1);
+    this->computeDelta(this->m_delta2, this->m_W3, this->m_delta3, this->m_z2);
+    this->computeGradient(this->m_dLdW2, this->m_delta2, this->m_a1);
 
-    this->m_delta1 = this->computeDelta(this->m_W2, this->m_delta2, this->m_z1);
-    this->m_dLdW1 = this->computeGradient(this->m_delta1, this->m_x);
+    this->computeDelta(this->m_delta1, this->m_W2, this->m_delta2, this->m_z1);
+    this->computeGradient(this->m_dLdW1, this->m_delta1, this->m_x);
 
 }
 
@@ -371,13 +366,12 @@ cpu::Vector cpu::NeuralNetwork::reluPrime(const cpu::Vector& z){
  * 
  * @return The error term associated with the output neuron.
  */
-double cpu::NeuralNetwork::computeDeltaInit(const double& y,
+void cpu::NeuralNetwork::computeDeltaInit(double& delta,
+                                            const double& y,
                                             const double& a,
                                             const double& z){
 
-    double delta = sigmoidPrime(z) * bceLossPrime(y, a);
-
-    return delta;
+    delta = sigmoidPrime(z) * bceLossPrime(y, a);
 }
 
 
@@ -397,11 +391,10 @@ double cpu::NeuralNetwork::computeDeltaInit(const double& y,
  * @return A vector containing the error terms of each neuron i of layer I
  * 
  */
-cpu::Vector cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W, 
-                                            const cpu::Vector& delta_,
-                                            const cpu::Vector& z){
-
-    cpu::Vector delta(W.get_num_cols(), 0.0);
+void cpu::NeuralNetwork::computeDelta(cpu::Vector& delta,
+                                              const cpu::Matrix& W, 
+                                              const cpu::Vector& delta_,
+                                              const cpu::Vector& z){
     cpu::Vector f_prime = this->reluPrime(z);
 
     cpu::Matrix W_tranpose = W.transpose();
@@ -409,8 +402,6 @@ cpu::Vector cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W,
 
     delta *= f_prime;
 
-
-    return delta;
 }
 
 /**
@@ -429,18 +420,16 @@ cpu::Vector cpu::NeuralNetwork::computeDelta(const cpu::Matrix& W,
  * @return A vector containing the error terms of each neuron i of layer I
  * 
  */
-cpu::Vector cpu::NeuralNetwork::computeDelta(const cpu::Vector& W, 
+void cpu::NeuralNetwork::computeDelta(cpu::Vector& delta,
+                                            const cpu::Vector& W, 
                                             const double& delta_,
                                             const cpu::Vector& z){
 
-    cpu::Vector delta(W.getSize(), 0.0);
     cpu::Vector f_prime = this->reluPrime(z);
 
     delta = W*delta_;
     delta *= f_prime;
 
-
-    return delta;
 }
 
 /**
@@ -458,16 +447,13 @@ cpu::Vector cpu::NeuralNetwork::computeDelta(const cpu::Vector& W,
  * @return A Matrix containing the weigth between layer I and layer J
  * 
  */
-cpu::Matrix cpu::NeuralNetwork::computeGradient(const cpu::Vector& delta,
+void cpu::NeuralNetwork::computeGradient(cpu::Matrix& dLdW,
+                                                const cpu::Vector& delta,
                                                 const cpu::Vector& a){
     int num_rows = delta.getSize();
     int num_cols = a.getSize();
-    cpu::Matrix dW(num_rows,num_cols );
 
-    dW = a.tensor(delta);
-
-
-    return dW;
+    dLdW = a.tensor(delta);
 }
 
 /**
@@ -482,13 +468,12 @@ cpu::Matrix cpu::NeuralNetwork::computeGradient(const cpu::Vector& delta,
  * @return dL/dW 
  * 
  */
-cpu::Vector cpu::NeuralNetwork::computeGradientInit(const double& delta,
+void cpu::NeuralNetwork::computeGradientInit(cpu::Vector& dLdW,
+                                                    const double& delta,
                                                     const cpu::Vector& a){
-    cpu::Vector dW(a.getSize(), 0.0f); 
 
-    dW = a*delta;
+    dLdW = a*delta;
 
-    return dW;
 }
 
 /**
@@ -504,7 +489,7 @@ cpu::Vector cpu::NeuralNetwork::computeGradientInit(const double& delta,
  * @return A matrix containing the updated weights between layer I and J
  * 
  */
-cpu::Matrix cpu::NeuralNetwork::gradientDecent(const Matrix& W,
+void cpu::NeuralNetwork::gradientDecent(const Matrix& W,
                                                 const double& alpha,
                                                 const Matrix& dLdW){
 
@@ -512,7 +497,6 @@ cpu::Matrix cpu::NeuralNetwork::gradientDecent(const Matrix& W,
 
     updatedWeights = updatedWeights - dLdW*alpha;
 
-    return updatedWeights;
 
 }
 
@@ -529,14 +513,12 @@ cpu::Matrix cpu::NeuralNetwork::gradientDecent(const Matrix& W,
  * @return A matrix containing the updated weights between layer I and J
  * 
  */
-cpu::Vector cpu::NeuralNetwork::gradientDecent(const cpu::Vector& W,
+void cpu::NeuralNetwork::gradientDecent(const cpu::Vector& W,
                                                 const double& alpha,
                                                 const cpu::Vector& dLdW){
 
     cpu::Vector updatedWeights(W.getSize(), 0.0f);
     updatedWeights -= dLdW*alpha;
-
-    return updatedWeights;
 
 }
 
@@ -546,9 +528,9 @@ cpu::Vector cpu::NeuralNetwork::gradientDecent(const cpu::Vector& W,
  * 
  */
 void cpu::NeuralNetwork::updateWeigths(){
-    this->m_W3 = this->gradientDecent(this->m_W3, this->m_alpha, this->m_dLdW3);
-    this->m_W2 = this->gradientDecent(this->m_W2, this->m_alpha, this->m_dLdW2);
-    this->m_W1 = this->gradientDecent(this->m_W1, this->m_alpha, this->m_dLdW1);
+    this->gradientDecent(this->m_W3, this->m_alpha, this->m_dLdW3);
+    this->gradientDecent(this->m_W2, this->m_alpha, this->m_dLdW2);
+    this->gradientDecent(this->m_W1, this->m_alpha, this->m_dLdW1);
 }
 
 void cpu::NeuralNetwork::x(const cpu::Vector& _x){

@@ -31,12 +31,15 @@ namespace cpu {
 
             void forward_propegation();
             
-            cpu::Vector compute_outputs(const cpu::Matrix &W, 
-                                        const cpu::Vector &a);
-            double compute_outputs(const cpu::Vector &W, 
-                                    const cpu::Vector &a);
+            void compute_outputs(cpu::Vector& z, 
+                                                const cpu::Matrix &W, 
+                                                const cpu::Vector &a);
+            void compute_outputs(double& z,
+                                            const cpu::Vector &W, 
+                                            const cpu::Vector &a);
 
-            cpu::Vector relu_activation(const cpu::Vector &z);
+            void relu_activation(cpu::Vector& a,
+                                                const cpu::Vector &z);
 
             double sigmoid(const double& z);
 
@@ -56,27 +59,32 @@ namespace cpu {
             double bceLossPrime(const double &y, 
                                 const double &a);
 
-            double computeDeltaInit(const double& y,
-                                                const double& a,
-                                                const double& z);
-            cpu::Vector computeDelta(const Matrix& W, 
-                                             const cpu::Vector& delta_,
-                                             const cpu::Vector& z);
-            cpu::Vector computeDelta(const Vector& W, 
+            void computeDeltaInit(double& delta,
+                                    const double& y,
+                                    const double& a,
+                                    const double& z);
+            void computeDelta(cpu::Vector& delta,
+                                     const Matrix& W, 
+                                     const cpu::Vector& delta_,
+                                     const cpu::Vector& z);
+            void computeDelta(cpu::Vector& delta,
+                                    const Vector& W, 
                                     const double& delta_,
                                     const cpu::Vector& z);
 
-            cpu::Matrix computeGradient(const cpu::Vector& delta,
+            void computeGradient(cpu::Matrix& dLdW,
+                                        const cpu::Vector& delta,
                                         const cpu::Vector& a);
-            cpu::Vector computeGradientInit(const double& delta,
+            void computeGradientInit(cpu::Vector& dLdW,
+                                            const double& delta,
                                             const cpu::Vector& a);
 
-            cpu::Matrix gradientDecent(const Matrix& W,
-                                        const double& alpha, 
-                                        const Matrix& dLdW);
-            cpu::Vector gradientDecent(const cpu::Vector& W,
-                                        const double& alpha,
-                                        const cpu::Vector& dLdW);
+            void gradientDecent(const Matrix& W,
+                                const double& alpha, 
+                                const Matrix& dLdW);
+            void gradientDecent(const cpu::Vector& W,
+                                const double& alpha,
+                                const cpu::Vector& dLdW);
             
             void updateWeigths();
 
