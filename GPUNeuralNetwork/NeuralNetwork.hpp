@@ -12,27 +12,70 @@ namespace gpu{
 
         public:
             NeuralNetwork(int input_size, int layer1_size, int layer2_size, 
-                                  int epoch, int alpha, int output_size);
+                                  int output_size, int epoch, int alpha);
 
             void allocatedMemeory();
-            void initializeWeights(std::shared_ptr<float>& W, int layer_I, int layer_J);
+            void initializeWeights(std::shared_ptr<float>& W, int layerI_size, int layerJ_size);
             void fit(Dataset& X_train_stand);
             
             void forwardPropegation();
             void computeOutputs(std::shared_ptr<float>& z, 
                                 const std::shared_ptr<float>& W, 
                                 const std::shared_ptr<float>& a,
-                                int layerI_size,
-                                int layerJ_size);
+                                const int layerI_size,
+                                const int layerJ_size);
             void computeOutputs(double& z, 
                                 const std::shared_ptr<float>& W, 
                                 const std::shared_ptr<float>& a,
-                                int layerI_size,
-                                int layerJ_size);
+                                const int layerI_size,
+                                const int layerJ_size);
             void reluActivation(std::shared_ptr<float>& a,
-                                 const std::shared_ptr<float>& z,
-                                int layerI_size); 
+                                const std::shared_ptr<float>& z,
+                                const int layerI_size); 
             double sigmoid(const double& z);
+
+            std::vector<float> perdict(Dataset& X_test_stand, const float& threeshold);
+            float computeAccuracy(std::vector<float>& y_pred, std::vector<float>& y_test);
+
+            void backPropegation();
+            double sigmoidPrime(const double& z);
+            void reluPrime(std::shared_ptr<float>& fprime,
+                            const std::shared_ptr<float> &z,
+                            const int layerI_size);
+            double bceLossPrime(const double &y, 
+                                const double &a);
+            void computeDeltaInit(double& delta,
+                                    const double& y,
+                                    const double& a,
+                                    const double& z);
+            void computeDelta(std::shared_ptr<float>& delta,
+                                const std::shared_ptr<float>& W, 
+                                const std::shared_ptr<float>& delta_,
+                                const std::shared_ptr<float>& fprime,
+                                const int layerJ_size,
+                                const int layerK_size);
+            void computeDelta(std::shared_ptr<float>& delta,
+                                const std::shared_ptr<float>& W, 
+                                const double& delta_,
+                                const std::shared_ptr<float>& fprime,
+                                const int layerJ_size,
+                                const int layerK_size);
+            void computeGradient(std::shared_ptr<float>& dLdW,
+                                 const std::shared_ptr<float>& delta,
+                                 const std::shared_ptr<float>& a,
+                                 const int layerI_size,
+                                 const int layerJ_size);
+            void computeGradientInit(std::shared_ptr<float>& dLdW,
+                                     const double& delta,
+                                     const std::shared_ptr<float>& a,
+                                     const int layerI_size,
+                                     const int layerJ_size);
+
+            void updateWeigths();
+            void gradientDecent(std::shared_ptr<float>& W,
+                                const std::shared_ptr<float>& dLdW,
+                                const int layerI_size,
+                                const int layerJ_size);
 
             void x(const std::vector<float>& x);
 
@@ -54,6 +97,11 @@ namespace gpu{
             std::shared_ptr<float> m_a1;
             std::shared_ptr<float> m_a2;
             double m_a3;
+
+            // Store the results of derivative of the ReLu activation function
+            std::shared_ptr<float> m_fprime1;
+            std::shared_ptr<float> m_fprime2;
+
 
             // Store the sample input the neural network x
             // and the expected outcome y.
@@ -81,6 +129,8 @@ namespace gpu{
             std::shared_ptr<float> m_dLdW1;
             std::shared_ptr<float> m_dLdW2;
             std::shared_ptr<float> m_dLdW3;
+
+
 
     };
 }
