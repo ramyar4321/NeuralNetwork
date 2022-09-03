@@ -6,18 +6,25 @@
 namespace cpu{
     class OutputLayer{
         private:
-            float m_z;
-            float m_a;
-            float m_delta;
 
-            cpu::Vector m_W;
+            /*=======================*/
+            // private memeber variables
+
+            double m_z;
+            double m_a;
+
             cpu::Vector m_dLdW;
 
         public:
 
             /*=======================*/
+            // public memeber variables
+            double m_delta;
+            cpu::Vector m_W;
+
+            /*=======================*/
             // Constructor
-            OutputLayer(int prev_layer_size);
+            OutputLayer(int layerI_size);
 
 
             /*=======================*/

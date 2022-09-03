@@ -4,13 +4,16 @@
 /*=======================*/
 // Constructor
 /**
- * Constructor 
+ * Constructor for output layer J.
+ * 
+ * @param layerJ_size The number of neurons in layer I 
+ *                    where layer I is the previous layer to the output layer.
  */
-cpu::OutputLayer::OutputLayer(int prev_layer_size):
+cpu::OutputLayer::OutputLayer(int layerI_size):
                                 m_z(0.0),
                                 m_a(0.0),
-                                m_W(prev_layer_size, 0.0),
-                                m_dLdW(prev_layer_size, 0.0)
+                                m_W(layerI_size, 0.0),
+                                m_dLdW(layerI_size, 0.0)
 {}
 
 /*=======================*/
@@ -180,6 +183,9 @@ void cpu::OutputLayer::computeGradient(const cpu::Vector& a){
 
 }
 
+/**
+ * Perform back propegation.
+ */
 void cpu::OutputLayer::backPropegation(const double& y, const cpu::Vector& a){
     this->computeDelta(y);
     this->computeGradient(a);
