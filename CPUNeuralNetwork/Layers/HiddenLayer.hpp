@@ -8,13 +8,12 @@ namespace cpu{
     class HiddenLayer{
        private:
             cpu::Vector m_z;
-            cpu::Vector m_a;
-            cpu::Vector m_delta;
-
-            cpu::Matrix m_W;
             cpu::Matrix m_dLdW;
 
         public:
+            cpu::Vector m_a;
+            cpu::Vector m_delta;
+            cpu::Matrix m_W;
 
             /*=======================*/
             // Constructor
@@ -34,6 +33,11 @@ namespace cpu{
             void computeGradient(const cpu::Vector& a);
             void backPropegation(const cpu::Vector& W, const double& delta, const cpu::Vector& a);
             void backPropegation(const cpu::Matrix& W, const cpu::Vector& delta, const cpu::Vector& a);
+
+            /*=======================*/
+            // Methodes for updating the weights
+            void gradientDecent(const double& alpha);
+            void updateWeigths(const double& alpha);
     };
 }
 

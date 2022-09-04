@@ -188,3 +188,34 @@ void cpu::HiddenLayer::backPropegation(const cpu::Matrix& W, const cpu::Vector& 
     this->computeDelta(W, delta);
     this->computeGradient(a);
 }
+
+
+/*=======================*/
+// Methodes for updating the weights
+
+/**
+ * 
+ * 
+ * Perform gradient descent. For any given weight between layers I < J
+ * where Iis the previous layer and J is the output layer,
+ * the weight can be updated using the following.
+ * @f$ w_{ji} = w_{ji} - \alpha \frac{dL}{dw_{ji}}$
+ * 
+ * @param alpha The step size of gradient descent
+ * 
+ */
+void cpu::HiddenLayer::gradientDecent(const double& alpha){
+
+    this->m_W -= this->m_dLdW*alpha;
+
+}
+
+/**
+ * 
+ * Update weights using gradient descent.
+ * 
+ */
+void cpu::HiddenLayer::updateWeigths(const double& alpha){
+    this->gradientDecent(alpha);
+
+}
