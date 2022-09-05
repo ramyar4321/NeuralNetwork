@@ -19,6 +19,14 @@ cpu::HiddenLayer::HiddenLayer(int layerI_size, int layerJ_size):
 
 /*=======================*/
 // Methodes for forward propegation
+
+/**
+ * Initialize the wieghts of this hidden layer.
+ */
+void cpu::HiddenLayer::weightInitialization(){
+    this->m_W.matrixInitialization();
+}
+
 /**
  * Compute the output of each neuron j in layer J. 
  * The output for each neuron can be computed as follows 

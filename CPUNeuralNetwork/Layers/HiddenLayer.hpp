@@ -15,12 +15,14 @@ namespace cpu{
             cpu::Vector m_delta;
             cpu::Matrix m_W;
 
+
             /*=======================*/
             // Constructor
             HiddenLayer(int layerI_size, int layerJ_size);
 
             /*=======================*/
             // Methodes for forward propegation
+            void weightInitialization();
             void computeOutput(const cpu::Vector& a);
             void reluActivation();
             void forwardPropegation(const cpu::Vector& a);

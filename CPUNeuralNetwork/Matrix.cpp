@@ -246,7 +246,7 @@ cpu::Vector cpu::Matrix::operator*(const cpu::Vector& rhs) const{
  * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
  * 
  */
-void cpu::Matrix::matrix_initialization()
+void cpu::Matrix::matrixInitialization()
 {
 
 

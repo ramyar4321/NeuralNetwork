@@ -20,6 +20,13 @@ cpu::OutputLayer::OutputLayer(int layerI_size):
 // Methodes for forward propegation
 
 /**
+ * Initialize the wieghts of this hidden layer.
+ */
+void cpu::OutputLayer::weightInitialization(){
+    this->m_W.vectorInitialization();
+}
+
+/**
  * Compute the output of each neuron j in output layer J. 
  * The output for each neuron can be computed as follows 
  * @f$z_j = \sum_{i}^I w_{ji} a_i$ where @f$a_i$ is the output of neuron i
@@ -174,7 +181,7 @@ void cpu::OutputLayer::computeDelta(const double& y){
  * 
  * @param delta The delta or error term from the output neuron.
  * @param a     A vector contain the activations of each neuron
- *              in the previous layer.
+ *              in the previous layer I.
  * 
  */
 void cpu::OutputLayer::computeGradient(const cpu::Vector& a){

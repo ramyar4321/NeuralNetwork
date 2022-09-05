@@ -11,14 +11,16 @@ namespace cpu{
             // private memeber variables
 
             double m_z;
-            double m_a;
+            //double m_y;
 
             cpu::Vector m_dLdW;
 
         public:
 
+
             /*=======================*/
             // public memeber variables
+            double m_a;
             double m_delta;
             cpu::Vector m_W;
 
@@ -29,6 +31,7 @@ namespace cpu{
 
             /*=======================*/
             // Methodes for forward propegation
+            void weightInitialization();
             void computeOutput(const cpu::Vector& a);
             void sigmoidActivation();
             void forwardPropegation(const cpu::Vector& a);

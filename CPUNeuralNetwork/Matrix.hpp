@@ -41,7 +41,7 @@ namespace cpu{
             Matrix& operator*=(const double& rhs);
             Vector operator*(const Vector& rhs) const;
 
-            void matrix_initialization(); 
+            void matrixInitialization(); 
             Matrix transpose() const;
             void printMat();
 
