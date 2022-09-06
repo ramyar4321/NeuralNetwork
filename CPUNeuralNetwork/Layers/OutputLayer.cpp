@@ -1,5 +1,6 @@
 #include "OutputLayer.hpp"
 #include <cmath>
+#include <iostream>
 
 /*=======================*/
 // Constructor
@@ -39,7 +40,6 @@ void cpu::OutputLayer::computeOutput(const cpu::Vector& a)
 {
 
     this->m_z = this->m_W.dot(a);
-
 }
 
 /**
@@ -61,13 +61,11 @@ void cpu::OutputLayer::computeOutput(const cpu::Vector& a)
  */
 void cpu::OutputLayer::sigmoidActivation()
 {
-
     if (this->m_z >= 0.0f) {
         this->m_a = 1.0f / (1.0f + std::exp(-this->m_z));
     } else {
         this->m_a = std::exp(this->m_z) / (1.0f + std::exp(this->m_z));
     }
-
 
 }
 
@@ -103,7 +101,6 @@ double cpu::OutputLayer::bceLoss(const double &y){
 
 
     loss += -y*std::log(this->m_a + epsilon) - (1-y)*std::log(1-this->m_a + epsilon);
-
 
     return loss;
 }
@@ -164,7 +161,7 @@ double cpu::OutputLayer::bceLossPrime(const double &y){
  */
 void cpu::OutputLayer::computeDelta(const double& y){
 
-    this->m_delta = sigmoidPrime() * bceLossPrime(y);
+    this->m_delta = this->sigmoidPrime() * this->bceLossPrime(y);
 }
 
 /**

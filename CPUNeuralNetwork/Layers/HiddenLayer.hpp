@@ -1,19 +1,19 @@
 #ifndef CPU_HIDDEN_LAYER
 #define CPU_HIDDEN_LAYER
 
-#include "Matrix.hpp"
-#include "Vector.hpp"
+#include "../Matrix.hpp"
+#include "../Vector.hpp"
 
 namespace cpu{
     class HiddenLayer{
        private:
             cpu::Vector m_z;
-            cpu::Matrix m_dLdW;
 
         public:
             cpu::Vector m_a;
             cpu::Vector m_delta;
             cpu::Matrix m_W;
+            cpu::Matrix m_dLdW;
 
 
             /*=======================*/

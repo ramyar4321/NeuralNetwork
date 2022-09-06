@@ -1,6 +1,7 @@
 #include "Vector.hpp"
 #include "Matrix.hpp"
 #include "random"
+#include <iostream>
 
 /**
  * Constructor for Vector object with size of vector and
@@ -189,6 +190,11 @@ cpu::Vector& cpu::Vector::operator-=(const Vector& rhs){
     return *this;
 }
 
+void cpu::Vector::printVec(){
+    for(int i = 0; i<this->m_size; i++){
+            std::cout << this->m_vec[i] << std::endl;
+    }
+}
 
 /**
  * Return size of this vector.

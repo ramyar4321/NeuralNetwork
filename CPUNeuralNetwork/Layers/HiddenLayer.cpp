@@ -39,7 +39,7 @@ void cpu::HiddenLayer::weightInitialization(){
 void cpu::HiddenLayer::computeOutput(const cpu::Vector &a)
 {
 
-    this->m_z = this->m_W*this->m_a;
+    this->m_z = this->m_W*a;
 
 }
 

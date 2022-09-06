@@ -21,16 +21,17 @@ void cpu::Testing::test_forwardPropegation(){
 
     cpu::NeuralNetwork net(2,2, 0, 0.01);
 
-    net.x(x);
-    net.W1(W1);
-    net.W2(W2);
-    net.W3(W3);
+    net.m_x = x;
+    net.m_hidden_layer1.m_W = W1;
+    net.m_hidden_layer2.m_W = W2;
+    net.m_output_layer.m_W = W3;
 
-    net.forward_propegation();
+    net.forwardPropegation();
 
     double expected_a3 = 0.731f;
 
-    double actual_a3 = net.a3();
+    double actual_a3 = net.m_output_layer.m_a;
+
 
     if(areFloatEqual(expected_a3, actual_a3)){
         std::cout << "Test passed! Forward propegation produced expected results." << std::endl;
@@ -77,7 +78,6 @@ void cpu::Testing::test_backPropegation(){
     cpu::Matrix W2(10,10);
     cpu::Vector W3(10,0.0f);
 
-    double a3;
 
     cpu::Matrix W1_minus(10,3);
     cpu::Matrix W1_plus(10,3);
@@ -97,22 +97,22 @@ void cpu::Testing::test_backPropegation(){
     double loss_minus;
     double loss_plus;
 
-    W1.matrix_initialization();
-    W2.matrix_initialization();
+    W1.matrixInitialization();
+    W2.matrixInitialization();
     W3.vectorInitialization();
 
-    net.x(x);
-    net.W1(W1);
-    net.W2(W2);
-    net.W3(W3);
-    net.y(y);
+    net.m_x = x;
+    net.m_hidden_layer1.m_W = W1;
+    net.m_hidden_layer2.m_W = W2;
+    net.m_output_layer.m_W = W3;
+    net.m_y = y;
 
-    net.forward_propegation();
+    net.forwardPropegation();
     net.backPropegation();
 
-    const cpu::Vector &actual_dLdW3 = net.dLdW3();
-    const cpu::Matrix& actual_dLdW2 = net.dLdW2();
-    const cpu::Matrix& actual_dLdW1 = net.dLdW1();
+    cpu::Vector actual_dLdW3 = net.m_output_layer.m_dLdW;
+    cpu::Matrix actual_dLdW2 = net.m_hidden_layer2.m_dLdW;
+    cpu::Matrix actual_dLdW1 = net.m_hidden_layer1.m_dLdW;
 
     for(int i=0; i < W3.getSize(); i++){
         W3_minus = W3;
@@ -120,17 +120,13 @@ void cpu::Testing::test_backPropegation(){
         W3_minus[i] -= perturb;
         W3_plus[i] += perturb;
 
-        net.W3(W3_minus);
-        net.forward_propegation();
+        net.m_output_layer.m_W = W3_minus;
+        net.forwardPropegation();
+        loss_minus = net.m_output_layer.bceLoss(y);
 
-        a3= net.a3();
-
-        loss_minus = net.bceLoss(y,a3);
-
-        net.W3(W3_plus);
-        net.forward_propegation();
-        a3 = net.a3();
-        loss_plus =net.bceLoss(y, a3);
+        net.m_output_layer.m_W = W3_plus;
+        net.forwardPropegation();
+        loss_plus =net.m_output_layer.bceLoss(y);
 
         numericdLdW3[i] = (loss_plus-loss_minus)/(2*perturb);      
     }
@@ -142,17 +138,13 @@ void cpu::Testing::test_backPropegation(){
             W2_minus(j,i) -= perturb;
             W2_plus(j,i) += perturb;
 
-            net.W2(W2_minus);
-            net.forward_propegation();
+            net.m_hidden_layer2.m_W = W2_minus;
+            net.forwardPropegation();
+            loss_minus = net.m_output_layer.bceLoss(y);
 
-            a3= net.a3();
-
-            loss_minus = net.bceLoss(y,a3);
-
-            net.W2(W2_plus);
-            net.forward_propegation();
-            a3 = net.a3();
-            loss_plus =net.bceLoss(y, a3);
+            net.m_hidden_layer2.m_W = W2_plus;
+            net.forwardPropegation();
+            loss_plus = net.m_output_layer.bceLoss(y);
 
             numericdLdW2(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
@@ -165,26 +157,24 @@ void cpu::Testing::test_backPropegation(){
             W1_minus(j,i) -= perturb;
             W1_plus(j,i) += perturb;
 
-            net.W1(W1_minus);
-            net.forward_propegation();
+            net.m_hidden_layer1.m_W = W1_minus;
+            net.forwardPropegation();
+            loss_minus = net.m_output_layer.bceLoss(y);
 
-            a3= net.a3();
-
-            loss_minus = net.bceLoss(y,a3);
-
-            net.W1(W1_plus);
-            net.forward_propegation();
-            a3 = net.a3();
-            loss_plus =net.bceLoss(y, a3);
+            net.m_hidden_layer1.m_W = W1_plus;
+            net.forwardPropegation();
+            loss_plus =net.m_output_layer.bceLoss(y);
 
             numericdLdW1(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
     }
 
+    numericdLdW3.printVec();
+    actual_dLdW3.printVec();
 
 
     std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
-    if ( actual_dLdW1 == numericdLdW1)
+    if ( actual_dLdW3 == numericdLdW3)
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
     else
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for last layer.\n";
@@ -203,7 +193,9 @@ void cpu::Testing::test_backPropegation(){
 }
 
 /**
- * This methode tests the gradientDescent methode of Neural Network class.
+ * This methode tests the gradient descent algorithm the derived layers classes.
+ * Since both the hidden and output layers shared the same algorithm, only the
+ * output layer gradientDescent methode will be test.
  * 
  * The gradient decent methode must produce a series of 
  * non-decreasing objectives in order for this test to pass.
@@ -217,24 +209,22 @@ void cpu::Testing::test_backPropegation(){
  */
 void cpu::Testing::test_gradientDescent(){
 
-    // The sizes of the hidden layers is not important.
-    // We simply need a neural network object in order
-    // to access its gradeint descent methode/
+    cpu::OutputLayer outputlayer(1);
     double alpha = 0.01;
-    cpu::NeuralNetwork net(3,3, 1, alpha); 
 
     bool testPass = true;
 
     int numIter = 5;
 
-    cpu::Matrix w(1,1,{4});
+    cpu::Vector w(1, 100);
+    outputlayer.m_W = w;
     double loss = computeQuadraticLoss(w);
     double prev_loss;
     cpu::Matrix dLdw = computeGradientQuadraticLoss(w);
 
     for(int i = 0; i < numIter; i++){
         prev_loss = loss;
-        net.gradientDecent(w, alpha, dLdw);
+        outputlayer.gradientDecent(alpha);
         loss = computeQuadraticLoss(w);
         if(loss > prev_loss){
             testPass = false;
@@ -814,8 +804,8 @@ bool cpu::Testing::areFloatEqual(double a, double b){
  * @f$L = w^2$
  * 
  */
-double cpu::Testing::computeQuadraticLoss(cpu::Matrix& w){
-    double quadraticLoss = w(0,0)*w(0,0);
+double cpu::Testing::computeQuadraticLoss(cpu::Vector& w){
+    double quadraticLoss = w[0]*w[0];
 
     return quadraticLoss;
 }
@@ -826,8 +816,8 @@ double cpu::Testing::computeQuadraticLoss(cpu::Matrix& w){
  * quadratic loss function.
  * 
  */
-cpu::Matrix cpu::Testing::computeGradientQuadraticLoss(cpu::Matrix& w){
-    double gradientQuadracticLoss = 2*w(0,0);
+cpu::Matrix cpu::Testing::computeGradientQuadraticLoss(cpu::Vector& w){
+    double gradientQuadracticLoss = 2*w[0];
 
     cpu::Matrix gradientQuadracticLoss_(1,1,{gradientQuadracticLoss});
 

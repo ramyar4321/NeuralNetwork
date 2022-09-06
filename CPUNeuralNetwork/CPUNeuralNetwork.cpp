@@ -9,6 +9,8 @@ cpu::NeuralNetwork::NeuralNetwork(int hidden_layer1_size,
                                   int hidden_layer2_size,
                                   int epoch,
                                   double alpha):
+                                  m_x(3, 0.0),
+                                  m_y(0.0),
                                   m_hidden_layer1(3, hidden_layer1_size),
                                   m_hidden_layer2(hidden_layer1_size, hidden_layer2_size),
                                   m_output_layer(hidden_layer2_size),
@@ -31,24 +33,14 @@ void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y
     this->m_hidden_layer2.weightInitialization();
     this->m_output_layer.weightInitialization();
     
-    // Use variable to store the sample from the dataset 
-    // to be passed to forward propegation methode.
-    // Each sample is a vector of length three since the 
-    // Haberman dataset has three features. 
-    cpu::Vector x(3, 0.0);
-
-    // Use variable to store the outcome associated
-    // with each given sample from the dataset to be 
-    // passed to backward propegation.
-    double y;
 
     for (int e =0; e< this->m_epoch; e++){
         for (int j=0; j < X_train_stand.get_num_rows(); j++){
-            x = X_train_stand.getRow(j);
-            y = y_train[j];
+            this->m_x = X_train_stand.getRow(j);
+            this->m_y = y_train[j];
 
-            this->forward_propegation(x);
-            this->backPropegation(x, y);
+            this->forwardPropegation();
+            this->backPropegation();
             this->updateWeigths();
         }
     }
@@ -57,12 +49,10 @@ void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y
 /**
  * Perform forward propegation.
  * 
- * TODO currently implementation 
- * has unnessesary copying of vectors.
  */
-void cpu::NeuralNetwork::forward_propegation(cpu::Vector& x){
+void cpu::NeuralNetwork::forwardPropegation(){
 
-    this->m_hidden_layer1.forwardPropegation(x);
+    this->m_hidden_layer1.forwardPropegation(this->m_x);
     cpu::Vector a1 = this->m_hidden_layer1.m_a;
 
     this->m_hidden_layer2.forwardPropegation(a1);
@@ -103,7 +93,7 @@ std::vector<double> cpu::NeuralNetwork::perdict( cpu::Dataset& X_test_stand, con
     for (int j=0; j < X_test_stand.get_num_rows(); j++){
         x = X_test_stand.getRow(j);
 
-        this->forward_propegation(x);
+        this->forwardPropegation();
 
         a = this->m_output_layer.m_a; 
 
@@ -144,42 +134,13 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
     return accuracy;
 }
 
-/**
- * 
- * Compute the loss of the neural network using the 
- * Cross-Entropy loss function.
- * 
- * @see https://en.wikipedia.org/wiki/Cross_entropy
- * 
- * @param y The actual outcomes.
- * @param a The output of the sigmoid activation neuron.
- * 
- * @return entropy loss 
- * 
- * Assumptions: The values of activations are greater than zero since they are 
- * the result of sigmoid activation.
- * 
- */
-double cpu::NeuralNetwork::bceLoss(const double &y, 
-                                    const double &a){
-    double loss = 0.0f;
-    // Use epsilon since log of zero is undefined.
-    double epsilon = 0.0001; 
-
-
-    loss += -y*std::log(a + epsilon) - (1-y)*std::log(1-a + epsilon);
-
-
-
-    return loss;
-}
 
 /**
  * Perform back propegation
  */
-void cpu::NeuralNetwork::backPropegation(const cpu::Vector& x, const double& y){
+void cpu::NeuralNetwork::backPropegation(){
     cpu::Vector a2 = this->m_hidden_layer2.m_a;
-    this->m_output_layer.backPropegation(y, a2);
+    this->m_output_layer.backPropegation(this->m_y, a2);
 
     cpu::Vector a1 = this->m_hidden_layer1.m_a;
     cpu::Vector W3 = this->m_output_layer.m_W;
@@ -188,7 +149,7 @@ void cpu::NeuralNetwork::backPropegation(const cpu::Vector& x, const double& y){
 
     cpu::Matrix W2 = this->m_hidden_layer2.m_W;
     cpu::Vector delta2 = this->m_hidden_layer2.m_delta;
-    this->m_hidden_layer1.backPropegation(W2, delta2,x);
+    this->m_hidden_layer1.backPropegation(W2, delta2, this->m_x);
 
 }
 

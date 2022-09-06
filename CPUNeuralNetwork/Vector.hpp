@@ -29,6 +29,8 @@ namespace cpu{
             Vector& operator*=(const Vector& rhs);
             Vector& operator-=(const Vector& rhs);
 
+            void printVec();
+
             int getSize() const;
 
     };

@@ -1,7 +1,7 @@
 #ifndef CPU_OUTPUT_LAYER
 #define CPU_OUTPUT_LAYER
 
-#include "Vector.hpp"
+#include "../Vector.hpp"
 
 namespace cpu{
     class OutputLayer{
@@ -11,9 +11,6 @@ namespace cpu{
             // private memeber variables
 
             double m_z;
-            //double m_y;
-
-            cpu::Vector m_dLdW;
 
         public:
 
@@ -23,6 +20,7 @@ namespace cpu{
             double m_a;
             double m_delta;
             cpu::Vector m_W;
+            cpu::Vector m_dLdW;
 
             /*=======================*/
             // Constructor

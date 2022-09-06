@@ -5,8 +5,8 @@
 #include "Dataset.hpp"
 #include "Matrix.hpp"
 #include "Vector.hpp"
-#include "HiddenLayer.hpp"
-#include "OutputLayer.hpp"
+#include "Layers/HiddenLayer.hpp"
+#include "Layers/OutputLayer.hpp"
 
 namespace cpu {
     /** 
@@ -32,20 +32,24 @@ namespace cpu {
             std::vector<double> perdict(Dataset& X_test_stand, const double& threeshold);
             double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 
-            double bceLoss(const double &y, 
-                            const double &a);
 
-            void forward_propegation(cpu::Vector& x);
-            void backPropegation(const cpu::Vector& x,const double& y);      
+            void forwardPropegation();
+            void backPropegation();      
             void updateWeigths();
 
-
-        private:
-
+            // Use variable to store the sample from the dataset 
+            // to be passed to forward and back propegation methodes.
+            cpu::Vector m_x;
+            // Use variable to store the outcome associated
+            // with each given sample from the dataset to be 
+            // passed to backward propegation methode.
+            double m_y;
 
             cpu::HiddenLayer m_hidden_layer1;
             cpu::HiddenLayer m_hidden_layer2;
             cpu::OutputLayer m_output_layer;
+
+        private:
 
             // Store the number of iterations of training the neural network.
             int m_epoch;
