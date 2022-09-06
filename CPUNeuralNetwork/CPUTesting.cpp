@@ -92,7 +92,7 @@ void cpu::Testing::test_backPropegation(){
     cpu::Matrix numericdLdW2(10,10);
     cpu::Vector numericdLdW3(10, 0.0f);
 
-    double perturb = 0.0001;
+    double perturb = 0.00000001;
 
     double loss_minus;
     double loss_plus;
@@ -130,6 +130,7 @@ void cpu::Testing::test_backPropegation(){
 
         numericdLdW3[i] = (loss_plus-loss_minus)/(2*perturb);      
     }
+    net.m_output_layer.m_W = W3;
 
     for (int j = 0; j < W2.get_num_rows(); j++){
         for(int i=0; i < W2.get_num_cols(); i++){
@@ -149,6 +150,7 @@ void cpu::Testing::test_backPropegation(){
             numericdLdW2(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
     }
+    net.m_hidden_layer2.m_W = W2;
 
     for (int j = 0; j < W1.get_num_rows(); j++){
         for(int i=0; i < W1.get_num_cols(); i++){
@@ -169,11 +171,6 @@ void cpu::Testing::test_backPropegation(){
         }
     }
 
-    numericdLdW3.printVec();
-    actual_dLdW3.printVec();
-
-
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
     if ( actual_dLdW3 == numericdLdW3)
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
     else

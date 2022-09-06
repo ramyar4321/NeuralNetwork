@@ -31,7 +31,7 @@ namespace cpu{
             // Methodes for backward propegation
             cpu::Vector reluPrime();
             void computeDelta(const cpu::Vector& W, const double& delta);
-            void computeDelta(const cpu::Matrix& W, const cpu::Vector& delta);
+            void computeDelta(const cpu::Matrix& W, const cpu::Vector& delta_);
             void computeGradient(const cpu::Vector& a);
             void backPropegation(const cpu::Vector& W, const double& delta, const cpu::Vector& a);
             void backPropegation(const cpu::Matrix& W, const cpu::Vector& delta, const cpu::Vector& a);

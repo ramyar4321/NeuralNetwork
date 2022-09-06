@@ -14,7 +14,7 @@ cpu::HiddenLayer::HiddenLayer(int layerI_size, int layerJ_size):
                                 m_a(layerJ_size, 0.0f),
                                 m_delta(layerJ_size, 0.0f),
                                 m_W(layerJ_size, layerI_size),
-                                m_dLdW(layerJ_size, 0.0f)              
+                                m_dLdW(layerJ_size, layerI_size)              
 {}
 
 /*=======================*/
@@ -144,15 +144,15 @@ void cpu::HiddenLayer::computeDelta(const cpu::Vector& W, const double& delta){
  * and @f$\delta_k$ is the error term of neuron k of layer K.
  * 
  * @param W A matrix containing the weigths between layer J and K
- * @param delta A vector cotaining the error terms of each neuron k of layer K
+ * @param delta_ A vector cotaining the error terms of each neuron k of layer K
  * 
  */
 void cpu::HiddenLayer::computeDelta(const cpu::Matrix& W, 
-                                    const cpu::Vector& delta){
+                                    const cpu::Vector& delta_){
     cpu::Vector f_prime = this->reluPrime();
 
     cpu::Matrix W_tranpose = W.transpose();
-    this->m_delta = W_tranpose*delta;
+    this->m_delta = W_tranpose*delta_;
 
     this->m_delta *= f_prime;
 
