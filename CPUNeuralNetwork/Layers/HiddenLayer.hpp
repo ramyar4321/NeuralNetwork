@@ -1,11 +1,12 @@
 #ifndef CPU_HIDDEN_LAYER
 #define CPU_HIDDEN_LAYER
 
+#include "Layer.hpp"
 #include "../Matrix.hpp"
 #include "../Vector.hpp"
 
 namespace cpu{
-    class HiddenLayer{
+    class HiddenLayer: public cpu::Layer{
        private:
             cpu::Vector m_z;
 
@@ -24,12 +25,12 @@ namespace cpu{
             // Methodes for forward propegation
             void weightInitialization();
             void computeOutput(const cpu::Vector& a);
-            void reluActivation();
+            void computeActivation();
             void forwardPropegation(const cpu::Vector& a);
 
             /*=======================*/
             // Methodes for backward propegation
-            cpu::Vector reluPrime();
+            cpu::Vector computeActivationPrime();
             void computeDelta(const cpu::Vector& W, const double& delta);
             void computeDelta(const cpu::Matrix& W, const cpu::Vector& delta_);
             void computeGradient(const cpu::Vector& a);

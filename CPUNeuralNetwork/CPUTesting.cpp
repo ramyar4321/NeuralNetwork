@@ -122,11 +122,11 @@ void cpu::Testing::test_backPropegation(){
 
         net.m_output_layer.m_W = W3_minus;
         net.forwardPropegation();
-        loss_minus = net.m_output_layer.bceLoss(y);
+        loss_minus = net.m_output_layer.computeLoss(y);
 
         net.m_output_layer.m_W = W3_plus;
         net.forwardPropegation();
-        loss_plus =net.m_output_layer.bceLoss(y);
+        loss_plus =net.m_output_layer.computeLoss(y);
 
         numericdLdW3[i] = (loss_plus-loss_minus)/(2*perturb);      
     }
@@ -141,11 +141,11 @@ void cpu::Testing::test_backPropegation(){
 
             net.m_hidden_layer2.m_W = W2_minus;
             net.forwardPropegation();
-            loss_minus = net.m_output_layer.bceLoss(y);
+            loss_minus = net.m_output_layer.computeLoss(y);
 
             net.m_hidden_layer2.m_W = W2_plus;
             net.forwardPropegation();
-            loss_plus = net.m_output_layer.bceLoss(y);
+            loss_plus = net.m_output_layer.computeLoss(y);
 
             numericdLdW2(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
@@ -161,11 +161,11 @@ void cpu::Testing::test_backPropegation(){
 
             net.m_hidden_layer1.m_W = W1_minus;
             net.forwardPropegation();
-            loss_minus = net.m_output_layer.bceLoss(y);
+            loss_minus = net.m_output_layer.computeLoss(y);
 
             net.m_hidden_layer1.m_W = W1_plus;
             net.forwardPropegation();
-            loss_plus =net.m_output_layer.bceLoss(y);
+            loss_plus =net.m_output_layer.computeLoss(y);
 
             numericdLdW1(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }

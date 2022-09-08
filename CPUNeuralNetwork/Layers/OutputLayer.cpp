@@ -13,6 +13,7 @@
 cpu::OutputLayer::OutputLayer(int layerI_size):
                                 m_z(0.0),
                                 m_a(0.0),
+                                m_delta(0.0),
                                 m_W(layerI_size, 0.0),
                                 m_dLdW(layerI_size, 0.0)
 {}
@@ -59,7 +60,7 @@ void cpu::OutputLayer::computeOutput(const cpu::Vector& a)
  * 
  * 
  */
-void cpu::OutputLayer::sigmoidActivation()
+void cpu::OutputLayer::computeActivation()
 {
     if (this->m_z >= 0.0f) {
         this->m_a = 1.0f / (1.0f + std::exp(-this->m_z));
@@ -78,7 +79,7 @@ void cpu::OutputLayer::sigmoidActivation()
  */
 void cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
     this->computeOutput(a);
-    this->sigmoidActivation();
+    this->computeActivation();
 }
 
 /**
@@ -94,7 +95,7 @@ void cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
  * @return The entropy loss 
  * 
  */
-double cpu::OutputLayer::bceLoss(const double &y){
+double cpu::OutputLayer::computeLoss(const double &y){
     double loss = 0.0f;
     // Use epsilon since log of zero is undefined.
     double epsilon = 0.0001; 
@@ -118,7 +119,7 @@ double cpu::OutputLayer::bceLoss(const double &y){
  * @return The derivative of the sigmoid function
  * 
  */
-double cpu::OutputLayer::sigmoidPrime(){
+double cpu::OutputLayer::computeActivationPrime(){
 
     double a_prime = this->m_a*(1.0 - this->m_a);
 
@@ -138,7 +139,7 @@ double cpu::OutputLayer::sigmoidPrime(){
  * @return The derivative of the cross entropy loss function with
  *         respect to the sigmoid activation a
  */
-double cpu::OutputLayer::bceLossPrime(const double &y){
+double cpu::OutputLayer::computeLossPrime(const double &y){
 
     double loss = 0.0;
     double epsilon = 0.0001;
@@ -161,7 +162,7 @@ double cpu::OutputLayer::bceLossPrime(const double &y){
  */
 void cpu::OutputLayer::computeDelta(const double& y){
 
-    this->m_delta = this->sigmoidPrime() * this->bceLossPrime(y);
+    this->m_delta = this->computeActivationPrime() * this->computeLossPrime(y);
 }
 
 /**

@@ -49,7 +49,7 @@ void cpu::HiddenLayer::computeOutput(const cpu::Vector &a)
  * @f$z_j = max(0, z_j)$ where @f$z_j$ is the output of neuron j in layer J.
  * 
  */
-void cpu::HiddenLayer::reluActivation()
+void cpu::HiddenLayer::computeActivation()
 {
 
     for (int j=0; j<this->m_z.getSize(); j++) {
@@ -70,7 +70,7 @@ void cpu::HiddenLayer::reluActivation()
  */
 void cpu::HiddenLayer::forwardPropegation(const cpu::Vector& a){
     this->computeOutput(a);
-    this->reluActivation();
+    this->computeActivation();
 }
 
 /*=======================*/
@@ -97,7 +97,7 @@ void cpu::HiddenLayer::forwardPropegation(const cpu::Vector& a){
  *         is the output of neuron j of layer J 
  *         and f' is the derivative of the relu activation function.
  */
-cpu::Vector cpu::HiddenLayer::reluPrime(){
+cpu::Vector cpu::HiddenLayer::computeActivationPrime(){
    cpu::Vector f_prime(this->m_z.getSize(), 0.0f);
 
     for (int i = 0; i < this->m_z.getSize(); i++){
@@ -127,7 +127,7 @@ cpu::Vector cpu::HiddenLayer::reluPrime(){
  */
 void cpu::HiddenLayer::computeDelta(const cpu::Vector& W, const double& delta){
 
-    cpu::Vector f_prime = this->reluPrime();
+    cpu::Vector f_prime = this->computeActivationPrime();
 
     this->m_delta = W*delta;
     this->m_delta *= f_prime;
@@ -149,10 +149,10 @@ void cpu::HiddenLayer::computeDelta(const cpu::Vector& W, const double& delta){
  */
 void cpu::HiddenLayer::computeDelta(const cpu::Matrix& W, 
                                     const cpu::Vector& delta_){
-    cpu::Vector f_prime = this->reluPrime();
+    cpu::Vector f_prime = this->computeActivationPrime();
 
-    cpu::Matrix W_tranpose = W.transpose();
-    this->m_delta = W_tranpose*delta_;
+    cpu::Matrix W_transpose = W.transpose();
+    this->m_delta = W_transpose*delta_;
 
     this->m_delta *= f_prime;
 

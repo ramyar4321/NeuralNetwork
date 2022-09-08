@@ -1,10 +1,11 @@
 #ifndef CPU_OUTPUT_LAYER
 #define CPU_OUTPUT_LAYER
 
+#include "Layer.hpp"
 #include "../Vector.hpp"
 
 namespace cpu{
-    class OutputLayer{
+    class OutputLayer: public cpu::Layer{
         private:
 
             /*=======================*/
@@ -29,16 +30,16 @@ namespace cpu{
 
             /*=======================*/
             // Methodes for forward propegation
-            void weightInitialization();
-            void computeOutput(const cpu::Vector& a);
-            void sigmoidActivation();
-            void forwardPropegation(const cpu::Vector& a);
-            double bceLoss(const double &y);
+            void weightInitialization() override;
+            void computeOutput(const cpu::Vector& a) override;
+            void computeActivation() override;
+            void forwardPropegation(const cpu::Vector& a) override;
+            double computeLoss(const double &y);
 
             /*=======================*/
             // Methodes for backward propegation
-            double sigmoidPrime();
-            double bceLossPrime(const double &y);
+            double computeActivationPrime();
+            double computeLossPrime(const double &y);
             void computeDelta(const double& y);
             void computeGradient(const cpu::Vector& a);
             void backPropegation(const double& y, const cpu::Vector& a);
