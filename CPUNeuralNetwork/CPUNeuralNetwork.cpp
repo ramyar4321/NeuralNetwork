@@ -1,22 +1,31 @@
 #include "CPUNeuralNetwork.hpp"
 #include <iostream>
 #include "random"
+#include "Layers/Layer.hpp"
 
 /**
  * Initialize Neural Network memeber variables.
  */
-cpu::NeuralNetwork::NeuralNetwork(int hidden_layer1_size,
-                                  int hidden_layer2_size,
-                                  int epoch,
+cpu::NeuralNetwork::NeuralNetwork(int epoch,
                                   double alpha):
                                   m_x(3, 0.0),
-                                  m_y(0.0),
-                                  m_hidden_layer1(3, hidden_layer1_size),
-                                  m_hidden_layer2(hidden_layer1_size, hidden_layer2_size),
-                                  m_output_layer(hidden_layer2_size),
+                                  m_y(1, 0.0),
+                                  m_num_layers(0),
                                   m_epoch(epoch),
                                   m_alpha(alpha)
 {}
+
+/**
+ * 
+ * Add layers to the neural network.
+ * 
+ */
+void cpu::NeuralNetwork::addLayer(cpu::Layer* layer){
+    this->m_layers.push_back(layer);
+    m_num_layers++;
+}
+
+
 
 /**
  * Use data to train the neural network.
@@ -29,15 +38,13 @@ cpu::NeuralNetwork::NeuralNetwork(int hidden_layer1_size,
 void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y_train){
 
     // Initialize the weigths of neural network
-    this->m_hidden_layer1.weightInitialization();
-    this->m_hidden_layer2.weightInitialization();
-    this->m_output_layer.weightInitialization();
+    this->weightInitialization();
     
 
     for (int e =0; e< this->m_epoch; e++){
         for (int j=0; j < X_train_stand.get_num_rows(); j++){
             this->m_x = X_train_stand.getRow(j);
-            this->m_y = y_train[j];
+            this->m_y[0] = y_train[j];
 
             this->forwardPropegation();
             this->backPropegation();
@@ -46,19 +53,28 @@ void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y
     }
 }
 
+void cpu::NeuralNetwork::weightInitialization(){
+    for(int l = 0; l < this->m_num_layers; l++){
+        this->m_layers[l]->weightInitialization();
+    }
+}
+
 /**
  * Perform forward propegation.
  * 
+ * @return A vector containing the activation of each neuron
+ *         in the output layer.
+ * 
  */
-void cpu::NeuralNetwork::forwardPropegation(){
+cpu::Vector cpu::NeuralNetwork::forwardPropegation(){
 
-    this->m_hidden_layer1.forwardPropegation(this->m_x);
-    cpu::Vector a1 = this->m_hidden_layer1.m_a;
+    cpu::Vector z = this->m_x;
+    for(int l = 0; l < m_num_layers; l++){
+        z = m_layers[l]->forwardPropegation(z);
+    }
 
-    this->m_hidden_layer2.forwardPropegation(a1);
-    cpu::Vector a2 = this->m_hidden_layer2.m_a;
+    return z;
 
-    this->m_output_layer.forwardPropegation(a2);
 }
 
   
@@ -85,19 +101,17 @@ std::vector<double> cpu::NeuralNetwork::perdict( cpu::Dataset& X_test_stand, con
     
     std::vector<double> y_pred(X_test_stand.get_num_rows());
 
-    cpu::Vector x(3, 0.0);
+    //cpu::Vector x(3, 0.0);
 
-    double a;
+    cpu::Vector a3(1, 0.0);
 
 
     for (int j=0; j < X_test_stand.get_num_rows(); j++){
-        x = X_test_stand.getRow(j);
+        this->m_x = X_test_stand.getRow(j);
 
-        this->forwardPropegation();
+        a3 = this->forwardPropegation();
 
-        a = this->m_output_layer.m_a; 
-
-        if(a > threeshold){
+        if(a3[0] > threeshold){
             y_pred[j] = 1.0;
         }else{
             y_pred[j] = 0.0;
@@ -139,6 +153,32 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
  * Perform back propegation
  */
 void cpu::NeuralNetwork::backPropegation(){
+
+    // Three variables used between layers, namely
+    // weights W, activations a, and error terms delta.
+    // 
+    cpu::Matrix W(1, 10);
+    cpu::Vector delta(1, 0.0);
+    cpu::Vector a(10, 0.0);
+
+    for(int l = this->m_num_layers - 1; l >= 0; l--){
+        if(l = this->m_num_layers-1){
+            delta = this->m_layers[l]->backPropegation(m_y, a);
+            W = this->m_layers[l]->W();
+            a = this->m_layers[l-1]->a();
+        }else{
+
+        }if(l= 0){
+            delta = this->m_layers[l]->backPropegation(W, delta, this->m_x);
+        }else{
+            delta = this->m_layers[l]->backPropegation(W, delta, a);
+            W = this->m_layers[l]->W();
+            a = this->m_layers[l-1]->a();
+        }
+
+    }
+
+    /*
     cpu::Vector a2 = this->m_hidden_layer2.m_a;
     this->m_output_layer.backPropegation(this->m_y, a2);
 
@@ -149,7 +189,7 @@ void cpu::NeuralNetwork::backPropegation(){
 
     cpu::Matrix W2 = this->m_hidden_layer2.m_W;
     cpu::Vector delta2 = this->m_hidden_layer2.m_delta;
-    this->m_hidden_layer1.backPropegation(W2, delta2, this->m_x);
+    this->m_hidden_layer1.backPropegation(W2, delta2, this->m_x);*/
 
 }
 
@@ -160,7 +200,22 @@ void cpu::NeuralNetwork::backPropegation(){
  */
 void cpu::NeuralNetwork::updateWeigths(){
     double alpha = this->m_alpha;
-    this->m_output_layer.updateWeigths(alpha);
-    this->m_hidden_layer2.updateWeigths(alpha);
-    this->m_hidden_layer1.updateWeigths(alpha);
+
+    for(int l = 0;  l < this->m_num_layers; l++){
+        this->m_layers[l]->updateWeigths(this->m_alpha);
+    }
+}
+
+/**
+ * Set the input of the neural network.
+ */
+void cpu::NeuralNetwork::x(const cpu::Vector& x){
+    this->m_x = x;
+}
+
+/** 
+ * Set weights for given layer of the neural network.
+ */
+void cpu::NeuralNetwork::W(const cpu::Matrix& W, const int& layer_index){
+    this->m_layers[layer_index]->W(W);
 }

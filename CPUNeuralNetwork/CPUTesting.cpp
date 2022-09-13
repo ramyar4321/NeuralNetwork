@@ -17,23 +17,33 @@ void cpu::Testing::test_forwardPropegation(){
     cpu::Vector x = {1.0f};
     cpu::Matrix W1(2,1,{1.0f, 0.0f});
     cpu::Matrix W2(2,2,{1.0f, 0.0f, 0.0f, 0.0f});
-    cpu::Vector W3 = {1.0f, 0.0f};
+    cpu::Matrix W3 = {1, 2, {1.0f, 0.0f}};
 
-    cpu::NeuralNetwork net(2,2, 0, 0.01);
-
-    net.m_x = x;
-    net.m_hidden_layer1.m_W = W1;
-    net.m_hidden_layer2.m_W = W2;
-    net.m_output_layer.m_W = W3;
-
-    net.forwardPropegation();
-
-    double expected_a3 = 0.731f;
-
-    double actual_a3 = net.m_output_layer.m_a;
+    cpu::NeuralNetwork net(0, 0.01);
 
 
-    if(areFloatEqual(expected_a3, actual_a3)){
+
+    cpu::Layer* hiddenlayer1 = new HiddenLayer(1,2);
+    cpu::Layer* hiddenlayer2 = new HiddenLayer(2,2);
+    cpu::Layer* outputlayer = new OutputLayer(2,1);
+
+    net.addLayer(hiddenlayer1);
+    net.addLayer(hiddenlayer2);
+    net.addLayer(outputlayer);
+
+    net.x(x);
+    net.W(W1, 0);
+    net.W(W2, 1);
+    net.W(W3, 2);
+    net.x(x);
+
+    cpu::Vector actual_a3 = net.forwardPropegation();
+
+    cpu::Vector expected_a3 = {0.731f};
+
+
+
+    if( expected_a3 == actual_a3){
         std::cout << "Test passed! Forward propegation produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! Forward propegation produced unexpected results." << std::endl;
@@ -69,7 +79,7 @@ void cpu::Testing::test_forwardPropegation(){
  */
 void cpu::Testing::test_backPropegation(){
 
-    cpu::NeuralNetwork net(10,10, 0, 0.01);
+    /*cpu::NeuralNetwork net(10,10, 0, 0.01);
 
     cpu::Vector x = {-2.11764, 0.3571 , -0.423171};
     double y = 0;
@@ -186,7 +196,7 @@ void cpu::Testing::test_backPropegation(){
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for first layer.\n";
     } else{
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for first layer.\n";
-    }
+    }*/
 }
 
 /**
@@ -206,7 +216,7 @@ void cpu::Testing::test_backPropegation(){
  */
 void cpu::Testing::test_gradientDescent(){
 
-    cpu::OutputLayer outputlayer(1);
+    /*cpu::OutputLayer outputlayer(1);
     double alpha = 0.01;
 
     bool testPass = true;
@@ -232,7 +242,7 @@ void cpu::Testing::test_gradientDescent(){
         std::cout << "Test succeeded! Gradient descent produces expected results." << std::endl;
     }else{
         std::cout << "Test failed! Gradient descent produces unexpected results." << std::endl;
-    }
+    }*/
 }
 
 /*----------------------------------------------*/

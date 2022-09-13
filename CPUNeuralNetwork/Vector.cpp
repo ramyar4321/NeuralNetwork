@@ -25,7 +25,7 @@ cpu::Vector::Vector(std::initializer_list<double> ilist):
  * from a Gaussian Distribtuion centered at 0 with standard deviations of 
  * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
  * 
- */
+ *
 void cpu::Vector::vectorInitialization()
 {
 
@@ -37,7 +37,7 @@ void cpu::Vector::vectorInitialization()
         this->m_vec[i] = normal(generator);
     }
 
-}
+}*/
 
 /**
  * Compute the dot product of this vector
@@ -163,6 +163,23 @@ cpu::Vector cpu::Vector::operator*(const double& rhs) const{
     return vec;
 }
 
+/**
+ * 
+ * Overload mulitplication operator without assignment
+ * in order to allows elementwise multiplication to occur
+ * between this vector and another vector,.
+ * 
+ */
+cpu::Vector cpu::Vector::operator*(const cpu::Vector& rhs) const{
+    cpu::Vector vec(this->m_size, 0.0f);
+
+
+    for(int i = 0; i < this->m_size; i++){
+        vec[i] = this->m_vec[i]*rhs[i];
+    }
+
+    return vec;
+}
 
 /**
  * Overload multiplcation operator with assignment. 
@@ -175,6 +192,24 @@ cpu::Vector& cpu::Vector::operator*=(const Vector& rhs){
     }
 
     return *this;
+}
+
+/**
+ * 
+ * Overload mulitplication operator without assignment
+ * in order to allows scalar subtraction
+ * to be performed on this vector object.
+ * 
+ */
+cpu::Vector cpu::Vector::operator-(const double& rhs) const{
+    cpu::Vector vec(this->m_size, 0.0f);
+
+
+    for(int i = 0; i < this->m_size; i++){
+        vec[i] = this->m_vec[i] - rhs;
+    }
+
+    return vec;
 }
 
 /**

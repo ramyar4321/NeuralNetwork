@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(){
-    cpu::NeuralNetwork net(200,200, 10, 0.001);
+    /*cpu::NeuralNetwork net(200,200, 10, 0.001);
 
     cpu::Dataset dat(306, 4,0.80);
     std::string filename = "../Data/haberman.data";
@@ -22,7 +22,7 @@ int main(){
     double threeshold = 0.5;
     std::vector<double> y_pred = net.perdict(x_test_stand, threeshold);
     double acc = net.computeAccuracy(y_pred, y_test);
-    std::cout << acc << std::endl;
+    std::cout << acc << std::endl;*/
     
     cpu::Testing test;
     test.test_forwardPropegation();
