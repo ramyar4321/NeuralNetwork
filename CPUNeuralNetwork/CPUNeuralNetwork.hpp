@@ -22,26 +22,38 @@ namespace cpu {
     class NeuralNetwork{
 
         public:
-            NeuralNetwork(int epoch,
+            NeuralNetwork(int hidden_layer1_size,
+                          int hidden_layer2_size,
+                          int epoch,
                           double alpha);
-
-            void addLayer(cpu::Layer* layer);
 
 
             void fit(Dataset& X_train_stand, std::vector<double>& y_train);
             std::vector<double> perdict(Dataset& X_test_stand, const double& threeshold);
             double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
 
-            void weightInitialization();
 
-            cpu::Vector forwardPropegation();
+            double forwardPropegation();
             void backPropegation();      
             void updateWeigths();
 
+
+            cpu::HiddenLayer m_hidden_layer1;
+            cpu::HiddenLayer m_hidden_layer2;
+            cpu::OutputLayer m_output_layer;
+
+            // Setter methods
             void x(const cpu::Vector& x);
-            void W(const cpu::Matrix& W_, const int& layer_index);
+            void y(const double& y);
+
+
 
         private:
+
+            // Store the number of iterations of training the neural network.
+            int m_epoch;
+            // Store the step size for gradient descent
+            double m_alpha;
 
             // Use variable to store the sample from the dataset 
             // to be passed to forward and back propegation methodes.
@@ -49,18 +61,7 @@ namespace cpu {
             // Use variable to store the outcome associated
             // with each given sample from the dataset to be 
             // passed to backward propegation methode.
-            cpu::Vector m_y;
-
-            // Vector to store the layers of Neural Network.
-            std::vector<cpu::Layer*> m_layers;
-
-            // Number of layers in neural network;
-            int m_num_layers;
-
-            // Store the number of iterations of training the neural network.
-            int m_epoch;
-            // Store the step size for gradient descent
-            double m_alpha;
+            double m_y;
 
 
     };

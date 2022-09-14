@@ -1,57 +1,59 @@
 #ifndef CPU_OUTPUT_LAYER
 #define CPU_OUTPUT_LAYER
 
-#include "Layer.hpp"
-#include "../Loss.hpp"
-#include "../Matrix.hpp"
 #include "../Vector.hpp"
 
 namespace cpu{
-    class OutputLayer: public cpu::Layer{
+    class OutputLayer{
         private:
 
-            cpu::Loss bceLoss;
+            /*=======================*/
+            // private memeber variables
 
-            cpu::Vector m_z;
-            cpu::Vector m_a;
-            cpu::Vector m_delta;
-            cpu::Matrix m_W;
-            cpu::Matrix m_dLdW;
+            double m_z;
+            double m_a;
+            double m_delta;
+            cpu::Vector m_W;
+            cpu::Vector m_dLdW;
 
         public:
 
             /*=======================*/
             // Constructor
-            OutputLayer(int layerI_size, int layerJ_size);
-            
+            OutputLayer(int layerI_size);
+
 
             /*=======================*/
-            // Methods for forward propagation
-            void weightInitialization() override;
+            // Methodes for forward propegation
+            void weightInitialization();
             void computeOutput(const cpu::Vector& a);
-            void computeActivation();
-            cpu::Vector forwardPropegation(const cpu::Vector& a) override;
-            //double computeLoss(const cpu::Vector &y);
+            void sigmoidActivation();
+            double forwardPropegation(const cpu::Vector& a);
+            double bceLoss(const double &y);
 
             /*=======================*/
-            // Methods for backward propagation
-            cpu::Vector computeActivationPrime();
-            //double computeLossPrime(const cpu::Vector& y);
-            void computeDelta(const cpu::Vector& y);
+            // Methodes for backward propegation
+            double sigmoidPrime();
+            double bceLossPrime(const double &y);
+            void computeDelta(const double& y);
             void computeGradient(const cpu::Vector& a);
-            cpu::Vector backPropegation(const cpu::Vector& y, const cpu::Vector& a) override;
+            double backPropegation(const double& y, const cpu::Vector& a);
 
             /*=======================*/
             // Methodes for updating the weights
             void gradientDecent(const double& alpha);
-            void updateWeigths(const double& alpha) override;
+            void updateWeigths(const double& alpha);
 
-            // Getter Methods
-            const cpu::Vector& a() const override;
-            const cpu::Matrix& W() const override;
+            /*=======================*/
+            // Setter and getter methods
 
-            //Setter methods
-            void W(const cpu::Matrix& W) override;
+            // Getter methods
+            const double& a() const;
+            const cpu::Vector& W() const;
+            const cpu::Vector& dLdW() const;
+
+            // Setter methods
+            void W(const cpu::Vector& W);
 
     };
 }

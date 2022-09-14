@@ -1,12 +1,11 @@
 #ifndef CPU_HIDDEN_LAYER
 #define CPU_HIDDEN_LAYER
 
-#include "Layer.hpp"
 #include "../Matrix.hpp"
 #include "../Vector.hpp"
 
 namespace cpu{
-    class HiddenLayer: public cpu::Layer{
+    class HiddenLayer{
        private:
             cpu::Vector m_z;
             cpu::Vector m_a;
@@ -20,35 +19,38 @@ namespace cpu{
             /*=======================*/
             // Constructor
             HiddenLayer(int layerI_size, int layerJ_size);
-            
 
             /*=======================*/
             // Methodes for forward propegation
-            void weightInitialization() override;
+            void weightInitialization();
             void computeOutput(const cpu::Vector& a);
-            void computeActivation();
-            cpu::Vector forwardPropegation(const cpu::Vector& a) override;
+            void reluActivation();
+            cpu::Vector forwardPropegation(const cpu::Vector& a);
 
             /*=======================*/
             // Methodes for backward propegation
-            cpu::Vector computeActivationPrime();
+            cpu::Vector reluPrime();
+            void computeDelta(const cpu::Vector& W, const double& delta);
             void computeDelta(const cpu::Matrix& W, const cpu::Vector& delta);
             void computeGradient(const cpu::Vector& a);
+            cpu::Vector backPropegation(const cpu::Vector& W, 
+                                        const double& delta, const cpu::Vector& a);
             cpu::Vector backPropegation(const cpu::Matrix& W, 
-                                        const cpu::Vector& delta, 
-                                        const cpu::Vector& a) override;
+                                        const cpu::Vector& delta, const cpu::Vector& a);
 
             /*=======================*/
             // Methodes for updating the weights
             void gradientDecent(const double& alpha);
             void updateWeigths(const double& alpha);
 
+            /*=======================*/
             // Getter methods
-            virtual const cpu::Vector& a() const override;
-            virtual const cpu::Matrix& W() const override;
+            const cpu::Vector& a() const;
+            const cpu::Matrix& W() const;
+            const cpu::Matrix& dLdW() const;
 
-            //Setter methods
-            void W(const cpu::Matrix& W) override;
+            // Setter methods
+            void W(const cpu::Matrix& W);
     };
 }
 

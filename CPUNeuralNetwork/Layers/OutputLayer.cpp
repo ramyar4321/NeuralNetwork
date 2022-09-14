@@ -7,71 +7,64 @@
 /**
  * Constructor for output layer J.
  * 
- * @param layerI_size The number of neurons in layer I 
+ * @param layerJ_size The number of neurons in layer I 
  *                    where layer I is the previous layer to the output layer.
- * @param layerJ_size The number of neurons in the output layer J.
  */
-cpu::OutputLayer::OutputLayer(int layerI_size, int layerJ_size):
-                                bceLoss(),
-                                m_z(layerJ_size, 0.0f),
-                                m_a(layerJ_size, 0.0f),
-                                m_delta(layerJ_size, 0.0f),
-                                m_W(layerJ_size, layerI_size),
-                                m_dLdW(layerJ_size, layerI_size) 
+cpu::OutputLayer::OutputLayer(int layerI_size):
+                                m_z(0.0),
+                                m_a(0.0),
+                                m_W(layerI_size, 0.0),
+                                m_dLdW(layerI_size, 0.0)
 {}
 
-
 /*=======================*/
-// Methodes for forward propagation
+// Methodes for forward propegation
 
 /**
- * Initialize the weights of output layer.
+ * Initialize the wieghts of this hidden layer.
  */
 void cpu::OutputLayer::weightInitialization(){
-    this->m_W.matrixInitialization();
+    this->m_W.vectorInitialization();
 }
 
 /**
- * 
- * For layers I and J where layer I is the previous layer to layer J,
- * compute the output of each neuron j in layer J. 
+ * Compute the output of each neuron j in output layer J. 
  * The output for each neuron can be computed as follows 
- * @f$z_j = \sum_{i}^I w_{ji} a_i$ where @f$a_i$ is the output of neuron i,
- * from the previous layer I.
+ * @f$z_j = \sum_{i}^I w_{ji} a_i$ where @f$a_i$ is the output of neuron i
+ * from the pervious layer I.
  * 
- * @param a The vector that contains the activation 
- *          of each neuron i of the previous layer I.
+ * @param a The vector that contains the activations of each neuron in layer I
  * 
  */
-void cpu::OutputLayer::computeOutput(const cpu::Vector &a)
+void cpu::OutputLayer::computeOutput(const cpu::Vector& a)
 {
 
-    this->m_z = this->m_W*a;
-
+    this->m_z = this->m_W.dot(a);
 }
 
 /**
- * Compute the sigmoid activation of each neuron in layer J.
- * @f$\sigma (z_j) = \frac{1}{1+ \exp (- z_j)} = \frac{\exp (z_j)}{1+ \exp ( z_j)}$. 
- * If z_j is positive and its magnitude large, it can cause overflow when computing @f$\exp ( z_j)$ and
- * if z_j is negative and its magnitude is too large, it can cause overflow when computing @f$\exp (- z_j)$.
- * In order to avoid numerical instability, let @f$\sigma (z_j) = \frac{1}{1+ \exp (- z_j)}$ for @f$ z_j >=0 $
- * and let @f$\sigma (z_j) = \frac{\exp (z_j)}{1+ \exp ( z_j)}$ for @f$ z_j < 0 $.
+ * Compute the sigmoid activation of the output neuron.
+ * 
+ * The sigmoid activation function for the output neuron can be defined as the following
+ * @f$\sigma (z_3) = \frac{1}{1+ \exp (- z_3)} = \frac{\exp (z_3)}{1+ \exp ( z_3)}$. 
+ * If z_3 is positive and its magnitude large, it can cause overflow when computing @f$\exp ( z_3)$ and
+ * if z_3 is negative and its magnitude is too large, it can cause overflow when computing @f$\exp (- z_3)$.
+ * In order to avoid numerical instability, let @f$\sigma (z_3) = \frac{1}{1+ \exp (- z_3)}$ for @f$ z_3 >=0 $
+ * and let @f$\sigma (z_3) = \frac{\exp (z_3)}{1+ \exp ( z_3)}$ for @f$ z_3 < 0 $.
  * 
  * @see https://stackoverflow.com/questions/41800604/need-help-understanding-the-caffe-code-for-sigmoidcrossentropylosslayer-for-mult
  * @see https://stackoverflow.com/questions/40353672/caffe-sigmoidcrossentropyloss-layer-loss-function
  * 
+ * @param z The output of the output neuron in the last layer.
  * 
  * 
  */
-void cpu::OutputLayer::computeActivation()
+void cpu::OutputLayer::sigmoidActivation()
 {
-    for(int j =0; j < m_a.getSize(); j++){
-        if (this->m_z[j] >= 0.0f) {
-            this->m_a[j] = 1.0f / (1.0f + std::exp(-this->m_z[j]));
-        } else {
-            this->m_a[j] = std::exp(this->m_z[j]) / (1.0f + std::exp(this->m_z[j]));
-        }
+    if (this->m_z >= 0.0f) {
+        this->m_a = 1.0f / (1.0f + std::exp(-this->m_z));
+    } else {
+        this->m_a = std::exp(this->m_z) / (1.0f + std::exp(this->m_z));
     }
 
 }
@@ -80,14 +73,14 @@ void cpu::OutputLayer::computeActivation()
  * Perform forward propegation on the output layer.
  * 
  * @param a A vector contain the activations of each neuron
- *          in the previous layer I.
+ *          in the previous layer.
  * 
- * @return A vector containing the activation of each neuron in the output layer J.
+ * @return The activation of the output neuron.
  * 
  */
-cpu::Vector cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
+double cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
     this->computeOutput(a);
-    this->computeActivation();
+    this->sigmoidActivation();
 
     return this->m_a;
 }
@@ -104,36 +97,34 @@ cpu::Vector cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
  * 
  * @return The entropy loss 
  * 
- *
-double cpu::OutputLayer::computeLoss(const cpu::Vector& y){
+ */
+double cpu::OutputLayer::bceLoss(const double &y){
     double loss = 0.0f;
     // Use epsilon since log of zero is undefined.
     double epsilon = 0.0001; 
 
-    for(int j = 0; j < this->m_a.getSize(); j ++){
-        loss += -y[j]*std::log(this->m_a[j] + epsilon) - (1-y[j])*std::log(1-this->m_a[j] + epsilon);
-    }
+
+    loss += -y*std::log(this->m_a + epsilon) - (1-y)*std::log(1-this->m_a + epsilon);
 
     return loss;
-}*/
+}
 
 /*=======================*/
-// Methods for backward propagation
+// Methodes for backward propegation
 
 
 /**
- * Compute the derivative of the sigmoid activation which can be defined as
- * @f$\sigma^{'} = \sigma(1-\sigma)$. Since m_a is the output of the sigmoid function,
- * then the derivative of the sigmoid activation can be rewritten as
- * @f$\sigma^{'} = {m_a}(1-{m_a})$ equivalently @f$\sigma^{'} = {m_a}({m_a}-1)*(-1)$
- * in order to make use of the subtraction operator of the Vector class. 
+ * Compute the derivative of the sigmoid activiation which can be defined as
+ * @f$\sigma^{'} = \sigma(1-\sigma)$. SInce m_a is the output of the sigmoid function,
+ * then the derivative of the sigmoid activiation can be rewritten as
+ * @f$\sigma^{'} = {m_a}(1-{m_a})$
  * 
  * @return The derivative of the sigmoid function
  * 
  */
-cpu::Vector cpu::OutputLayer::computeActivationPrime(){
+double cpu::OutputLayer::sigmoidPrime(){
 
-    cpu::Vector a_prime = this->m_a*(this->m_a - 1.0)*(-1);
+    double a_prime = this->m_a*(1.0 - this->m_a);
 
 
     return a_prime;
@@ -149,23 +140,21 @@ cpu::Vector cpu::OutputLayer::computeActivationPrime(){
  * @param y The actual outcome from the dataset
  * 
  * @return The derivative of the cross entropy loss function with
- *         respect to the sigmoid activation
- *
-double cpu::OutputLayer::computeLossPrime(const cpu::Vector& y){
+ *         respect to the sigmoid activation a
+ */
+double cpu::OutputLayer::bceLossPrime(const double &y){
 
     double loss = 0.0;
     double epsilon = 0.0001;
 
-    for(int j=0; j < this->m_a.getSize(); j++){
-        loss += -(y[j]/(this->m_a[j]+epsilon)) + ((1-y[j])/(1-this->m_a[j]+epsilon));
-    }
+    loss += -(y/(this->m_a+epsilon)) + ((1-y)/(1-this->m_a+epsilon));
 
     return loss;
-}*/
+}
 
 
 /**
- * Compute the error term associated with each output neuron j in the last layer J.
+ * Compute the error term associated with the output neuron j in the last layer.
  * The error term is commonly referred to as delta and is defined as the following
  * @f$\delta_j = f'(z)\frac{\partial L}{\partial a} = $
  * @f$         \sigma^{'}(z) (- \frac{y}{a} + \fra{1-y}{1-a})$
@@ -174,9 +163,9 @@ double cpu::OutputLayer::computeLossPrime(const cpu::Vector& y){
  * @param y The outcomes from the dataset
  * 
  */
-void cpu::OutputLayer::computeDelta(const cpu::Vector& y){
+void cpu::OutputLayer::computeDelta(const double& y){
 
-    this->m_delta = this->computeActivationPrime() * this->bceLoss.computeLoss(this->m_a, y);
+    this->m_delta = this->sigmoidPrime() * this->bceLossPrime(y);
 }
 
 /**
@@ -198,25 +187,22 @@ void cpu::OutputLayer::computeDelta(const cpu::Vector& y){
  */
 void cpu::OutputLayer::computeGradient(const cpu::Vector& a){
 
-    this->m_dLdW = a.tensor(this->m_delta);
+    this->m_dLdW = a*this->m_delta;
 
 }
 
 /**
- * Perform back propagation.
+ * Perform back propegation.
  * 
- * @param a The vector containing the activation of the neurons in layer I.
- * 
- * @return A vector containing the error terms of each neuron in output layer J.
+ * @return The error term associated with this output neuron.
  * 
  */
-cpu::Vector cpu::OutputLayer::backPropegation(const cpu::Vector& y, const cpu::Vector& a){
+double cpu::OutputLayer::backPropegation(const double& y, const cpu::Vector& a){
     this->computeDelta(y);
     this->computeGradient(a);
 
     return this->m_delta;
 }
-
 
 /*=======================*/
 // Methodes for updating the weights
@@ -224,8 +210,9 @@ cpu::Vector cpu::OutputLayer::backPropegation(const cpu::Vector& y, const cpu::V
 /**
  * 
  * 
- * For layers I and J where layer I is the previous layer to output layer J,
- * compute the gradient descent for the weights between layer I and J.
+ * Perform gradient descent. For any given weight between layers I < J
+ * where Iis the previous layer and J is the output layer,
+ * the weight can be updated using the following.
  * @f$ w_{ji} = w_{ji} - \alpha \frac{dL}{dw_{ji}}$
  * 
  * @param alpha The step size of gradient descent
@@ -241,25 +228,32 @@ void cpu::OutputLayer::gradientDecent(const double& alpha){
  * 
  * Update weights using gradient descent.
  * 
- * @param alpha The step size of gradient descent
- * 
  */
 void cpu::OutputLayer::updateWeigths(const double& alpha){
     this->gradientDecent(alpha);
 
 }
 
+/*=======================*/
+// Setter and getter methods
+
 // Getter methods
 
-const cpu::Vector& cpu::OutputLayer::a() const{
+const double& cpu::OutputLayer::a() const{
     return this->m_a;
 }
-const cpu::Matrix& cpu::OutputLayer::W() const{
+
+
+const cpu::Vector& cpu::OutputLayer::W() const{
     return this->m_W;
+}
+
+const cpu::Vector& cpu::OutputLayer::dLdW() const{
+    return this->m_dLdW;
 }
 
 // Setter methods
 
-void cpu::OutputLayer::W(const cpu::Matrix& W){
+void cpu::OutputLayer::W(const cpu::Vector& W){
     this->m_W = W;
 }

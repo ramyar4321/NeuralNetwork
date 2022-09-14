@@ -17,33 +17,21 @@ void cpu::Testing::test_forwardPropegation(){
     cpu::Vector x = {1.0f};
     cpu::Matrix W1(2,1,{1.0f, 0.0f});
     cpu::Matrix W2(2,2,{1.0f, 0.0f, 0.0f, 0.0f});
-    cpu::Matrix W3 = {1, 2, {1.0f, 0.0f}};
+    cpu::Vector W3 = {1.0f, 0.0f};
 
-    cpu::NeuralNetwork net(0, 0.01);
-
-
-
-    cpu::Layer* hiddenlayer1 = new HiddenLayer(1,2);
-    cpu::Layer* hiddenlayer2 = new HiddenLayer(2,2);
-    cpu::Layer* outputlayer = new OutputLayer(2,1);
-
-    net.addLayer(hiddenlayer1);
-    net.addLayer(hiddenlayer2);
-    net.addLayer(outputlayer);
+    cpu::NeuralNetwork net(2,2, 0, 0.01);
 
     net.x(x);
-    net.W(W1, 0);
-    net.W(W2, 1);
-    net.W(W3, 2);
-    net.x(x);
+    net.m_hidden_layer1.W(W1);
+    net.m_hidden_layer2.W(W2);
+    net.m_output_layer.W(W3);
 
-    cpu::Vector actual_a3 = net.forwardPropegation();
+    double actual_a3 = net.forwardPropegation();
 
-    cpu::Vector expected_a3 = {0.731f};
-
+    double expected_a3 = 0.731f;
 
 
-    if( expected_a3 == actual_a3){
+    if(areFloatEqual(expected_a3, actual_a3)){
         std::cout << "Test passed! Forward propegation produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! Forward propegation produced unexpected results." << std::endl;
@@ -79,7 +67,7 @@ void cpu::Testing::test_forwardPropegation(){
  */
 void cpu::Testing::test_backPropegation(){
 
-    /*cpu::NeuralNetwork net(10,10, 0, 0.01);
+    cpu::NeuralNetwork net(10,10, 0, 0.01);
 
     cpu::Vector x = {-2.11764, 0.3571 , -0.423171};
     double y = 0;
@@ -111,18 +99,18 @@ void cpu::Testing::test_backPropegation(){
     W2.matrixInitialization();
     W3.vectorInitialization();
 
-    net.m_x = x;
-    net.m_hidden_layer1.m_W = W1;
-    net.m_hidden_layer2.m_W = W2;
-    net.m_output_layer.m_W = W3;
-    net.m_y = y;
+    net.x(x);
+    net.m_hidden_layer1.W(W1);
+    net.m_hidden_layer2.W(W2);
+    net.m_output_layer.W(W3);
+    net.y(y);
 
     net.forwardPropegation();
     net.backPropegation();
 
-    cpu::Vector actual_dLdW3 = net.m_output_layer.m_dLdW;
-    cpu::Matrix actual_dLdW2 = net.m_hidden_layer2.m_dLdW;
-    cpu::Matrix actual_dLdW1 = net.m_hidden_layer1.m_dLdW;
+    cpu::Vector actual_dLdW3 = net.m_output_layer.dLdW();
+    cpu::Matrix actual_dLdW2 = net.m_hidden_layer2.dLdW();
+    cpu::Matrix actual_dLdW1 = net.m_hidden_layer1.dLdW();
 
     for(int i=0; i < W3.getSize(); i++){
         W3_minus = W3;
@@ -130,17 +118,17 @@ void cpu::Testing::test_backPropegation(){
         W3_minus[i] -= perturb;
         W3_plus[i] += perturb;
 
-        net.m_output_layer.m_W = W3_minus;
+        net.m_output_layer.W(W3_minus);
         net.forwardPropegation();
-        loss_minus = net.m_output_layer.computeLoss(y);
+        loss_minus = net.m_output_layer.bceLoss(y);
 
-        net.m_output_layer.m_W = W3_plus;
+        net.m_output_layer.W(W3_plus);
         net.forwardPropegation();
-        loss_plus =net.m_output_layer.computeLoss(y);
+        loss_plus =net.m_output_layer.bceLoss(y);
 
         numericdLdW3[i] = (loss_plus-loss_minus)/(2*perturb);      
     }
-    net.m_output_layer.m_W = W3;
+    net.m_output_layer.W(W3);
 
     for (int j = 0; j < W2.get_num_rows(); j++){
         for(int i=0; i < W2.get_num_cols(); i++){
@@ -149,18 +137,18 @@ void cpu::Testing::test_backPropegation(){
             W2_minus(j,i) -= perturb;
             W2_plus(j,i) += perturb;
 
-            net.m_hidden_layer2.m_W = W2_minus;
+            net.m_hidden_layer2.W(W2_minus);
             net.forwardPropegation();
-            loss_minus = net.m_output_layer.computeLoss(y);
+            loss_minus = net.m_output_layer.bceLoss(y);
 
-            net.m_hidden_layer2.m_W = W2_plus;
+            net.m_hidden_layer2.W(W2_plus);
             net.forwardPropegation();
-            loss_plus = net.m_output_layer.computeLoss(y);
+            loss_plus = net.m_output_layer.bceLoss(y);
 
             numericdLdW2(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
     }
-    net.m_hidden_layer2.m_W = W2;
+    net.m_hidden_layer2.W(W2);
 
     for (int j = 0; j < W1.get_num_rows(); j++){
         for(int i=0; i < W1.get_num_cols(); i++){
@@ -169,17 +157,21 @@ void cpu::Testing::test_backPropegation(){
             W1_minus(j,i) -= perturb;
             W1_plus(j,i) += perturb;
 
-            net.m_hidden_layer1.m_W = W1_minus;
+            net.m_hidden_layer1.W(W1_minus);
             net.forwardPropegation();
-            loss_minus = net.m_output_layer.computeLoss(y);
+            loss_minus = net.m_output_layer.bceLoss(y);
 
-            net.m_hidden_layer1.m_W = W1_plus;
+            net.m_hidden_layer1.W(W1_plus);
             net.forwardPropegation();
-            loss_plus =net.m_output_layer.computeLoss(y);
+            loss_plus =net.m_output_layer.bceLoss(y);
 
             numericdLdW1(j,i) = (loss_plus-loss_minus)/(2*perturb);
         }
     }
+    
+    actual_dLdW1.printMat();
+    std::cout << "===========" << std::endl;
+    numericdLdW1.printMat();
 
     if ( actual_dLdW3 == numericdLdW3)
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
@@ -196,7 +188,7 @@ void cpu::Testing::test_backPropegation(){
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for first layer.\n";
     } else{
         std::cout << "Test failed! Backpropegation gradient does not match numeric gradient for first layer.\n";
-    }*/
+    }
 }
 
 /**
@@ -216,7 +208,7 @@ void cpu::Testing::test_backPropegation(){
  */
 void cpu::Testing::test_gradientDescent(){
 
-    /*cpu::OutputLayer outputlayer(1);
+    cpu::OutputLayer outputlayer(1);
     double alpha = 0.01;
 
     bool testPass = true;
@@ -224,7 +216,7 @@ void cpu::Testing::test_gradientDescent(){
     int numIter = 5;
 
     cpu::Vector w(1, 100);
-    outputlayer.m_W = w;
+    outputlayer.W(w);
     double loss = computeQuadraticLoss(w);
     double prev_loss;
     cpu::Matrix dLdw = computeGradientQuadraticLoss(w);
@@ -242,7 +234,7 @@ void cpu::Testing::test_gradientDescent(){
         std::cout << "Test succeeded! Gradient descent produces expected results." << std::endl;
     }else{
         std::cout << "Test failed! Gradient descent produces unexpected results." << std::endl;
-    }*/
+    }
 }
 
 /*----------------------------------------------*/
