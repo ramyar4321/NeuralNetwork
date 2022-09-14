@@ -62,16 +62,23 @@ cpu::Matrix& cpu::Matrix::operator=(const Matrix& rhs){
     // resize this Matrix
     m_mat.resize(new_row_num*new_col_num);
 
+    // Set the member variables defining the number of rows and columns of this matrix
+    this->m_num_rows = new_row_num;
+    this->m_num_cols = new_col_num;
+
+    //std::equal(m_mat.begin(), m_mat.end(), rhs.begin(), rhs.end());
+
     // Assign this matrix values elementwise
     for(int j=0; j < new_row_num; j++){
         for(int i=0; i < new_col_num; i++){
-            m_mat[j*this->m_num_cols+i] = rhs(j,i);
+            //m_mat[j*this->m_num_cols+i] = rhs(j,i);
+           this->m_mat[j*this->m_num_cols+i] = rhs(j,i);
         }
     }
 
     // Set the member variables defining the number of rows and columns of this matrix
-    m_num_rows = new_row_num;
-    m_num_cols = new_col_num;
+    /*m_num_rows = new_row_num;
+    m_num_cols = new_col_num;*/
 
     // Return dereferenced pointer to this matrix.
     // Since it will persist after this methode call,

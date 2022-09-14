@@ -144,6 +144,7 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
  */
 void cpu::NeuralNetwork::backPropegation(){
 
+    
     // Variables to store information to be passed
     // between layers. Note, the dimensions of the vectors
     // and matrices are not important since they will be resized.

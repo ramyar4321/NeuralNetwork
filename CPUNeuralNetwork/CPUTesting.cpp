@@ -169,9 +169,6 @@ void cpu::Testing::test_backPropegation(){
         }
     }
     
-    actual_dLdW1.printMat();
-    std::cout << "===========" << std::endl;
-    numericdLdW1.printMat();
 
     if ( actual_dLdW3 == numericdLdW3)
         std::cout << "Test succeeded! Backpropegation gradient matches numeric gradient for last layer.\n";
