@@ -26,9 +26,9 @@ void cpu::Testing::test_forwardPropegation(){
     net.m_hidden_layer2.W(W2);
     net.m_output_layer.W(W3);
 
-    double actual_a3 = net.forwardPropegation();
+    float actual_a3 = net.forwardPropegation();
 
-    double expected_a3 = 0.731f;
+    float expected_a3 = 0.731f;
 
 
     if(areFloatEqual(expected_a3, actual_a3)){
@@ -70,7 +70,7 @@ void cpu::Testing::test_backPropegation(){
     cpu::NeuralNetwork net(10,10, 0, 0.01);
 
     cpu::Vector x = {-2.11764, 0.3571 , -0.423171};
-    double y = 0;
+    float y = 0;
 
     cpu::Matrix W1(10,3);
     cpu::Matrix W2(10,10);
@@ -90,10 +90,10 @@ void cpu::Testing::test_backPropegation(){
     cpu::Matrix numericdLdW2(10,10);
     cpu::Vector numericdLdW3(10, 0.0f);
 
-    double perturb = 0.00000001;
+    float perturb = 0.0001;
 
-    double loss_minus;
-    double loss_plus;
+    float loss_minus;
+    float loss_plus;
 
     W1.matrixInitialization();
     W2.matrixInitialization();
@@ -206,7 +206,7 @@ void cpu::Testing::test_backPropegation(){
 void cpu::Testing::test_gradientDescent(){
 
     cpu::OutputLayer outputlayer(1);
-    double alpha = 0.01;
+    float alpha = 0.01;
 
     bool testPass = true;
 
@@ -214,8 +214,8 @@ void cpu::Testing::test_gradientDescent(){
 
     cpu::Vector w(1, 100);
     outputlayer.W(w);
-    double loss = computeQuadraticLoss(w);
-    double prev_loss;
+    float loss = computeQuadraticLoss(w);
+    float prev_loss;
     cpu::Matrix dLdw = computeGradientQuadraticLoss(w);
 
     for(int i = 0; i < numIter; i++){
@@ -252,29 +252,29 @@ void cpu::Testing::test_import_dataset(){
     cpu::Dataset dat(306, 4, 0.75);
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataset();
+    std::vector<std::vector<float> > dataset = dat.get_dataset();
 
     // The actual values
-    double actual_value1 = dataset[0][0];
-    double actual_value2 = dataset[0][1];
-    double actual_value3 = dataset[0][2];
-    double actual_value4 = dataset[0][3];
+    float actual_value1 = dataset[0][0];
+    float actual_value2 = dataset[0][1];
+    float actual_value3 = dataset[0][2];
+    float actual_value4 = dataset[0][3];
 
-    double actual_value5 = dataset[305][0];
-    double actual_value6 = dataset[305][1];
-    double actual_value7 = dataset[305][2];
-    double actual_value8 = dataset[305][3];
+    float actual_value5 = dataset[305][0];
+    float actual_value6 = dataset[305][1];
+    float actual_value7 = dataset[305][2];
+    float actual_value8 = dataset[305][3];
 
     // The expected values
-    double expected_value1 = 30;
-    double expected_value2 = 64;
-    double expected_value3 = 1;
-    double expected_value4 = 1;
+    float expected_value1 = 30;
+    float expected_value2 = 64;
+    float expected_value3 = 1;
+    float expected_value4 = 1;
 
-    double expected_value5 = 83;
-    double expected_value6 = 58;
-    double expected_value7 = 2;
-    double expected_value8 = 2;
+    float expected_value5 = 83;
+    float expected_value6 = 58;
+    float expected_value7 = 2;
+    float expected_value8 = 2;
 
     // Test if expected values are the same as the actual values
     if ( areFloatEqual(actual_value1, expected_value1) &&
@@ -308,45 +308,45 @@ void cpu::Testing::test_X_train_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataset();
+    std::vector<std::vector<float> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
     cpu::Dataset train_dataset = dat.X_train_split();
 
     // Actual size of the X train set data
-    unsigned int actual_col_size = train_dataset.get_num_cols();
-    unsigned int actual_row_size = train_dataset.get_num_rows();
+    int actual_col_size = train_dataset.get_num_cols();
+    int actual_row_size = train_dataset.get_num_rows();
  
     // Expected size of the X train set data.
     // The expected number of columns is 3 since
     // the training set includes all the columns of the dataset except 
     // the outcome column.
-    unsigned int expected_col_size = 3;
+    int expected_col_size = 3;
     // The expected number of rows is 
     // floor((train test ratio)*(number of rows of the dataset)) = floor(0.99*306) = 302 
-    unsigned int expected_row_size = 302;
+    int expected_row_size = 302;
 
     // The actual values of the first row of the X train dataset
-    double actual_value1 = train_dataset[0][0];
-    double actual_value2 = train_dataset[0][1];
-    double actual_value3 = train_dataset[0][2];
+    float actual_value1 = train_dataset[0][0];
+    float actual_value2 = train_dataset[0][1];
+    float actual_value3 = train_dataset[0][2];
 
     // The actual values of the last row of the X train dataset
-    double actual_value4 = train_dataset[301][0];
-    double actual_value5 = train_dataset[301][1];
-    double actual_value6 = train_dataset[301][2];
+    float actual_value4 = train_dataset[301][0];
+    float actual_value5 = train_dataset[301][1];
+    float actual_value6 = train_dataset[301][2];
 
     // The expected values for the first row of the X train dataset
     // are the values for the first row of the dataset.
-    double expected_value1 = 30;
-    double expected_value2 = 64;
-    double expected_value3 = 1;
+    float expected_value1 = 30;
+    float expected_value2 = 64;
+    float expected_value3 = 1;
 
     // The expected values for the last row of the X train dataset
     // are the values for the train_sizeth row of the dataset.
-    double expected_value4 = 75;
-    double expected_value5 = 62;
-    double expected_value6 = 1;
+    float expected_value4 = 75;
+    float expected_value5 = 62;
+    float expected_value6 = 1;
 
     // Conduct tests
 
@@ -394,45 +394,45 @@ void cpu::Testing::test_X_test_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataset();
+    std::vector<std::vector<float> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
     cpu::Dataset test_dataset = dat.X_test_split();
 
     // Actual size of the X test set data
-    unsigned int actual_col_size = test_dataset.get_num_cols();
-    unsigned int actual_row_size = test_dataset.get_num_rows();
+    int actual_col_size = test_dataset.get_num_cols();
+    int actual_row_size = test_dataset.get_num_rows();
  
     // Expected size of the X test set data.
     // The expected number of columns is 3 since
     // the test set includes all the columns of the dataset except 
     // the outcome column.
-    unsigned int expected_col_size = 3;
+    int expected_col_size = 3;
     // The expected number of rows is 
     // ceiling((1- train test ratio)*(number of rows of the dataset)) = ceiling(0.01*306) = 4
-    unsigned int expected_row_size = 4;
+    int expected_row_size = 4;
 
     // The actual values of the first row of the X test dataset
-    double actual_value1 = test_dataset[0][0];
-    double actual_value2 = test_dataset[0][1];
-    double actual_value3 = test_dataset[0][2];
+    float actual_value1 = test_dataset[0][0];
+    float actual_value2 = test_dataset[0][1];
+    float actual_value3 = test_dataset[0][2];
 
     // The actual values of the last row of the X test dataset
-    double actual_value4 = test_dataset[3][0];
-    double actual_value5 = test_dataset[3][1];
-    double actual_value6 = test_dataset[3][2];
+    float actual_value4 = test_dataset[3][0];
+    float actual_value5 = test_dataset[3][1];
+    float actual_value6 = test_dataset[3][2];
 
     // The expected values for the first row of the X test dataset
     // are the values for the train_sizeth + 1 row of the dataset.
-    double expected_value1 = 76;
-    double expected_value2 = 67;
-    double expected_value3 = 0;
+    float expected_value1 = 76;
+    float expected_value2 = 67;
+    float expected_value3 = 0;
 
     // The expected values for the last row of the X test dataset
     // are the values for the last row of the dataset.
-    double expected_value4 = 83;
-    double expected_value5 = 58;
-    double expected_value6 = 2;
+    float expected_value4 = 83;
+    float expected_value5 = 58;
+    float expected_value6 = 2;
 
     // Conduct tests
 
@@ -480,31 +480,31 @@ void cpu::Testing::test_y_train_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataset();
+    std::vector<std::vector<float> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
-    std::vector<double> ytrain_dataset = dat.y_train_split();
+    std::vector<float> ytrain_dataset = dat.y_train_split();
 
     // Actual size of the y train vector
-    unsigned int actual_size = ytrain_dataset.size();
+    int actual_size = ytrain_dataset.size();
  
     // The expected size of y train vector.
     // floor((train test ratio)*(number of rows of the dataset)) = floor(0.99*306) = 302
-    unsigned int expected_size = 302;
+    int expected_size = 302;
 
     // The first actual value of y train vector.
-    double actual_value1 = ytrain_dataset[0];
+    float actual_value1 = ytrain_dataset[0];
 
     // The last actual value of the y train vector.
-    double actual_value2 = ytrain_dataset[301];
+    float actual_value2 = ytrain_dataset[301];
 
     // The expected value for the first element of y train vector
     // is the value of the first element of the outcome from the dataset.
-    double expected_value1 = 1;
+    float expected_value1 = 1;
     
     // The expected value for the last element of y train vector
     // is the value of the train_sizeth element of the outcome from the dataset.
-    double expected_value2 = 1;
+    float expected_value2 = 1;
 
 
     // Conduct tests
@@ -543,31 +543,31 @@ void cpu::Testing::test_y_test_split(){
     //Import the dataset
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
-    std::vector<std::vector<double> > dataset = dat.get_dataset();
+    std::vector<std::vector<float> > dataset = dat.get_dataset();
 
     // Call methode to be tested.
-    std::vector<double> ytest_dataset = dat.y_test_split();
+    std::vector<float> ytest_dataset = dat.y_test_split();
 
     // Actual size of the y test vector
-    unsigned int actual_size = ytest_dataset.size();
+    int actual_size = ytest_dataset.size();
  
     // The expected size of y test vector.
     // ceiling((1 - train test ratio)*(number of rows of the dataset)) = floor(0.01*306) = 4
-    unsigned int expected_size = 4;
+    int expected_size = 4;
 
     // The first actual value of y test vector.
-    double actual_value1 = ytest_dataset[0];
+    float actual_value1 = ytest_dataset[0];
 
     // The last actual value of the y test vector.
-    double actual_value2 = ytest_dataset[3];
+    float actual_value2 = ytest_dataset[3];
 
     // The expected value for the first element of y test vector
     // is the value of the train_size+1 element of the outcome from the dataset.
-    double expected_value1 = 1;
+    float expected_value1 = 1;
     
     // The expected value for the last element of y test vector
     // is the value of the last element of the outcome from the dataset.
-    double expected_value2 = 2;
+    float expected_value2 = 2;
 
 
     // Conduct tests
@@ -608,16 +608,16 @@ void cpu::Testing::test_getColumn(){
 
     int start_ri = 0;
     int end_ri = 2;
-    std::vector<double> actual_results1 = dat.getCol(ci, start_ri, end_ri);
-    std::vector<double> expected_results1 = {2,6,10};
+    std::vector<float> actual_results1 = dat.getCol(ci, start_ri, end_ri);
+    std::vector<float> expected_results1 = {2,6,10};
 
     
-    std::vector<double> actual_results2 = dat.getCol(ci);
-    std::vector<double> expected_results2 = {2,6,10,14};
+    std::vector<float> actual_results2 = dat.getCol(ci);
+    std::vector<float> expected_results2 = {2,6,10,14};
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+    std::function<bool(float,float)> f = &cpu::Testing::areFloatEqual;
 
      if ( std::equal(actual_results1.begin(), actual_results1.end(), expected_results1.begin(), f))
         std::cout << "Test succeeded! getCol(ci, start_ri, end_ri) methode returned expected results.\n";
@@ -641,15 +641,15 @@ void cpu::Testing::test_setValue(){
     // need an object to access the setValue methode.
     cpu::Dataset dat(306, 4, 0.99);
 
-    std::vector<double> y_actual = {2,1,2,1};
+    std::vector<float> y_actual = {2,1,2,1};
 
-    std::vector<double> y_expect = {1,0,1,0};
+    std::vector<float> y_expect = {1,0,1,0};
 
     dat.setValues(y_actual);
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+    std::function<bool(float,float)> f = &cpu::Testing::areFloatEqual;
 
     // Test of setValue returned expected results.
     if ( std::equal(y_actual.begin(), y_actual.end(), y_expect.begin(),f))
@@ -674,12 +674,12 @@ void cpu::Testing::test_computeMean(){
     int ci = 0;
 
     // Test to see if zeroth column, considering zero indexing, mean was correctly computed.
-    double actual_result= dat.computeMean(ci);
-    double expected_result = 4;
+    float actual_result= dat.computeMean(ci);
+    float expected_result = 4;
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+    std::function<bool(float,float)> f = &cpu::Testing::areFloatEqual;
 
      if ( areFloatEqual(actual_result, expected_result))
         std::cout << "Test succeeded! computeMean methode returned expected results.\n";
@@ -705,16 +705,16 @@ void cpu::Testing::test_computeStd(){
 
     // Test to determine if both computeStd methodes
     // compute the correct Standard deviation for the zeroth column.
-    double actual_result1= dat.computeStd(ci);
+    float actual_result1= dat.computeStd(ci);
 
-    double mean  = dat.computeMean(ci);
-    double actual_result2 = dat.computeStd(ci, mean);
+    float mean  = dat.computeMean(ci);
+    float actual_result2 = dat.computeStd(ci, mean);
     
-    double expected_result = 3;
+    float expected_result = 3;
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+    std::function<bool(float,float)> f = &cpu::Testing::areFloatEqual;
 
      if ( areFloatEqual(actual_result1, expected_result))
         std::cout << "Test succeeded! computeStd(ci) methode returned expected results.\n";
@@ -772,7 +772,7 @@ void cpu::Testing::test_getRow(){
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
-    std::function<bool(double,double)> f = &cpu::Testing::areFloatEqual;
+    std::function<bool(float,float)> f = &cpu::Testing::areFloatEqual;
 
     if ( actual_results == expected_results)
         std::cout << "Test succeeded! getRow methode returned expected results.\n";
@@ -790,8 +790,8 @@ void cpu::Testing::test_getRow(){
  * Fixed point errors are not used for comparison between floating point values
  * but it will suffice for our usage. 
  */
-bool cpu::Testing::areFloatEqual(double a, double b){
-    constexpr double epsilon = 0.01; 
+bool cpu::Testing::areFloatEqual(float a, float b){
+    constexpr float epsilon = 0.01; 
     return std::abs(a - b) < epsilon;
 }
 
@@ -800,8 +800,8 @@ bool cpu::Testing::areFloatEqual(double a, double b){
  * @f$L = w^2$
  * 
  */
-double cpu::Testing::computeQuadraticLoss(cpu::Vector& w){
-    double quadraticLoss = w[0]*w[0];
+float cpu::Testing::computeQuadraticLoss(cpu::Vector& w){
+    float quadraticLoss = w[0]*w[0];
 
     return quadraticLoss;
 }
@@ -813,7 +813,7 @@ double cpu::Testing::computeQuadraticLoss(cpu::Vector& w){
  * 
  */
 cpu::Matrix cpu::Testing::computeGradientQuadraticLoss(cpu::Vector& w){
-    double gradientQuadracticLoss = 2*w[0];
+    float gradientQuadracticLoss = 2*w[0];
 
     cpu::Matrix gradientQuadracticLoss_(1,1,{gradientQuadracticLoss});
 

@@ -23,27 +23,26 @@ namespace cpu{
         private:
             int m_num_rows;
             int m_num_cols;
-            std::vector<double> m_mat;
+            std::vector<float> m_mat;
 
 
         public:
             Matrix(int num_rows, int num_cols);
             Matrix(const Matrix& other);
-            Matrix(int num_rows, int num_cols, std::initializer_list<double> ilist);      
+            Matrix(int num_rows, int num_cols, std::initializer_list<float> ilist);      
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(const Matrix& rhs) const;
-            const double& operator()(const int& row, const int& col) const;
-            double& operator()(const int& row, const int& col);
+            const float& operator()(const int& row, const int& col) const;
+            float& operator()(const int& row, const int& col);
             Matrix operator-(const Matrix& rhs) const;
             Matrix& operator-=(const Matrix& rhs);
-            Matrix operator*(const double& rhs) const;
-            Matrix& operator*=(const double& rhs);
+            Matrix operator*(const float& rhs) const;
+            Matrix& operator*=(const float& rhs);
             Vector operator*(const Vector& rhs) const;
 
             void matrixInitialization(); 
             Matrix transpose() const;
-            void printMat();
 
 
             int get_num_rows() const;

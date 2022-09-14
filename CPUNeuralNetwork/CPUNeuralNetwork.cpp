@@ -8,7 +8,7 @@
 cpu::NeuralNetwork::NeuralNetwork(int hidden_layer1_size,
                                   int hidden_layer2_size,
                                   int epoch,
-                                  double alpha):
+                                  float alpha):
                                   m_x(3, 0.0),
                                   m_y(0.0),
                                   m_hidden_layer1(3, hidden_layer1_size),
@@ -26,7 +26,7 @@ cpu::NeuralNetwork::NeuralNetwork(int hidden_layer1_size,
  * @param y_train       The y train dataset used to train the Neural Network.
  *                      The y train dataset is assumed to have values of 0 or 1.
  */
-void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y_train){
+void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<float>& y_train){
 
     // Initialize the weigths of neural network
     this->m_hidden_layer1.weightInitialization();
@@ -52,7 +52,7 @@ void cpu::NeuralNetwork::fit(cpu::Dataset& X_train_stand, std::vector<double>& y
  * @return The activation of the output neuron.
  * 
  */
-double cpu::NeuralNetwork::forwardPropegation(){
+float cpu::NeuralNetwork::forwardPropegation(){
 
     // Initialize vector to store activation 
     // of hidden layers. Initial size of the vector is 
@@ -60,7 +60,7 @@ double cpu::NeuralNetwork::forwardPropegation(){
     cpu::Vector a_hiddenlayer(1, 0.0);
 
     // Initialize value to store the activation of ouput neuron
-    double a_outputlayer = 0;
+    float a_outputlayer = 0;
 
     a_hiddenlayer = this->m_hidden_layer1.forwardPropegation(this->m_x);
     a_hiddenlayer = this->m_hidden_layer2.forwardPropegation(a_hiddenlayer);
@@ -89,11 +89,11 @@ double cpu::NeuralNetwork::forwardPropegation(){
  *         X_test_stand.
  * 
  */
-std::vector<double> cpu::NeuralNetwork::perdict( cpu::Dataset& X_test_stand, const double& threeshold){
+std::vector<float> cpu::NeuralNetwork::perdict( cpu::Dataset& X_test_stand, const float& threeshold){
     
-    std::vector<double> y_pred(X_test_stand.get_num_rows());
+    std::vector<float> y_pred(X_test_stand.get_num_rows());
 
-    double a;
+    float a;
 
 
     for (int j=0; j < X_test_stand.get_num_rows(); j++){
@@ -124,8 +124,8 @@ std::vector<double> cpu::NeuralNetwork::perdict( cpu::Dataset& X_test_stand, con
  * @return The accuracy score.
  * 
  */
-double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test){
-    double accuracy = 0.0;
+float cpu::NeuralNetwork::computeAccuracy(std::vector<float>& y_pred, std::vector<float>& y_test){
+    float accuracy = 0.0;
 
     for (int j=0; j < y_test.size(); j++){
         if(y_pred[j] == y_test[j]){
@@ -133,7 +133,7 @@ double cpu::NeuralNetwork::computeAccuracy(std::vector<double>& y_pred, std::vec
         }
     }
 
-    accuracy = accuracy/static_cast<double>(y_test.size());
+    accuracy = accuracy/static_cast<float>(y_test.size());
 
     return accuracy;
 }
@@ -149,7 +149,7 @@ void cpu::NeuralNetwork::backPropegation(){
     // between layers. Note, the dimensions of the vectors
     // and matrices are not important since they will be resized.
     cpu::Vector W_outputlayer(1,0.0);
-    double delta_outputlayer;
+    float delta_outputlayer;
 
     cpu::Vector a_hiddenlayer(1,0.0);
     cpu::Matrix W_hiddenlayer(1,1);
@@ -174,7 +174,7 @@ void cpu::NeuralNetwork::backPropegation(){
  * 
  */
 void cpu::NeuralNetwork::updateWeigths(){
-    double alpha = this->m_alpha;
+    float alpha = this->m_alpha;
     this->m_output_layer.updateWeigths(alpha);
     this->m_hidden_layer2.updateWeigths(alpha);
     this->m_hidden_layer1.updateWeigths(alpha);
@@ -187,6 +187,6 @@ void cpu::NeuralNetwork::x(const cpu::Vector& x){
     this->m_x = x;
 }
 
-void cpu::NeuralNetwork::y(const double& y){
+void cpu::NeuralNetwork::y(const float& y){
     this->m_y = y;
 }

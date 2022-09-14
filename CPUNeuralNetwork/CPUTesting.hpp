@@ -41,8 +41,8 @@ namespace cpu {
 
         // Helper functions
 
-        static bool areFloatEqual(double a, double b);
-        double computeQuadraticLoss(cpu::Vector& w);
+        static bool areFloatEqual(float a, float b);
+        float computeQuadraticLoss(cpu::Vector& w);
         cpu::Matrix computeGradientQuadraticLoss(cpu::Vector& w);
 
     };

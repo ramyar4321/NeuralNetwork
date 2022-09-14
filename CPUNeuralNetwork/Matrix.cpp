@@ -21,7 +21,7 @@ cpu::Matrix::Matrix(int num_rows,
 /**
  * Constructor for Matrix object using initializer list
  */
-cpu::Matrix::Matrix(int num_rows, int num_cols, std::initializer_list<double>  ilist):
+cpu::Matrix::Matrix(int num_rows, int num_cols, std::initializer_list<float>  ilist):
     m_mat(ilist.begin(), ilist.end()),
     m_num_rows(num_rows),
     m_num_cols(num_cols)
@@ -66,7 +66,6 @@ cpu::Matrix& cpu::Matrix::operator=(const Matrix& rhs){
     this->m_num_rows = new_row_num;
     this->m_num_cols = new_col_num;
 
-    //std::equal(m_mat.begin(), m_mat.end(), rhs.begin(), rhs.end());
 
     // Assign this matrix values elementwise
     for(int j=0; j < new_row_num; j++){
@@ -75,10 +74,6 @@ cpu::Matrix& cpu::Matrix::operator=(const Matrix& rhs){
            this->m_mat[j*this->m_num_cols+i] = rhs(j,i);
         }
     }
-
-    // Set the member variables defining the number of rows and columns of this matrix
-    /*m_num_rows = new_row_num;
-    m_num_cols = new_col_num;*/
 
     // Return dereferenced pointer to this matrix.
     // Since it will persist after this methode call,
@@ -101,8 +96,8 @@ bool cpu::Matrix::operator==(const Matrix& rhs) const{
     bool areEqual = true;
 
     // Variables to store the element of matrices to be compared
-    double this_val = 0.0;
-    double rhs_val = 0.0;
+    float this_val = 0.0;
+    float rhs_val = 0.0;
 
     // Fixed error for comparison between two given values
     constexpr double epsilon = 0.01; 
@@ -133,7 +128,7 @@ bool cpu::Matrix::operator==(const Matrix& rhs) const{
  * Since this matrix is a flatten 2d vector, the index of a given element 
  * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
-const double& cpu::Matrix::operator()(const int& row, const int& col) const{
+const float& cpu::Matrix::operator()(const int& row, const int& col) const{
     return this->m_mat[row*this->m_num_cols + col];
 }
 
@@ -142,7 +137,7 @@ const double& cpu::Matrix::operator()(const int& row, const int& col) const{
  * Since this matrix is a flatten 2d vector, the index of a given element 
  * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
-double& cpu::Matrix::operator()(const int& row, const int& col) {
+float& cpu::Matrix::operator()(const int& row, const int& col) {
     return this->m_mat[row*this->m_num_cols + col];
 }
 
@@ -191,7 +186,7 @@ cpu::Matrix& cpu::Matrix::operator-=(const Matrix& rhs){
  * to be performed on a Matrix object
  * 
  */
-cpu::Matrix cpu::Matrix::operator*(const double& rhs) const{
+cpu::Matrix cpu::Matrix::operator*(const float& rhs) const{
     cpu::Matrix mat(this->m_num_rows, this->m_num_cols);
 
     for(int j = 0;  j < this->m_num_rows; j++){
@@ -210,7 +205,7 @@ cpu::Matrix cpu::Matrix::operator*(const double& rhs) const{
  * to be performed on this Matrix object
  *
  */ 
-cpu::Matrix& cpu::Matrix::operator*=(const double& rhs){
+cpu::Matrix& cpu::Matrix::operator*=(const float& rhs){
     for(int j = 0;  j < this->m_num_rows; j++){
         for(int i = 0; i < this->m_num_cols; i++){
             this->m_mat[j*this->m_num_cols+i] *= rhs;
@@ -230,7 +225,7 @@ cpu::Matrix& cpu::Matrix::operator*=(const double& rhs){
 cpu::Vector cpu::Matrix::operator*(const cpu::Vector& rhs) const{
     cpu::Vector vec(this->m_num_rows, 0.0f);
 
-    double temp;
+    float temp;
 
     for(int j = 0;  j < this->m_num_rows; j++){
         temp = 0.0f;
@@ -258,9 +253,9 @@ void cpu::Matrix::matrixInitialization()
 
 
     std::mt19937 generator;
-    double mean = 0.0f;
-    double stddev = std::sqrt(1 / static_cast<double>(this->m_num_cols) ); 
-    std::normal_distribution<double> normal(mean, stddev);
+    float mean = 0.0f;
+    float stddev = std::sqrt(1 / static_cast<float>(this->m_num_cols) ); 
+    std::normal_distribution<float> normal(mean, stddev);
     for (int j=0; j< this->m_num_rows; ++j) {
         for (int i=0; i< this->m_num_cols; ++i) {
             this->m_mat[j*this->m_num_cols+i] = normal(generator);
@@ -284,16 +279,6 @@ cpu::Matrix cpu::Matrix::transpose() const{
     return t;
 }
 
-/**
- * Print the contents of this Matrix.
- */
-void cpu::Matrix::printMat(){
-    for(int j = 0; j < this->m_num_rows; j++){
-        for(int i = 0; i<this->m_num_cols; i++){
-            std::cout << this->m_mat[j*this->m_num_cols+i] << std::endl;
-        }
-    }
-}
 
 //================================//
 // Getter methodes.

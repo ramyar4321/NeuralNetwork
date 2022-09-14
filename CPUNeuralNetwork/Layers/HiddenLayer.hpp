@@ -30,18 +30,18 @@ namespace cpu{
             /*=======================*/
             // Methodes for backward propegation
             cpu::Vector reluPrime();
-            void computeDelta(const cpu::Vector& W, const double& delta);
+            void computeDelta(const cpu::Vector& W, const float& delta);
             void computeDelta(const cpu::Matrix& W, const cpu::Vector& delta);
             void computeGradient(const cpu::Vector& a);
             cpu::Vector backPropegation(const cpu::Vector& W, 
-                                        const double& delta, const cpu::Vector& a);
+                                        const float& delta, const cpu::Vector& a);
             cpu::Vector backPropegation(const cpu::Matrix& W, 
                                         const cpu::Vector& delta, const cpu::Vector& a);
 
             /*=======================*/
             // Methodes for updating the weights
-            void gradientDecent(const double& alpha);
-            void updateWeigths(const double& alpha);
+            void gradientDecent(const float& alpha);
+            void updateWeigths(const float& alpha);
 
             /*=======================*/
             // Getter methods

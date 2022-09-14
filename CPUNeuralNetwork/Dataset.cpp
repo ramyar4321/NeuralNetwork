@@ -14,7 +14,7 @@
 cpu::Dataset::Dataset(int num_rows, int num_cols, float train_test_ratio):
                       m_num_rows(num_rows),
                       m_num_cols(num_cols),
-                      m_dataset(num_rows, std::vector<double>(num_cols, 0.0f)),
+                      m_dataset(num_rows, std::vector<float>(num_cols, 0.0f)),
                       m_train_test_ratio(train_test_ratio)
 {}
 
@@ -24,14 +24,14 @@ cpu::Dataset::Dataset(int num_rows, int num_cols, float train_test_ratio):
 cpu::Dataset::Dataset(int num_rows, int num_cols):
                       m_num_rows(num_rows),
                       m_num_cols(num_cols),
-                      m_dataset(num_rows, std::vector<double>(num_cols, 0.0f))
+                      m_dataset(num_rows, std::vector<float>(num_cols, 0.0f))
 {}
 
 /**
  * Constructor for Dataset object using initializer list.
  * Mainly used for testing.
  */
-cpu::Dataset::Dataset(std::initializer_list< std::initializer_list<double> > ilist):
+cpu::Dataset::Dataset(std::initializer_list< std::initializer_list<float> > ilist):
     m_dataset(ilist.begin(), ilist.end()),
     m_num_rows(ilist.size()),
     m_num_cols(ilist.begin()->size())
@@ -84,8 +84,8 @@ bool cpu::Dataset::operator==(const cpu::Dataset& rhs) const{
     bool areEqual = true;
 
     // Variables to store the element of matrices to be compared
-    double this_val = 0.0;
-    double rhs_val = 0.0;
+    float this_val = 0.0;
+    float rhs_val = 0.0;
 
     // Fixed error for comparison between two given values
     constexpr double epsilon = 0.01; 
@@ -114,14 +114,14 @@ bool cpu::Dataset::operator==(const cpu::Dataset& rhs) const{
 /**
  * Overload operator[] for read-only operation on elements of this Dataset.
  */
-const std::vector<double>& cpu::Dataset::operator[](const int &input) const{
+const std::vector<float>& cpu::Dataset::operator[](const int &input) const{
     return m_dataset[input];
 }
 
 /**
  * Overload operator[] for write operation on elements of this Dataset.
  */
-std::vector<double>& cpu::Dataset::operator[](const int &input) {
+std::vector<float>& cpu::Dataset::operator[](const int &input) {
     return m_dataset[input];
 }
 
@@ -186,7 +186,7 @@ cpu::Dataset cpu::Dataset::X_test_split(){
  * 
  * @return y training set
  */
-std::vector<double> cpu::Dataset::y_train_split(){
+std::vector<float> cpu::Dataset::y_train_split(){
 
     int train_size = static_cast<int>( this->m_num_rows * m_train_test_ratio );
 
@@ -195,7 +195,7 @@ std::vector<double> cpu::Dataset::y_train_split(){
     int end_ri = train_size-1;
 
 
-    std::vector<double>  y_train = this->getCol(ci, start_ri, end_ri);
+    std::vector<float>  y_train = this->getCol(ci, start_ri, end_ri);
 
     return y_train;
 
@@ -209,7 +209,7 @@ std::vector<double> cpu::Dataset::y_train_split(){
  * 
  * @return y test set
  */
-std::vector<double> cpu::Dataset::y_test_split(){
+std::vector<float> cpu::Dataset::y_test_split(){
 
     int train_size = static_cast<int>( this->m_num_rows * m_train_test_ratio );
 
@@ -217,7 +217,7 @@ std::vector<double> cpu::Dataset::y_test_split(){
     int start_ri = train_size;
     int end_ri = this->m_num_rows-1;
 
-    std::vector<double>  y_test = this->getCol(ci, start_ri, end_ri);
+    std::vector<float>  y_test = this->getCol(ci, start_ri, end_ri);
 
 
 
@@ -237,7 +237,7 @@ std::vector<double> cpu::Dataset::y_test_split(){
  * @param y A reference to the y vector storing the outcomes.
  * 
  */
-void cpu::Dataset::setValues(std::vector<double>& y){
+void cpu::Dataset::setValues(std::vector<float>& y){
 
     std::replace(y.begin(), y.end(), 1, 0);
     std::replace(y.begin(), y.end(), 2, 1);
@@ -249,7 +249,7 @@ void cpu::Dataset::setValues(std::vector<double>& y){
  * Getter methode for dataset member variable.
  * 
  */
-std::vector<std::vector<double> > cpu::Dataset::get_dataset(){
+std::vector<std::vector<float> > cpu::Dataset::get_dataset(){
     return m_dataset;
 }
 
@@ -306,7 +306,7 @@ cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
  *         then this methode will return the column of the matrix at index ci.
  *         Otherwise, it will return a continous segment of the column at index ci. 
  */ 
- std::vector<double> cpu::Dataset::getCol(int& ci, int& start_ri, int& end_ri){
+ std::vector<float> cpu::Dataset::getCol(int& ci, int& start_ri, int& end_ri){
     assert(start_ri >= 0 && start_ri < m_num_rows);
     assert(end_ri >= 0 && end_ri < m_num_rows);
     assert(ci >= 0 && ci < m_num_cols);
@@ -314,7 +314,7 @@ cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
     int col_size = end_ri -start_ri +1;
 
 
-    std::vector<double> col(col_size);
+    std::vector<float> col(col_size);
 
     for(int j= 0, row_i = start_ri; row_i <= end_ri; j++, row_i++){
         col[j] = this->m_dataset[row_i][ci];
@@ -331,8 +331,8 @@ cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
   * @return Column of matrix
   * 
   */
-std::vector<double> cpu::Dataset::getCol(int& ci){
-    std::vector<double> col(m_num_rows);
+std::vector<float> cpu::Dataset::getCol(int& ci){
+    std::vector<float> col(m_num_rows);
 
     for(int j = 0 ; j < m_num_rows; j++){
         col[j] = this->m_dataset[j][ci];
@@ -359,11 +359,11 @@ cpu::Vector cpu::Dataset::getRow(int& ri){
     return row;
 }
 
-double cpu::Dataset::get_num_rows() const{
+float cpu::Dataset::get_num_rows() const{
     return this->m_num_rows;
 }
 
-double cpu::Dataset::get_num_cols() const{
+float cpu::Dataset::get_num_cols() const{
     return this->m_num_cols;
 }
 
@@ -374,11 +374,11 @@ double cpu::Dataset::get_num_cols() const{
  * 
  * @return mean computed for the values from the given column
  */
-double cpu::Dataset::computeMean(int& ci){
-    std::vector<double> col = getCol(ci);
+float cpu::Dataset::computeMean(int& ci){
+    std::vector<float> col = getCol(ci);
 
-    double sum = std::accumulate(col.begin(), col.end(), 0.0);
-    double mean = sum/col.size();
+    float sum = std::accumulate(col.begin(), col.end(), 0.0);
+    float mean = sum/col.size();
 
     return mean;
 }
@@ -398,17 +398,17 @@ double cpu::Dataset::computeMean(int& ci){
  * 
  * @return Standard deviation for the given column
  */
-double cpu::Dataset::computeStd(int& ci){
-    std::vector<double> col = getCol(ci);
+float cpu::Dataset::computeStd(int& ci){
+    std::vector<float> col = getCol(ci);
 
-    double mean  = computeMean(ci);
+    float mean  = computeMean(ci);
 
-    double accum = 0.0;
-    std::for_each(col.begin(), col.end(), [&](const double x) {
+    float accum = 0.0;
+    std::for_each(col.begin(), col.end(), [&](const float x) {
     accum += (x - mean) * (x - mean);
     });
 
-    double std = sqrt(accum/(col.size() -1));
+    float std = static_cast<float>( sqrt(accum/(col.size() -1)));
 
     return std;
 }
@@ -429,15 +429,15 @@ double cpu::Dataset::computeStd(int& ci){
  * 
  * @return Standard deviation for the given column
  */
-double cpu::Dataset::computeStd(int& ci, double& mean){
-    std::vector<double> col = getCol(ci);
+float cpu::Dataset::computeStd(int& ci, float& mean){
+    std::vector<float> col = getCol(ci);
 
-    double accum = 0.0;
-    std::for_each(col.begin(), col.end(), [&](const double x) {
+    float accum = 0.0;
+    std::for_each(col.begin(), col.end(), [&](const float x) {
     accum += (x - mean) * (x - mean);
     });
 
-    double std = sqrt(accum/(col.size() -1));
+    float std = static_cast<float>( sqrt(accum/(col.size() -1)));
 
     return std;
 }
@@ -450,8 +450,8 @@ double cpu::Dataset::computeStd(int& ci, double& mean){
  * 
  */
 cpu::Dataset cpu::Dataset::standardizeMatrix(){
-    double col_mean = 0.0;
-    double col_std= 0.0;
+    float col_mean = 0.0;
+    float col_std= 0.0;
 
     cpu::Dataset stand_mat(this->m_num_rows, this->m_num_cols);
 
@@ -459,7 +459,7 @@ cpu::Dataset cpu::Dataset::standardizeMatrix(){
         col_mean = this->computeMean(i);
         col_std = this->computeStd(i);
         for(int j=0; j < this->m_num_rows; j++){
-            stand_mat[j][i] = (static_cast<double>(this->m_dataset[j][i]) - col_mean)/col_std;
+            stand_mat[j][i] = (static_cast<float>(this->m_dataset[j][i]) - col_mean)/col_std;
         }
     }
 

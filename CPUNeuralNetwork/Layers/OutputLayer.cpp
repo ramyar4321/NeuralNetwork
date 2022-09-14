@@ -78,7 +78,7 @@ void cpu::OutputLayer::sigmoidActivation()
  * @return The activation of the output neuron.
  * 
  */
-double cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
+float cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
     this->computeOutput(a);
     this->sigmoidActivation();
 
@@ -98,8 +98,8 @@ double cpu::OutputLayer::forwardPropegation(const cpu::Vector& a){
  * @return The entropy loss 
  * 
  */
-double cpu::OutputLayer::bceLoss(const double &y){
-    double loss = 0.0f;
+float cpu::OutputLayer::bceLoss(const float &y){
+    float loss = 0.0f;
     // Use epsilon since log of zero is undefined.
     double epsilon = 0.0001; 
 
@@ -122,9 +122,9 @@ double cpu::OutputLayer::bceLoss(const double &y){
  * @return The derivative of the sigmoid function
  * 
  */
-double cpu::OutputLayer::sigmoidPrime(){
+float cpu::OutputLayer::sigmoidPrime(){
 
-    double a_prime = this->m_a*(1.0 - this->m_a);
+    float a_prime = this->m_a*(1.0 - this->m_a);
 
 
     return a_prime;
@@ -142,9 +142,9 @@ double cpu::OutputLayer::sigmoidPrime(){
  * @return The derivative of the cross entropy loss function with
  *         respect to the sigmoid activation a
  */
-double cpu::OutputLayer::bceLossPrime(const double &y){
+float cpu::OutputLayer::bceLossPrime(const float &y){
 
-    double loss = 0.0;
+    float loss = 0.0;
     double epsilon = 0.0001;
 
     loss += -(y/(this->m_a+epsilon)) + ((1-y)/(1-this->m_a+epsilon));
@@ -163,7 +163,7 @@ double cpu::OutputLayer::bceLossPrime(const double &y){
  * @param y The outcomes from the dataset
  * 
  */
-void cpu::OutputLayer::computeDelta(const double& y){
+void cpu::OutputLayer::computeDelta(const float& y){
 
     this->m_delta = this->sigmoidPrime() * this->bceLossPrime(y);
 }
@@ -197,7 +197,7 @@ void cpu::OutputLayer::computeGradient(const cpu::Vector& a){
  * @return The error term associated with this output neuron.
  * 
  */
-double cpu::OutputLayer::backPropegation(const double& y, const cpu::Vector& a){
+float cpu::OutputLayer::backPropegation(const float& y, const cpu::Vector& a){
     this->computeDelta(y);
     this->computeGradient(a);
 
@@ -218,7 +218,7 @@ double cpu::OutputLayer::backPropegation(const double& y, const cpu::Vector& a){
  * @param alpha The step size of gradient descent
  * 
  */
-void cpu::OutputLayer::gradientDecent(const double& alpha){
+void cpu::OutputLayer::gradientDecent(const float& alpha){
 
     this->m_W -= this->m_dLdW*alpha;
 
@@ -229,7 +229,7 @@ void cpu::OutputLayer::gradientDecent(const double& alpha){
  * Update weights using gradient descent.
  * 
  */
-void cpu::OutputLayer::updateWeigths(const double& alpha){
+void cpu::OutputLayer::updateWeigths(const float& alpha){
     this->gradientDecent(alpha);
 
 }
@@ -239,7 +239,7 @@ void cpu::OutputLayer::updateWeigths(const double& alpha){
 
 // Getter methods
 
-const double& cpu::OutputLayer::a() const{
+const float& cpu::OutputLayer::a() const{
     return this->m_a;
 }
 

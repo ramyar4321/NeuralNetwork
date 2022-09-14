@@ -130,7 +130,7 @@ cpu::Vector cpu::HiddenLayer::reluPrime(){
  * @param delta The error terms of each neuron k of layer K.
  * 
  */
-void cpu::HiddenLayer::computeDelta(const cpu::Vector& W, const double& delta){
+void cpu::HiddenLayer::computeDelta(const cpu::Vector& W, const float& delta){
 
     cpu::Vector f_prime = this->reluPrime();
 
@@ -190,7 +190,7 @@ void cpu::HiddenLayer::computeGradient(const cpu::Vector& a){
  * 
  * @return A vector containing the error term for each neuron of this hidden layer.
  */
-cpu::Vector cpu::HiddenLayer::backPropegation(const cpu::Vector& W, const double& delta, const cpu::Vector& a){
+cpu::Vector cpu::HiddenLayer::backPropegation(const cpu::Vector& W, const float& delta, const cpu::Vector& a){
     this->computeDelta(W, delta);
     this->computeGradient(a);
 
@@ -229,7 +229,7 @@ cpu::Vector cpu::HiddenLayer::backPropegation(const cpu::Matrix& W, const cpu::V
  * @param alpha The step size of gradient descent
  * 
  */
-void cpu::HiddenLayer::gradientDecent(const double& alpha){
+void cpu::HiddenLayer::gradientDecent(const float& alpha){
 
     this->m_W -= this->m_dLdW*alpha;
 
@@ -240,7 +240,7 @@ void cpu::HiddenLayer::gradientDecent(const double& alpha){
  * Update weights using gradient descent.
  * 
  */
-void cpu::HiddenLayer::updateWeigths(const double& alpha){
+void cpu::HiddenLayer::updateWeigths(const float& alpha){
     this->gradientDecent(alpha);
 
 }

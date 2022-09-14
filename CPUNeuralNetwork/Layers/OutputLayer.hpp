@@ -10,9 +10,9 @@ namespace cpu{
             /*=======================*/
             // private memeber variables
 
-            double m_z;
-            double m_a;
-            double m_delta;
+            float m_z;
+            float m_a;
+            float m_delta;
             cpu::Vector m_W;
             cpu::Vector m_dLdW;
 
@@ -28,27 +28,27 @@ namespace cpu{
             void weightInitialization();
             void computeOutput(const cpu::Vector& a);
             void sigmoidActivation();
-            double forwardPropegation(const cpu::Vector& a);
-            double bceLoss(const double &y);
+            float forwardPropegation(const cpu::Vector& a);
+            float bceLoss(const float &y);
 
             /*=======================*/
             // Methodes for backward propegation
-            double sigmoidPrime();
-            double bceLossPrime(const double &y);
-            void computeDelta(const double& y);
+            float sigmoidPrime();
+            float bceLossPrime(const float &y);
+            void computeDelta(const float& y);
             void computeGradient(const cpu::Vector& a);
-            double backPropegation(const double& y, const cpu::Vector& a);
+            float backPropegation(const float& y, const cpu::Vector& a);
 
             /*=======================*/
             // Methodes for updating the weights
-            void gradientDecent(const double& alpha);
-            void updateWeigths(const double& alpha);
+            void gradientDecent(const float& alpha);
+            void updateWeigths(const float& alpha);
 
             /*=======================*/
             // Setter and getter methods
 
             // Getter methods
-            const double& a() const;
+            const float& a() const;
             const cpu::Vector& W() const;
             const cpu::Vector& dLdW() const;
 

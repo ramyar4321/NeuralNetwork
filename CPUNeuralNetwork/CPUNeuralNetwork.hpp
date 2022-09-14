@@ -25,15 +25,15 @@ namespace cpu {
             NeuralNetwork(int hidden_layer1_size,
                           int hidden_layer2_size,
                           int epoch,
-                          double alpha);
+                          float alpha);
 
 
-            void fit(Dataset& X_train_stand, std::vector<double>& y_train);
-            std::vector<double> perdict(Dataset& X_test_stand, const double& threeshold);
-            double computeAccuracy(std::vector<double>& y_pred, std::vector<double>& y_test);
+            void fit(Dataset& X_train_stand, std::vector<float>& y_train);
+            std::vector<float> perdict(Dataset& X_test_stand, const float& threeshold);
+            float computeAccuracy(std::vector<float>& y_pred, std::vector<float>& y_test);
 
 
-            double forwardPropegation();
+            float forwardPropegation();
             void backPropegation();      
             void updateWeigths();
 
@@ -44,7 +44,7 @@ namespace cpu {
 
             // Setter methods
             void x(const cpu::Vector& x);
-            void y(const double& y);
+            void y(const float& y);
 
 
 
@@ -53,7 +53,7 @@ namespace cpu {
             // Store the number of iterations of training the neural network.
             int m_epoch;
             // Store the step size for gradient descent
-            double m_alpha;
+            float m_alpha;
 
             // Use variable to store the sample from the dataset 
             // to be passed to forward and back propegation methodes.
@@ -61,7 +61,7 @@ namespace cpu {
             // Use variable to store the outcome associated
             // with each given sample from the dataset to be 
             // passed to backward propegation methode.
-            double m_y;
+            float m_y;
 
 
     };

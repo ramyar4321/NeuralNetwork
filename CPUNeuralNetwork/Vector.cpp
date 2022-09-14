@@ -7,7 +7,7 @@
  * Constructor for Vector object with size of vector and
  * initial values for each element are specified.
  */
-cpu::Vector::Vector(int size, double initial_val):
+cpu::Vector::Vector(int size, float initial_val):
                     m_size(size),
                     m_vec(size, initial_val)
 {}
@@ -15,7 +15,7 @@ cpu::Vector::Vector(int size, double initial_val):
 /**
  * Constructor for Vector object with initializer list.
  */
-cpu::Vector::Vector(std::initializer_list<double> ilist):
+cpu::Vector::Vector(std::initializer_list<float> ilist):
                         m_vec(ilist.begin(), ilist.end()),
                         m_size(ilist.size())
 {}
@@ -30,9 +30,9 @@ void cpu::Vector::vectorInitialization()
 {
 
     std::mt19937 generator;
-    double mean = 0.0f;
-    double stddev = std::sqrt(1 / static_cast<double>(this->m_size) ); 
-    std::normal_distribution<double> normal(mean, stddev);
+    float mean = 0.0f;
+    float stddev = std::sqrt(1 / static_cast<float>(this->m_size) ); 
+    std::normal_distribution<float> normal(mean, stddev);
     for (int i=0; i< this->m_size; ++i) {
         this->m_vec[i] = normal(generator);
     }
@@ -43,8 +43,8 @@ void cpu::Vector::vectorInitialization()
  * Compute the dot product of this vector
  * with another vector.
  */
-double cpu::Vector::dot(const cpu::Vector& rhs) const{
-    double res = 0.0f;
+float cpu::Vector::dot(const cpu::Vector& rhs) const{
+    float res = 0.0f;
 
     for(int i=0; i <this->m_size; i++){
         res += this->m_vec[i]*rhs[i]; 
@@ -107,8 +107,8 @@ bool cpu::Vector::operator==(const Vector& rhs){
     bool areEqual = true;
 
     // Variables to store the element of vectors to be compared
-    double this_val = 0.0;
-    double rhs_val = 0.0;
+    float this_val = 0.0;
+    float rhs_val = 0.0;
 
     // Fixed error for comparison between two given values
     constexpr double epsilon = 0.01; 
@@ -134,14 +134,14 @@ bool cpu::Vector::operator==(const Vector& rhs){
 /**
  * Overload operator[] for read-only operation on elements of this Vector.
  */
-const double& cpu::Vector::operator[](const int &input) const{
+const float cpu::Vector::operator[](const int &input) const{
     return m_vec[input];
 }
 
 /**
  * Overload operator[] for write operation on elements of this Vector.
  */
-double& cpu::Vector::operator[](const int &input) {
+float& cpu::Vector::operator[](const int &input) {
     return m_vec[input];
 }
 
@@ -152,7 +152,7 @@ double& cpu::Vector::operator[](const int &input) {
  * to be performed on this vector object.
  * 
  */
-cpu::Vector cpu::Vector::operator*(const double& rhs) const{
+cpu::Vector cpu::Vector::operator*(const float& rhs) const{
     cpu::Vector vec(this->m_size, 0.0f);
 
 
@@ -188,12 +188,6 @@ cpu::Vector& cpu::Vector::operator-=(const Vector& rhs){
     }
 
     return *this;
-}
-
-void cpu::Vector::printVec(){
-    for(int i = 0; i<this->m_size; i++){
-            std::cout << this->m_vec[i] << std::endl;
-    }
 }
 
 /**
