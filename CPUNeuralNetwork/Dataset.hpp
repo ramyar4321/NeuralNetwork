@@ -43,7 +43,6 @@ namespace cpu{
             float get_num_cols() const;
 
             float computeMean(int& ci);
-            float computeStd(int& ci);
             float computeStd(int& ci, float &mean);
 
             Dataset standardizeDataset();

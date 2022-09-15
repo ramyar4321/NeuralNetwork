@@ -377,35 +377,7 @@ float cpu::Dataset::computeMean(int& ci){
     return mean;
 }
 
-/**
- * Compute the sample standard deviation for the values
- * in a given column. Standard deviation will be computed as such
- * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j - \overline{x})}{{n_J}-1}}$
- * where @f$n_J$ is the size of the given column, @f$x_j$ is an element in the 
- * given column, and @f$\overline{x}$ is the mean of for the given column.
- * 
- * Note, that computing the Standard deviation using the following formula
- * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j)^2}{{n_J}-1}} -\overline{x}^2$
- * is more prone to overflow or underflow, thus it will not be used here.
- * 
- * @param col A given column from a matrix.
- * 
- * @return Standard deviation for the given column
- */
-float cpu::Dataset::computeStd(int& ci){
-    std::vector<float> col = getCol(ci);
 
-    float mean  = computeMean(ci);
-
-    float accum = 0.0;
-    std::for_each(col.begin(), col.end(), [&](const float x) {
-    accum += (x - mean) * (x - mean);
-    });
-
-    float std = static_cast<float>( sqrt(accum/(col.size() -1)));
-
-    return std;
-}
 
 /**
  * Compute the sample standard deviation for the values
@@ -418,8 +390,8 @@ float cpu::Dataset::computeStd(int& ci){
  * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j)^2}{{n_J}-1}} -\overline{x}^2$
  * is more prone to overflow or underflow, thus it will not be used here.
  * 
- * @param col AThe column for which we want the standard deviation
- * @param mean The column for which we want the mean
+ * @param col  The column for which we want the standard deviation
+ * @param mean The mean of the column for which we want the standard deviation.
  * 
  * @return Standard deviation for the given column
  */
@@ -451,7 +423,7 @@ cpu::Dataset cpu::Dataset::standardizeDataset(){
 
     for(int i=0; i < this->m_num_cols; i++){
         col_mean = this->computeMean(i);
-        col_std = this->computeStd(i);
+        col_std = this->computeStd(i, col_mean);
         for(int j=0; j < this->m_num_rows; j++){
             stand_mat[j][i] = (static_cast<float>(this->m_dataset[j][i]) - col_mean)/col_std;
         }
