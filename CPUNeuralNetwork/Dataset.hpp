@@ -1,5 +1,5 @@
-#ifndef CPU_Dataset
-#define CPU_Dataset
+#ifndef CPU_DATASET
+#define CPU_DATASET
 
 #include <string>
 #include <vector>
@@ -46,7 +46,7 @@ namespace cpu{
             float computeStd(int& ci);
             float computeStd(int& ci, float &mean);
 
-            Dataset standardizeMatrix();
+            Dataset standardizeDataset();
 
 
 
@@ -64,4 +64,4 @@ namespace cpu{
     };
 }
 
-#endif // End of CPU_Dataset
+#endif // End of CPU_DATASET

@@ -1,5 +1,6 @@
 #include "CPUNeuralNetwork.hpp"
-#include "CPUTesting.hpp"
+#include "Testing/NeuralNetTesting.hpp"
+#include "Testing/DatasetTesting.hpp"
 #include "Dataset.hpp"
 #include <iostream>
 
@@ -10,13 +11,13 @@ int main(){
     std::string filename = "../Data/haberman.data";
     dat.import_dataset(filename);
     cpu::Dataset x_train = dat.X_train_split();
-    cpu::Dataset x_train_stand = x_train.standardizeMatrix();
+    cpu::Dataset x_train_stand = x_train.standardizeDataset();
     std::vector<float> y_train = dat.y_train_split();
 
     net.fit(x_train_stand, y_train);
 
     cpu::Dataset x_test = dat.X_test_split();
-    cpu::Dataset x_test_stand = x_test.standardizeMatrix();
+    cpu::Dataset x_test_stand = x_test.standardizeDataset();
     std::vector<float> y_test = dat.y_test_split();
     dat.setValues(y_test);
     float threeshold = 0.5;
@@ -24,23 +25,23 @@ int main(){
     float acc = net.computeAccuracy(y_pred, y_test);
     std::cout << acc << std::endl;
     
-    cpu::Testing test;
-    test.test_forwardPropegation();
-    test.test_backPropegation();
-    test.test_gradientDescent();
-    
-    test.test_import_dataset();
-    test.test_X_train_split();
-    test.test_X_test_split();
-    test.test_y_train_split();
-    test.test_y_test_split();
+    cpu::NeuralNetTesting test_net;
+    test_net.test_forwardPropegation();
+    test_net.test_backPropegation();
+    test_net.test_gradientDescent();
 
-    test.test_getRow();
-    test.test_getColumn();
-    test.test_computeMean();
-    test.test_computeStd();
-    test.test_standardizeMatrix();
-    test.test_setValue();
+
+    cpu::DatasetTesting test_dataset;
+    test_dataset.test_import_dataset();
+    test_dataset.test_X_train_split();
+    test_dataset.test_X_test_split();
+    test_dataset.test_y_train_split();
+    test_dataset.test_y_test_split();
+
+    test_dataset.test_getRow();
+    test_dataset.test_getColumn();
+    test_dataset.test_standardizeDataset();
+    test_dataset.test_setValue();
     
 
     return 0;

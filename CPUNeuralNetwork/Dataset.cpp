@@ -39,14 +39,14 @@ cpu::Dataset::Dataset(std::initializer_list< std::initializer_list<float> > ilis
 
 /**
  * The function stores data from a CSV file
- * into 2d vector memeber variable.
+ * into 2d vector member variable.
  * 
  * @param filename The name of the CSV file
  */
 void cpu::Dataset::import_dataset(std::string &filename){
 
     std::ifstream file;
-    std::string line, val;   // string for line & value
+    std::string line, val;   // string for line and value
     int dataset_row = 0;     // dataset row index
     int dataset_col = 0;     // dataset column index
 
@@ -254,27 +254,17 @@ std::vector<std::vector<float> > cpu::Dataset::get_dataset(){
 }
 
 /**
- * This methode will produce a submatrix, a block of entries from the original dataset.
+ * This methode will produce a subset, a block of entries, from the original dataset.
  * 
- * @param start_ri The index of the first row of the sub-matrix
- *                 0 <= start_ri < (number of rows in orginal dataset)
- * @param end_ri   The index of the last row of the sub-matrix
- *                 0 <= end_ri < (number of rows in orginal dataset)
- * @param start_ci The index of the first column of the sub-matrix
- *                 0 <= start_ci  < (number of columns in the original dataset)
- * @param end_ci   The index of the last column of the sub-matrix
- *                 0 <= end_ci  < (number of columns in the original dataset)
+ * @param start_ri The index of the first row of the sub-dataset
+ * @param end_ri   The index of the last row of the sub-dataset
+ * @param start_ci The index of the first column of the sub-dataset
+ * @param end_ci   The index of the last column of the sub-dataset
  * 
- * @return A sub-matrix containing a block of entries of the original dataset.
+ * @return A sub-dataset containing a block of entries of the original dataset.
  * 
  */
 cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_ci, int& end_ci){
-
-    // Assert that Matrix indices are withing the dimensions of this Matrix
-    assert(start_ri >= 0 && start_ri < m_num_rows);
-    assert(end_ri >= 0 && end_ri < m_num_rows);
-    assert(start_ci >= 0 && start_ci < m_num_cols);
-    assert(start_ci >= 0 && start_ci < m_num_cols);
 
     // Calculate dimensions of sub-matrix
     int submat_num_rows = end_ri - start_ri + 1;
@@ -297,19 +287,17 @@ cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
 /**
  * This methode will return all elements from row index start_ri
  * until row index end_ri for the column at index ci. 
- * @param ci       Column index of this matrix corresponding
- * @param start_ri Row index of this matrix corresponding to the first element 
+ * @param ci       Column index of this dataset corresponding to column of interest.
+ * @param start_ri Row index of this dataset corresponding to the first element 
  *                 of the column to be returned.
- * @param end_ri   Row index of this matrix corresponding to the last element 
+ * @param end_ri   Row index of this dataset corresponding to the last element 
  *                 of the column to be returned. 
  * @return If start_ri is zero and end_ri is equal to the number of rows in this matrix, 
  *         then this methode will return the column of the matrix at index ci.
  *         Otherwise, it will return a continous segment of the column at index ci. 
  */ 
  std::vector<float> cpu::Dataset::getCol(int& ci, int& start_ri, int& end_ri){
-    assert(start_ri >= 0 && start_ri < m_num_rows);
-    assert(end_ri >= 0 && end_ri < m_num_rows);
-    assert(ci >= 0 && ci < m_num_cols);
+
 
     int col_size = end_ri -start_ri +1;
 
@@ -326,9 +314,9 @@ cpu::Dataset cpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
  /**
   * Return column of matrix
   * 
-  * @param ci Index of the column of this matrix to be returned
+  * @param ci Index of the column of this dataset to be returned
   * 
-  * @return Column of matrix
+  * @return Column of this dataset
   * 
   */
 std::vector<float> cpu::Dataset::getCol(int& ci){
@@ -359,10 +347,16 @@ cpu::Vector cpu::Dataset::getRow(int& ri){
     return row;
 }
 
+/**
+ * Get the number of rows of this dataset.
+ */
 float cpu::Dataset::get_num_rows() const{
     return this->m_num_rows;
 }
 
+/**
+ * Get the number of columns of this datset.
+ */ 
 float cpu::Dataset::get_num_cols() const{
     return this->m_num_cols;
 }
@@ -370,7 +364,7 @@ float cpu::Dataset::get_num_cols() const{
 /**
  * Compute the mean of values from a given column.
  * 
- * @param ci Column index for the column of interest from this matrix
+ * @param ci Column index for the column of interest from this dataset
  * 
  * @return mean computed for the values from the given column
  */
@@ -449,7 +443,7 @@ float cpu::Dataset::computeStd(int& ci, float& mean){
  * @return A matrix containing the z-score for each element of this matrix
  * 
  */
-cpu::Dataset cpu::Dataset::standardizeMatrix(){
+cpu::Dataset cpu::Dataset::standardizeDataset(){
     float col_mean = 0.0;
     float col_std= 0.0;
 
