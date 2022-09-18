@@ -27,17 +27,26 @@ gpu::Dataset::Dataset(int num_rows, int num_cols):
                       m_dataset(num_rows, std::vector<float>(num_cols, 0.0f))
 {}
 
+/**
+ * Constructor for Dataset object using initializer list.
+ * Mainly used for testing.
+ */
+gpu::Dataset::Dataset(std::initializer_list< std::initializer_list<float> > ilist):
+    m_dataset(ilist.begin(), ilist.end()),
+    m_num_rows(ilist.size()),
+    m_num_cols(ilist.begin()->size())
+{}
 
 /**
  * The function stores data from a CSV file
- * into 2d vector memeber variable.
+ * into 2d vector member variable.
  * 
  * @param filename The name of the CSV file
  */
 void gpu::Dataset::import_dataset(std::string &filename){
 
     std::ifstream file;
-    std::string line, val;   // string for line & value
+    std::string line, val;   // string for line and value
     int dataset_row = 0;     // dataset row index
     int dataset_col = 0;     // dataset column index
 
@@ -59,7 +68,48 @@ void gpu::Dataset::import_dataset(std::string &filename){
         std::cerr << "Error unable to open file";
     }
 }
- 
+
+/**
+ * Overload equality operator.
+ * 
+ * Two matrices are equal if and only if
+ * they have the same dimensions and their
+ * corresonding elements are equal.
+ * 
+ * return true if two matrices are equal,
+ *        false otherwise
+ */
+bool gpu::Dataset::operator==(const gpu::Dataset& rhs) const{
+
+    bool areEqual = true;
+
+    // Variables to store the element of matrices to be compared
+    float this_val = 0.0;
+    float rhs_val = 0.0;
+
+    // Fixed error for comparison between two given values
+    constexpr double epsilon = 0.01; 
+
+    //Check if the dimensions of the two matrices are equal
+    if( this->m_num_rows != rhs.get_num_rows() ||
+        this->m_num_cols != rhs.get_num_cols()){
+            areEqual = false;
+    }else{
+        // Check if corresponding elements of the two matracies are equal
+        for (int j = 0; j < this->m_num_rows; j++){
+            for(int i = 0; i < this->m_num_cols; i++){
+                this_val = this->m_dataset[j][i];
+                rhs_val = rhs[j][i];
+                if(!(std::abs(this_val - rhs_val) < epsilon)){
+                    areEqual = false;
+                }
+            }
+        }
+    }
+
+    return areEqual;
+
+}
 
 /**
  * Overload operator[] for read-only operation on elements of this Dataset.
@@ -204,27 +254,17 @@ std::vector<std::vector<float> > gpu::Dataset::get_dataset(){
 }
 
 /**
- * This methode will produce a submatrix, a block of entries from the original dataset.
+ * This methode will produce a subset, a block of entries, from the original dataset.
  * 
- * @param start_ri The index of the first row of the sub-matrix
- *                 0 <= start_ri < (number of rows in orginal dataset)
- * @param end_ri   The index of the last row of the sub-matrix
- *                 0 <= end_ri < (number of rows in orginal dataset)
- * @param start_ci The index of the first column of the sub-matrix
- *                 0 <= start_ci  < (number of columns in the original dataset)
- * @param end_ci   The index of the last column of the sub-matrix
- *                 0 <= end_ci  < (number of columns in the original dataset)
+ * @param start_ri The index of the first row of the sub-dataset
+ * @param end_ri   The index of the last row of the sub-dataset
+ * @param start_ci The index of the first column of the sub-dataset
+ * @param end_ci   The index of the last column of the sub-dataset
  * 
- * @return A sub-matrix containing a block of entries of the original dataset.
+ * @return A sub-dataset containing a block of entries of the original dataset.
  * 
  */
 gpu::Dataset gpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_ci, int& end_ci){
-
-    // Assert that Matrix indices are withing the dimensions of this Matrix
-    assert(start_ri >= 0 && start_ri < m_num_rows);
-    assert(end_ri >= 0 && end_ri < m_num_rows);
-    assert(start_ci >= 0 && start_ci < m_num_cols);
-    assert(start_ci >= 0 && start_ci < m_num_cols);
 
     // Calculate dimensions of sub-matrix
     int submat_num_rows = end_ri - start_ri + 1;
@@ -247,19 +287,17 @@ gpu::Dataset gpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
 /**
  * This methode will return all elements from row index start_ri
  * until row index end_ri for the column at index ci. 
- * @param ci       Column index of this matrix corresponding
- * @param start_ri Row index of this matrix corresponding to the first element 
+ * @param ci       Column index of this dataset corresponding to column of interest.
+ * @param start_ri Row index of this dataset corresponding to the first element 
  *                 of the column to be returned.
- * @param end_ri   Row index of this matrix corresponding to the last element 
+ * @param end_ri   Row index of this dataset corresponding to the last element 
  *                 of the column to be returned. 
  * @return If start_ri is zero and end_ri is equal to the number of rows in this matrix, 
  *         then this methode will return the column of the matrix at index ci.
  *         Otherwise, it will return a continous segment of the column at index ci. 
  */ 
  std::vector<float> gpu::Dataset::getCol(int& ci, int& start_ri, int& end_ri){
-    assert(start_ri >= 0 && start_ri < m_num_rows);
-    assert(end_ri >= 0 && end_ri < m_num_rows);
-    assert(ci >= 0 && ci < m_num_cols);
+
 
     int col_size = end_ri -start_ri +1;
 
@@ -276,9 +314,9 @@ gpu::Dataset gpu::Dataset::getSubDataset(int& start_ri, int& end_ri, int& start_
  /**
   * Return column of matrix
   * 
-  * @param ci Index of the column of this matrix to be returned
+  * @param ci Index of the column of this dataset to be returned
   * 
-  * @return Column of matrix
+  * @return Column of this dataset
   * 
   */
 std::vector<float> gpu::Dataset::getCol(int& ci){
@@ -298,8 +336,8 @@ std::vector<float> gpu::Dataset::getCol(int& ci){
  * 
  * @return Row of dataset.
  */
-std::vector<float> gpu::Dataset::getRow(int& ri){
-    std::vector<float> row(m_num_cols, 0.0f);
+gpu::Vector gpu::Dataset::getRow(int& ri){
+    gpu::Vector row(m_num_cols, 0.0f);
 
 
     for(int i = 0; i < m_num_cols; i++){
@@ -309,18 +347,24 @@ std::vector<float> gpu::Dataset::getRow(int& ri){
     return row;
 }
 
-int gpu::Dataset::get_num_rows() const{
+/**
+ * Get the number of rows of this dataset.
+ */
+float gpu::Dataset::get_num_rows() const{
     return this->m_num_rows;
 }
 
-int gpu::Dataset::get_num_cols() const{
+/**
+ * Get the number of columns of this datset.
+ */ 
+float gpu::Dataset::get_num_cols() const{
     return this->m_num_cols;
 }
 
 /**
  * Compute the mean of values from a given column.
  * 
- * @param ci Column index for the column of interest from this matrix
+ * @param ci Column index for the column of interest from this dataset
  * 
  * @return mean computed for the values from the given column
  */
@@ -333,35 +377,7 @@ float gpu::Dataset::computeMean(int& ci){
     return mean;
 }
 
-/**
- * Compute the sample standard deviation for the values
- * in a given column. Standard deviation will be computed as such
- * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j - \overline{x})}{{n_J}-1}}$
- * where @f$n_J$ is the size of the given column, @f$x_j$ is an element in the 
- * given column, and @f$\overline{x}$ is the mean of for the given column.
- * 
- * Note, that computing the Standard deviation using the following formula
- * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j)^2}{{n_J}-1}} -\overline{x}^2$
- * is more prone to overflow or underflow, thus it will not be used here.
- * 
- * @param col A given column from a matrix.
- * 
- * @return Standard deviation for the given column
- */
-float gpu::Dataset::computeStd(int& ci){
-    std::vector<float> col = getCol(ci);
 
-    float mean  = computeMean(ci);
-
-    float accum = 0.0;
-    std::for_each(col.begin(), col.end(), [&](const float x) {
-    accum += (x - mean) * (x - mean);
-    });
-
-    float std = sqrt(accum/(col.size() -1));
-
-    return std;
-}
 
 /**
  * Compute the sample standard deviation for the values
@@ -374,8 +390,8 @@ float gpu::Dataset::computeStd(int& ci){
  * @f$std = \sqrt{\frac{\sum_{j=0}^{n_J} (x_j)^2}{{n_J}-1}} -\overline{x}^2$
  * is more prone to overflow or underflow, thus it will not be used here.
  * 
- * @param col AThe column for which we want the standard deviation
- * @param mean The column for which we want the mean
+ * @param col  The column for which we want the standard deviation
+ * @param mean The mean of the column for which we want the standard deviation.
  * 
  * @return Standard deviation for the given column
  */
@@ -387,7 +403,7 @@ float gpu::Dataset::computeStd(int& ci, float& mean){
     accum += (x - mean) * (x - mean);
     });
 
-    float std = sqrt(accum/(col.size() -1));
+    float std = static_cast<float>( sqrt(accum/(col.size() -1)));
 
     return std;
 }
@@ -399,7 +415,7 @@ float gpu::Dataset::computeStd(int& ci, float& mean){
  * @return A matrix containing the z-score for each element of this matrix
  * 
  */
-gpu::Dataset gpu::Dataset::standardizeMatrix(){
+gpu::Dataset gpu::Dataset::standardizeDataset(){
     float col_mean = 0.0;
     float col_std= 0.0;
 
@@ -407,7 +423,7 @@ gpu::Dataset gpu::Dataset::standardizeMatrix(){
 
     for(int i=0; i < this->m_num_cols; i++){
         col_mean = this->computeMean(i);
-        col_std = this->computeStd(i);
+        col_std = this->computeStd(i, col_mean);
         for(int j=0; j < this->m_num_rows; j++){
             stand_mat[j][i] = (static_cast<float>(this->m_dataset[j][i]) - col_mean)/col_std;
         }

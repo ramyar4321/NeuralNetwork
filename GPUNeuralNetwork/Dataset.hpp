@@ -1,8 +1,10 @@
-#ifndef GPU_Dataset
-#define GPU_Dataset
+#ifndef GPU_DATASET
+#define GPU_DATASET
 
 #include <string>
 #include <vector>
+#include "Matrix/Matrix.hpp"
+#include "Matrix/Vector.hpp"
 
 namespace gpu{
     /**
@@ -13,11 +15,13 @@ namespace gpu{
         public:
             Dataset(int num_rows, int num_cols, float split_size);
             Dataset(int num_rows, int num_cols);
+            Dataset(std::initializer_list< std::initializer_list<float> > ilist);
 
             void import_dataset(std::string &filename);
 
             const std::vector<float>& operator[](const int &input) const;
             std::vector<float>& operator[](const int &input);
+            bool operator==(const gpu::Dataset& rhs) const;
 
             Dataset X_train_split();
             Dataset X_test_split();
@@ -33,16 +37,15 @@ namespace gpu{
                                  int& start_ci, int& end_ci);
             std::vector<float> getCol(int& ci, int& start_ri, int& end_ri);
             std::vector<float> getCol(int& ci);
-            std::vector<float> getRow(int& ri);
+            Vector getRow(int& ri);
 
-            int get_num_rows() const;
-            int get_num_cols() const;
+            float get_num_rows() const;
+            float get_num_cols() const;
 
             float computeMean(int& ci);
-            float computeStd(int& ci);
             float computeStd(int& ci, float &mean);
 
-            Dataset standardizeMatrix();
+            Dataset standardizeDataset();
 
 
 
@@ -51,11 +54,6 @@ namespace gpu{
             // The dataset we will be using Haberman
             // cancer survival dataset with 306 rows and
             // 4 columns.
-            //double m_dataset[306][4];
-            //static constexpr int m_num_rows = 306;
-            //static constexpr int m_num_cols = 4;
-            //std::array<std::array<double, m_num_cols>, m_num_rows> m_dataset;
-            // ratio = (train size)/((train size)+(test size))
             int m_num_rows;
             int m_num_cols;
             std::vector<std::vector<float> > m_dataset;
@@ -65,4 +63,4 @@ namespace gpu{
     };
 }
 
-#endif // End of CPU_Dataset
+#endif // End of GPU_DATASET
