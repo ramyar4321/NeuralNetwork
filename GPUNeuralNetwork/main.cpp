@@ -5,7 +5,7 @@
 #include <iostream>
 
 int main(){
-    gpu::NeuralNetwork net(100,100, 50, 0.001);
+    gpu::NeuralNetwork net(50,50, 10, 0.001);
 
     gpu::Dataset dat(306, 4,0.75);
     std::string filename = "../Data/haberman.data";

@@ -14,17 +14,18 @@
 gpu::Matrix::Matrix(int num_rows, 
                     int num_cols):
                     m_num_rows(num_rows),
-                    m_num_cols(num_cols),
-                    m_mat(num_rows*num_cols, 0.0f)
-{}
+                    m_num_cols(num_cols)
+{
+    this->allocateMem();
+}
 
 /**
  * Constructor for Matrix object using initializer list
  */
-gpu::Matrix::Matrix(int num_rows, int num_cols, std::initializer_list<float>  ilist):
-    m_mat(ilist.begin(), ilist.end()),
+gpu::Matrix::Matrix(int num_rows, int num_cols, std::shared_ptr<float> rhs):
     m_num_rows(num_rows),
-    m_num_cols(num_cols)
+    m_num_cols(num_cols),
+    m_mat(rhs)
 {}
 
 /**
@@ -42,6 +43,47 @@ gpu::Matrix::Matrix(const Matrix& rhs):
     m_mat(rhs.m_mat)
 {}
 
+//================================//
+// Matrix operations support.
+//================================//
+
+
+
+/**
+ * Initialize the elements of the matrix to random values that come
+ * from a Gaussian Distribtuion centered at 0 with standard deviations of 
+ * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
+ * 
+ */
+void gpu::Matrix::matrixInitialization()
+{
+
+
+    std::mt19937 generator;
+    float mean = 0.0f;
+    float stddev = std::sqrt(1 / static_cast<float>(this->m_num_cols) ); 
+    std::normal_distribution<float> normal(mean, stddev);
+    for (int j=0; j< this->m_num_rows; ++j) {
+        for (int i=0; i< this->m_num_cols; ++i) {
+            this->m_mat.get()[j*this->m_num_cols+i] = normal(generator);
+        }
+    } 
+
+}
+
+void gpu::Matrix::allocateMem(){
+    int size = this->m_num_cols* this->m_num_rows;
+    this->m_mat = std::shared_ptr<float>(new float[size]{0},
+                                        [&](float* ptr){ delete[] ptr; });
+}
+
+void gpu::Matrix::printMat(){
+    for (int j=0; j< this->m_num_rows; ++j) {
+        for (int i=0; i< this->m_num_cols; ++i) {
+            std::cout << this->m_mat.get()[j*this->m_num_cols+i] << std::endl;
+        }
+    } 
+}
 
 //================================//
 // Operators.
@@ -56,24 +98,11 @@ gpu::Matrix& gpu::Matrix::operator=(const Matrix& rhs){
         return *this;
     }
 
-    int new_col_num = rhs.get_num_cols();
-    int new_row_num = rhs.get_num_rows();
-
-    // resize this Matrix
-    m_mat.resize(new_row_num*new_col_num);
-
-    // Set the member variables defining the number of rows and columns of this matrix
-    this->m_num_rows = new_row_num;
-    this->m_num_cols = new_col_num;
+    this->m_num_cols = rhs.get_num_cols();
+    this->m_num_rows = rhs.get_num_rows();
 
 
-    // Assign this matrix values elementwise
-    for(int j=0; j < new_row_num; j++){
-        for(int i=0; i < new_col_num; i++){
-            //m_mat[j*this->m_num_cols+i] = rhs(j,i);
-           this->m_mat[j*this->m_num_cols+i] = rhs(j,i);
-        }
-    }
+    this->m_mat = rhs.m_mat;
 
     // Return dereferenced pointer to this matrix.
     // Since it will persist after this methode call,
@@ -110,7 +139,7 @@ bool gpu::Matrix::operator==(const Matrix& rhs) const{
         // Check if corresponding elements of the two matracies are equal
         for (int j = 0; j < this->m_num_rows; j++){
             for(int i = 0; i < this->m_num_cols; i++){
-                this_val = this->m_mat[j*this->m_num_cols+i];
+                this_val = this->m_mat.get()[j*this->m_num_cols+i];
                 rhs_val = rhs(j,i);
                 if(!(std::abs(this_val - rhs_val) < epsilon)){
                     areEqual = false;
@@ -129,7 +158,7 @@ bool gpu::Matrix::operator==(const Matrix& rhs) const{
  * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
 const float& gpu::Matrix::operator()(const int& row, const int& col) const{
-    return this->m_mat[row*this->m_num_cols + col];
+    return this->m_mat.get()[row*this->m_num_cols + col];
 }
 
 /**
@@ -138,36 +167,7 @@ const float& gpu::Matrix::operator()(const int& row, const int& col) const{
  * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
 float& gpu::Matrix::operator()(const int& row, const int& col) {
-    return this->m_mat[row*this->m_num_cols + col];
-}
-
-
-
-
-//================================//
-// Matrix operations support.
-//================================//
-
-/**
- * Initialize the elements of the matrix to random values that come
- * from a Gaussian Distribtuion centered at 0 with standard deviations of 
- * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
- * 
- */
-void gpu::Matrix::matrixInitialization()
-{
-
-
-    std::mt19937 generator;
-    float mean = 0.0f;
-    float stddev = std::sqrt(1 / static_cast<float>(this->m_num_cols) ); 
-    std::normal_distribution<float> normal(mean, stddev);
-    for (int j=0; j< this->m_num_rows; ++j) {
-        for (int i=0; i< this->m_num_cols; ++i) {
-            this->m_mat[j*this->m_num_cols+i] = normal(generator);
-        }
-    } 
-
+    return this->m_mat.get()[row*this->m_num_cols + col];
 }
 
 

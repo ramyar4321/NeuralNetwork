@@ -121,7 +121,6 @@ void gpu::HiddenLayer::weightInitialization(){
  */
 void gpu::HiddenLayer::computeOutput(const gpu::Vector &a)
 {
-    //this->m_z = this->m_W*a;
     this->matrixVectorMult(this->m_z, this->m_W, a);
 
 }

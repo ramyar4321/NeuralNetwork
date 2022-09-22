@@ -1,7 +1,7 @@
 #ifndef GPU_MATRIX
 #define GPU_MATRIX
 
-#include <vector>
+#include <memory>
 #include <initializer_list>
 
 namespace gpu{
@@ -23,20 +23,22 @@ namespace gpu{
         private:
             int m_num_rows;
             int m_num_cols;
-            std::vector<float> m_mat;
+            std::shared_ptr<float> m_mat;
 
 
         public:
             Matrix(int num_rows, int num_cols);
             Matrix(const Matrix& other);
-            Matrix(int num_rows, int num_cols, std::initializer_list<float> ilist);      
+            Matrix(int num_rows, int num_cols, std::shared_ptr<float> rhs);      
+
+            void allocateMem();
+            void matrixInitialization(); 
+            void printMat();
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(const Matrix& rhs) const;
             const float& operator()(const int& row, const int& col) const;
             float& operator()(const int& row, const int& col);
-
-            void matrixInitialization(); 
 
 
             int get_num_rows() const;
