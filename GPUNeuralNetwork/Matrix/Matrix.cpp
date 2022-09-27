@@ -77,6 +77,17 @@ void gpu::Matrix::allocateMem(){
                                         [&](float* ptr){ delete[] ptr; });
 }
 
+void gpu::Matrix::deepCopy(const gpu::Matrix& rhs){
+    this->m_num_rows = rhs.get_num_rows();
+    this->m_num_cols = rhs.get_num_cols();
+
+    for(int j=0; j < this->m_num_rows; j++){
+        for(int i=0; i < this->m_num_cols; i++){
+           this->m_mat.get()[j*this->m_num_cols+i] = rhs(j,i);
+        }
+    }
+}
+
 void gpu::Matrix::printMat(){
     for (int j=0; j< this->m_num_rows; ++j) {
         for (int i=0; i< this->m_num_cols; ++i) {

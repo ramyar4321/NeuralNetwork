@@ -342,3 +342,7 @@ const gpu::Matrix& gpu::HiddenLayer::dLdW() const{
 void gpu::HiddenLayer::W(const gpu::Matrix& W){
     this->m_W = W;
 }
+
+void gpu::HiddenLayer::WDeepCopy(const gpu::Matrix& W){
+    this->m_W.deepCopy(W);
+}

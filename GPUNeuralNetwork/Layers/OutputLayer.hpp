@@ -61,6 +61,7 @@ namespace gpu{
 
             // Setter methods
             void W(const gpu::Vector& W);
+            void WDeepCopy(const gpu::Vector& W);
 
     };
 }

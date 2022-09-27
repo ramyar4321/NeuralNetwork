@@ -301,3 +301,7 @@ const gpu::Vector& gpu::OutputLayer::dLdW() const{
 void gpu::OutputLayer::W(const gpu::Vector& W){
     this->m_W = W;
 }
+
+void gpu::OutputLayer::WDeepCopy(const gpu::Vector& W){
+    this->m_W.deepCopy(W);
+}

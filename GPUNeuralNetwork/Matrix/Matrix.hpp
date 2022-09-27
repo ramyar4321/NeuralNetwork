@@ -2,7 +2,6 @@
 #define GPU_MATRIX
 
 #include <memory>
-#include <initializer_list>
 
 namespace gpu{
     // Forward delcare Vector class to break circular dependancy between
@@ -33,6 +32,7 @@ namespace gpu{
 
             void allocateMem();
             void matrixInitialization(); 
+            void deepCopy(const Matrix& rhs);
             void printMat();
 
             Matrix& operator=(const Matrix& rhs);
