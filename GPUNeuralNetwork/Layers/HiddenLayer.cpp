@@ -135,11 +135,12 @@ void gpu::HiddenLayer::reluActivation()
 {
 
     for (int j=0; j<this->m_z.getSize(); j++) {
-        if(this->m_z[j] > 0.0f ){
+        this->m_a[j] = std::max(0.0f, this->m_z[j]);
+        /*if(this->m_z[j] > 0.0f ){
             this->m_a[j] = this->m_z[j];
         }else{
             this->m_a[j] = 0.0f;
-        }
+        }*/
     } 
 }
 
@@ -186,13 +187,7 @@ gpu::Vector gpu::HiddenLayer::forwardPropegation(const gpu::Vector& a){
  */
 float gpu::HiddenLayer::reluPrime(const float& z){
 
-    float fprime;
-
-    if(z <= 0){
-        fprime = 0;
-    }else{
-        fprime = 1;
-    }
+    float fprime = static_cast<float>(z >= 0);
 
     return fprime;
 }
