@@ -9,7 +9,7 @@ gpu::NeuralNetwork::NeuralNetwork(int hidden_layer1_size,
                                   int hidden_layer2_size,
                                   int epoch,
                                   float alpha):
-                                  m_x(3, 0.0),
+                                  m_x(3),
                                   m_y(0.0),
                                   m_hidden_layer1(3, hidden_layer1_size),
                                   m_hidden_layer2(hidden_layer1_size, hidden_layer2_size),
@@ -57,10 +57,11 @@ float gpu::NeuralNetwork::forwardPropegation(){
     // Initialize vector to store activation 
     // of hidden layers. Initial size of the vector is 
     // not important since it will automatically be resized.
-    gpu::Vector a_hiddenlayer(1, 0.0);
+    gpu::Vector a_hiddenlayer(1);
 
     // Initialize value to store the activation of ouput neuron
     float a_outputlayer = 0;
+
 
     a_hiddenlayer = this->m_hidden_layer1.forwardPropegation(this->m_x);
     a_hiddenlayer = this->m_hidden_layer2.forwardPropegation(a_hiddenlayer);
@@ -148,12 +149,12 @@ void gpu::NeuralNetwork::backPropegation(){
     // Variables to store information to be passed
     // between layers. Note, the dimensions of the vectors
     // and matrices are not important since they will be resized.
-    gpu::Vector W_outputlayer(1,0.0);
+    gpu::Vector W_outputlayer(1);
     float delta_outputlayer;
 
-    gpu::Vector a_hiddenlayer(1,0.0);
+    gpu::Vector a_hiddenlayer(1);
     gpu::Matrix W_hiddenlayer(1,1);
-    gpu::Vector delta_hiddenlayer(1,0.0);
+    gpu::Vector delta_hiddenlayer(1);
 
 
     a_hiddenlayer = this->m_hidden_layer2.a();

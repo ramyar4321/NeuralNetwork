@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "Matrix/Matrix.hpp"
-#include "Matrix/Vector.hpp"
+#include "Matrix/Matrix.cuh"
+#include "Matrix/Vector.cuh"
 
 namespace gpu{
     /**
@@ -37,7 +37,7 @@ namespace gpu{
                                  int& start_ci, int& end_ci);
             std::vector<float> getCol(int& ci, int& start_ri, int& end_ri);
             std::vector<float> getCol(int& ci);
-            Vector getRow(int& ri);
+            std::vector<float> getRow(int& ri);
 
             float get_num_rows() const;
             float get_num_cols() const;

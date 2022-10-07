@@ -1,47 +1,93 @@
-#include "Matrix.hpp"
-#include "Vector.hpp"
+#include "Matrix.cuh"
+#include "Vector.cuh"
 #include <iostream>
 #include <algorithm>
-#include "random"
+#include <curand.h>
 
 //================================//
 // Constructors.
 //================================//
 
 /**
- * Constructor for Matrix object with number of rows and columns specified. 
+ * TDOD
  */
 gpu::Matrix::Matrix(int num_rows, 
                     int num_cols):
                     m_num_rows(num_rows),
                     m_num_cols(num_cols)
 {
-    this->allocateMem();
+    this->allocateMemHost();
+    this->allocateMemDevice();
 }
 
 /**
- * Constructor for Matrix object using initializer list
+ * TODO
  */
-gpu::Matrix::Matrix(int num_rows, int num_cols, std::shared_ptr<float> rhs):
+gpu::Matrix::Matrix(int num_rows, int num_cols, std::vector<float> rhs):
     m_num_rows(num_rows),
-    m_num_cols(num_cols),
-    m_mat(rhs)
-{}
+    m_num_cols(num_cols)
+{
+    this->allocateMemHost();
+    this->allocateMemDevice();
+
+    // Copy vector elements to host shared pointer
+    for(int j=0; j < this->m_num_rows; j++){
+        for(int i =0; i< this->m_num_cols; i++){
+            this->h_mat.get()[j*this->m_num_cols+i] = rhs[j*this->m_num_cols+i];
+        }
+    }
+
+    this->copyHostToDevice();
+}
 
 /**
- * Copy Constructor. 
- * Invoked when Matrix mat = rhs
- * Since no dynamic memory was allocated, simple copy 
- * member variables from rhs to this matrix. 
+ * TODO
  */
 gpu::Matrix::Matrix(const Matrix& rhs):
     // Since rhs is of type Matrix, we
     // can access its private fields
     m_num_rows(rhs.m_num_rows),
     m_num_cols(rhs.m_num_cols),
-    //Invoke the copy constrcutor for std::vector
-    m_mat(rhs.m_mat)
+    h_mat(rhs.h_mat),
+    d_mat(rhs.d_mat)
 {}
+
+/**
+ * TODO
+ */
+void gpu::Matrix::allocateMemHost(){
+
+    int size  = this->m_num_cols * this->m_num_rows;
+    this->h_mat = std::shared_ptr<float>(new float[size]{0},
+                                            [&](float* ptr){ delete[] ptr;});
+    
+}
+
+/**
+ * TODO
+ */
+void gpu::Matrix::allocateMemDevice(){
+    int size  = this->m_num_cols * this->m_num_rows;
+    this->d_mat = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
+    cudaMalloc((void**) &this->d_mat, size*sizeof(float));
+}
+
+/**
+ * TODO
+ */
+void gpu::Matrix::copyHostToDevice(){
+    int size  = this->m_num_cols * this->m_num_rows;
+    cudaMemcpy(this->d_mat.get(), this->h_mat.get(), size*sizeof(float), cudaMemcpyHostToDevice);
+}
+
+/**
+ * TODO
+ */
+void gpu::Matrix::copyDeviceToHost(){
+    int size  = this->m_num_cols * this->m_num_rows;
+    cudaMemcpy(this->h_mat.get(), this->d_mat.get(), size*sizeof(float), cudaMemcpyDeviceToHost);
+}
+
 
 //================================//
 // Matrix operations support.
@@ -50,48 +96,54 @@ gpu::Matrix::Matrix(const Matrix& rhs):
 
 
 /**
- * Initialize the elements of the matrix to random values that come
- * from a Gaussian Distribtuion centered at 0 with standard deviations of 
- * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
+ * TODO
  * 
  */
-void gpu::Matrix::matrixInitialization()
+void gpu::Matrix::matrixInitializationDevice()
 {
+    curandGenerator_t gen;
+    curandCreateGenerator(&gen, 
+                CURAND_RNG_PSEUDO_DEFAULT);
+    curandSetPseudoRandomGeneratorSeed(gen, 
+                1234ULL);
 
+    int size  = this->m_num_cols * this->m_num_rows;
+    float mean = 0.0;
+    float stddev = 1/sqrtf(1.0/(float)size);
 
-    std::mt19937 generator;
-    float mean = 0.0f;
-    float stddev = std::sqrt(1 / static_cast<float>(this->m_num_cols) ); 
-    std::normal_distribution<float> normal(mean, stddev);
-    for (int j=0; j< this->m_num_rows; ++j) {
-        for (int i=0; i< this->m_num_cols; ++i) {
-            this->m_mat.get()[j*this->m_num_cols+i] = normal(generator);
-        }
-    } 
+    curandGenerateNormal(gen, this->d_mat.get(), size, mean, stddev);
+
+    curandDestroyGenerator(gen);
 
 }
 
-void gpu::Matrix::allocateMem(){
-    int size = this->m_num_cols* this->m_num_rows;
-    this->m_mat = std::shared_ptr<float>(new float[size]{0},
-                                        [&](float* ptr){ delete[] ptr; });
-}
-
-void gpu::Matrix::deepCopy(const gpu::Matrix& rhs){
+/**
+ * TODO
+ */
+void gpu::Matrix::deepCopy(gpu::Matrix& rhs){
     this->m_num_rows = rhs.get_num_rows();
     this->m_num_cols = rhs.get_num_cols();
 
+    rhs.copyDeviceToHost();
+
     for(int j=0; j < this->m_num_rows; j++){
         for(int i=0; i < this->m_num_cols; i++){
-           this->m_mat.get()[j*this->m_num_cols+i] = rhs(j,i);
+           this->h_mat.get()[j*this->m_num_cols+i] = rhs(j,i);
         }
     }
+
+    this->copyHostToDevice();
 }
 
+/**
+ * TODO
+ */
 void gpu::Matrix::printMat(){
+    this->copyDeviceToHost();
+
     for (int j=0; j< this->m_num_rows; ++j) {
         for (int i=0; i< this->m_num_cols; ++i) {
-            std::cout << this->m_mat.get()[j*this->m_num_cols+i] << std::endl;
+            std::cout << this->h_mat.get()[j*this->m_num_cols+i] << std::endl;
         }
     } 
 }
@@ -113,7 +165,8 @@ gpu::Matrix& gpu::Matrix::operator=(const Matrix& rhs){
     this->m_num_rows = rhs.get_num_rows();
 
 
-    this->m_mat = rhs.m_mat;
+    this->h_mat = rhs.h_mat;
+    this->d_mat = rhs.d_mat;
 
     // Return dereferenced pointer to this matrix.
     // Since it will persist after this methode call,
@@ -131,7 +184,7 @@ gpu::Matrix& gpu::Matrix::operator=(const Matrix& rhs){
  * return true if two matrices are equal,
  *        false otherwise
  */
-bool gpu::Matrix::operator==(const Matrix& rhs) const{
+bool gpu::Matrix::operator==(Matrix& rhs) {
 
     bool areEqual = true;
 
@@ -142,6 +195,9 @@ bool gpu::Matrix::operator==(const Matrix& rhs) const{
     // Fixed error for comparison between two given values
     constexpr double epsilon = 0.01; 
 
+    this->copyDeviceToHost();
+    rhs.copyDeviceToHost();
+
     //Check if the dimensions of the two matrices are equal
     if( this->m_num_rows != rhs.get_num_rows() ||
         this->m_num_cols != rhs.get_num_cols()){
@@ -150,7 +206,7 @@ bool gpu::Matrix::operator==(const Matrix& rhs) const{
         // Check if corresponding elements of the two matracies are equal
         for (int j = 0; j < this->m_num_rows; j++){
             for(int i = 0; i < this->m_num_cols; i++){
-                this_val = this->m_mat.get()[j*this->m_num_cols+i];
+                this_val = this->h_mat.get()[j*this->m_num_cols+i];
                 rhs_val = rhs(j,i);
                 if(!(std::abs(this_val - rhs_val) < epsilon)){
                     areEqual = false;
@@ -169,7 +225,7 @@ bool gpu::Matrix::operator==(const Matrix& rhs) const{
  * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
 const float& gpu::Matrix::operator()(const int& row, const int& col) const{
-    return this->m_mat.get()[row*this->m_num_cols + col];
+    return this->h_mat.get()[row*this->m_num_cols + col];
 }
 
 /**
@@ -178,7 +234,7 @@ const float& gpu::Matrix::operator()(const int& row, const int& col) const{
  * can be computed as (row index)*(number of columns of this matrix) + (column index).
  */
 float& gpu::Matrix::operator()(const int& row, const int& col) {
-    return this->m_mat.get()[row*this->m_num_cols + col];
+    return this->h_mat.get()[row*this->m_num_cols + col];
 }
 
 

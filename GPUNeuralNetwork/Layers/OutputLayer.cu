@@ -1,4 +1,4 @@
-#include "OutputLayer.hpp"
+#include "OutputLayer.cuh"
 #include <cmath>
 #include <iostream>
 
@@ -13,8 +13,8 @@
 gpu::OutputLayer::OutputLayer(int layerI_size):
                                 m_z(0.0),
                                 m_a(0.0),
-                                m_W(layerI_size, 0.0),
-                                m_dLdW(layerI_size, 0.0)
+                                m_W(layerI_size),
+                                m_dLdW(layerI_size)
 {}
 
 /*=======================*/
@@ -22,28 +22,34 @@ gpu::OutputLayer::OutputLayer(int layerI_size):
 /**
  * Compute the dot product between two vectors.
  * 
+ * TODO
  * 
  */
-void gpu::OutputLayer::dot(float& z, const gpu::Vector& W, const gpu::Vector& a) {
-    float temp = 0;
+__global__ void kDot(float* z, float* W, float* a, int W_size) {
 
-    for(int j=0; j <this->m_W.getSize(); j++){
-        temp += W[j]*a[j]; 
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    float temp = 0.0f;
+
+    if(idx < W_size){
+        temp = W[idx]*a[idx]; 
     }
 
-    z = temp;
+    atomicAdd(z, temp);
 }
 
 /**
  * Compute the vector multiplication between a vector and a scalar value.
  * 
  * 
+ * 
  */
-void gpu::OutputLayer::vecScalarMult(gpu::Vector& dLdW, const gpu::Vector& a, const float& delta){
+__global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size){
 
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    for(int j=0; j < dLdW.getSize(); j++){
-        dLdW[j] = a[j]*delta;
+    if(idx < dLdW_size){
+        dLdW[idx] = a[idx]*delta;
     }
 }
 
@@ -53,11 +59,12 @@ void gpu::OutputLayer::vecScalarMult(gpu::Vector& dLdW, const gpu::Vector& a, co
  * The resulting vector is then subtracted from a another vector.
  * 
  */
-void gpu::OutputLayer::vecScalarMultSub(gpu::Vector& W, const gpu::Vector& dLdW, const float& alpha){
+__global__ void kVecScalarMultSub(float* W, float* dLdW, float alpha, int W_size){
 
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    for(int j=0; j < W.getSize(); j++){
-        W[j] -= dLdW[j]*alpha;
+    if(idx < W_size){
+        W[idx] -= dLdW[idx]*alpha;
     }
 }
 
@@ -68,7 +75,7 @@ void gpu::OutputLayer::vecScalarMultSub(gpu::Vector& W, const gpu::Vector& dLdW,
  * Initialize the wieghts of this hidden layer.
  */
 void gpu::OutputLayer::weightInitialization(){
-    this->m_W.vectorInitialization();
+    this->m_W.vectorInitializationDevice();
 }
 
 /**
@@ -79,11 +86,17 @@ void gpu::OutputLayer::weightInitialization(){
  * 
  * @param a The vector that contains the activations of each neuron in layer I
  * 
+ * TODO
+ * 
  */
 void gpu::OutputLayer::computeOutput(const gpu::Vector& a)
 {
+    int threads = 32;
+    int blocks = (this->m_W.getSize() + threads - 1)/threads;
 
-    this->dot(this->m_z, this->m_W, a);
+    kDot<<<blocks, threads>>>(this->m_z.d_scalar.get(), this->m_W.d_vec.get(), 
+                                a.d_vec.get(), this->m_W.getSize());
+    cudaDeviceSynchronize();
 }
 
 /**
@@ -105,10 +118,13 @@ void gpu::OutputLayer::computeOutput(const gpu::Vector& a)
  */
 void gpu::OutputLayer::sigmoidActivation()
 {
-    if (this->m_z >= 0.0f) {
-        this->m_a = 1.0f / (1.0f + std::exp(-this->m_z));
+
+    this->m_z.copyDeviceToHost();
+
+    if (*this->m_z.h_scalar.get() >= 0.0f) {
+        this->m_a = 1.0f / (1.0f + std::exp(-*this->m_z.h_scalar.get()));
     } else {
-        this->m_a = std::exp(this->m_z) / (1.0f + std::exp(this->m_z));
+        this->m_a = std::exp(*this->m_z.h_scalar.get()) / (1.0f + std::exp(*this->m_z.h_scalar.get()));
     }
 
 }
@@ -231,7 +247,12 @@ void gpu::OutputLayer::computeDelta(const float& y){
  */
 void gpu::OutputLayer::computeGradient(const gpu::Vector& a){
 
-    this->vecScalarMult(this->m_dLdW, a, this->m_delta);
+    int threads = 32;
+    int blocks = (this->m_dLdW.getSize() + threads -1)/threads;
+
+    kVecScalarMult<<<blocks, threads>>>(this->m_dLdW.d_vec.get(), a.d_vec.get(), 
+                                        this->m_delta, this->m_dLdW.getSize());
+    cudaDeviceSynchronize();
 
 }
 
@@ -264,7 +285,12 @@ float gpu::OutputLayer::backPropegation(const float& y, const gpu::Vector& a){
  */
 void gpu::OutputLayer::gradientDecent(const float& alpha){
 
-    this->vecScalarMultSub(this->m_W, this->m_dLdW, alpha);
+    int threads = 32;
+    int blocks = (this->m_W.getSize() + threads -1)/threads;
+
+    kVecScalarMultSub<<<blocks, threads>>>(this->m_W.d_vec.get(), this->m_dLdW.d_vec.get(),
+                                             alpha, this->m_W.getSize());
+    cudaDeviceSynchronize();
 
 }
 
@@ -302,6 +328,6 @@ void gpu::OutputLayer::W(const gpu::Vector& W){
     this->m_W = W;
 }
 
-void gpu::OutputLayer::WDeepCopy(const gpu::Vector& W){
+void gpu::OutputLayer::WDeepCopy(gpu::Vector& W){
     this->m_W.deepCopy(W);
 }

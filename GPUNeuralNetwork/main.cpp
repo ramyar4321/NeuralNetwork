@@ -5,7 +5,7 @@
 #include <iostream>
 
 int main(){
-    gpu::NeuralNetwork net(50,50, 10, 0.001);
+    /*gpu::NeuralNetwork net(50,50, 10, 0.001);
 
     gpu::Dataset dat(306, 4,0.75);
     std::string filename = "../Data/haberman.data";
@@ -23,7 +23,7 @@ int main(){
     float threeshold = 0.5;
     std::vector<float> y_pred = net.perdict(x_test_stand, threeshold);
     float acc = net.computeAccuracy(y_pred, y_test);
-    std::cout << acc << std::endl;
+    std::cout << acc << std::endl;*/
     
     gpu::NeuralNetTesting test_net;
     test_net.test_forwardPropegation();
@@ -41,8 +41,7 @@ int main(){
     test_dataset.test_getRow();
     test_dataset.test_getColumn();
     test_dataset.test_standardizeDataset();
-    test_dataset.test_setValue();
-    
+    test_dataset.test_setValue(); 
 
     return 0;
 }

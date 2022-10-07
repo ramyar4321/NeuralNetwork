@@ -3,10 +3,10 @@
 
 #include <vector>
 #include "Dataset.hpp"
-#include "Matrix/Matrix.hpp"
-#include "Matrix/Vector.hpp"
-#include "Layers/HiddenLayer.hpp"
-#include "Layers/OutputLayer.hpp"
+#include "Matrix/Matrix.cuh"
+#include "Matrix/Vector.cuh"
+#include "Layers/HiddenLayer.cuh"
+#include "Layers/OutputLayer.cuh"
 
 namespace gpu {
     /** 

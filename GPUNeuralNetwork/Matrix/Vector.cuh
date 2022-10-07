@@ -2,6 +2,7 @@
 #define GPU_VECTOR
 
 #include <memory>
+#include <vector>
 
 namespace gpu{
     // Forward delcare Matrix class to break circular dependancy between
@@ -10,19 +11,27 @@ namespace gpu{
     class Vector{
         private:
             int m_size;
-            std::shared_ptr<float> m_vec;
 
         public:
-            Vector(int size, float initial_val);
-            Vector(int size, std::shared_ptr<float> rhs);
 
-            void vectorInitialization();
-            void allocateMem(float initial_val);
-            void deepCopy(const Vector& rhs);
+            std::shared_ptr<float> h_vec;
+            std::shared_ptr<float> d_vec;
+
+            Vector(int size);
+            Vector(std::vector<float> rhs);
+
+            void allocateMemHost();
+            void allocateMemDevice();
+            void copyHostToDevice();
+            void copyDeviceToHost();
+
+            void vectorInitializationDevice();
+            void deepCopy(Vector& rhs);
             void printVec();
 
             Vector& operator=(const Vector& rhs);
-            bool operator==(const Vector& rhs);
+            void  operator=(const std::vector<float>& rhs);
+            bool operator==(Vector& rhs);
             const float operator[](const int &input) const;
             float& operator[](const int &input);
 

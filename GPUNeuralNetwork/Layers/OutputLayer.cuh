@@ -1,7 +1,8 @@
 #ifndef GPU_OUTPUT_LAYER
 #define GPU_OUTPUT_LAYER
 
-#include "../Matrix/Vector.hpp"
+#include "../Matrix/Vector.cuh"
+#include "../Matrix/Scalar.cuh"
 
 namespace gpu{
     class OutputLayer{
@@ -10,7 +11,7 @@ namespace gpu{
             /*=======================*/
             // private memeber variables
 
-            float m_z;
+            gpu::Scalar m_z;
             float m_a;
             float m_delta;
             gpu::Vector m_W;
@@ -24,9 +25,9 @@ namespace gpu{
 
             /*=======================*/
             // Vector operations
-            void dot(float& z, const gpu::Vector& W, const gpu::Vector& s);
-            void vecScalarMult(gpu::Vector& dLdW, const gpu::Vector& a, const float& delta);
-            void vecScalarMultSub(gpu::Vector& W, const gpu::Vector& dLdW, const float& alpha);
+            //void dot(float& z, const gpu::Vector& W, const gpu::Vector& a);
+            //void vecScalarMult(gpu::Vector& dLdW, const gpu::Vector& a, const float& delta);
+            //void vecScalarMultSub(gpu::Vector& W, const gpu::Vector& dLdW, const float& alpha);
 
 
             /*=======================*/
@@ -61,7 +62,7 @@ namespace gpu{
 
             // Setter methods
             void W(const gpu::Vector& W);
-            void WDeepCopy(const gpu::Vector& W);
+            void WDeepCopy(gpu::Vector& W);
 
     };
 }

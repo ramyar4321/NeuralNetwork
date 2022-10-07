@@ -336,8 +336,8 @@ std::vector<float> gpu::Dataset::getCol(int& ci){
  * 
  * @return Row of dataset.
  */
-gpu::Vector gpu::Dataset::getRow(int& ri){
-    gpu::Vector row(m_num_cols, 0.0f);
+std::vector<float> gpu::Dataset::getRow(int& ri){
+    std::vector<float> row(m_num_cols, 0.0f);
 
 
     for(int i = 0; i < m_num_cols; i++){

@@ -2,6 +2,7 @@
 #define GPU_MATRIX
 
 #include <memory>
+#include <vector>
 
 namespace gpu{
     // Forward delcare Vector class to break circular dependancy between
@@ -22,21 +23,28 @@ namespace gpu{
         private:
             int m_num_rows;
             int m_num_cols;
-            std::shared_ptr<float> m_mat;
 
 
         public:
+
+            std::shared_ptr<float> h_mat;
+            std::shared_ptr<float> d_mat;
+
             Matrix(int num_rows, int num_cols);
             Matrix(const Matrix& other);
-            Matrix(int num_rows, int num_cols, std::shared_ptr<float> rhs);      
+            Matrix(int num_rows, int num_cols, std::vector<float> rhs);      
 
-            void allocateMem();
-            void matrixInitialization(); 
-            void deepCopy(const Matrix& rhs);
+            void allocateMemHost();
+            void allocateMemDevice();
+            void copyHostToDevice();
+            void copyDeviceToHost();
+            
+            void matrixInitializationDevice(); 
+            void deepCopy(Matrix& rhs);
             void printMat();
 
             Matrix& operator=(const Matrix& rhs);
-            bool operator==(const Matrix& rhs) const;
+            bool operator==(Matrix& rhs);
             const float& operator()(const int& row, const int& col) const;
             float& operator()(const int& row, const int& col);
 

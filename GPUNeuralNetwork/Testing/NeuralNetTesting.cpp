@@ -12,21 +12,18 @@
  */
 void gpu::NeuralNetTesting::test_forwardPropegation(){
 
-    std::shared_ptr<float> x_ptr = std::shared_ptr<float>(new float[1]{1.0},
-                                                        [&](float* ptr){ delete[] ptr; });
-    std::shared_ptr<float> w1 = std::shared_ptr<float>(new float[2]{1.0, 0.0},
-                                                        [&](float* ptr){ delete[] ptr; });
-    std::shared_ptr<float> w2 = std::shared_ptr<float>(new float[4]{1.0f, 0.0f, 0.0f, 0.0f},
-                                                        [&](float* ptr){ delete[] ptr; });
-    std::shared_ptr<float> w3 = std::shared_ptr<float>(new float[3]{1.0f, 0.0f},
-                                                        [&](float* ptr){ delete[] ptr; });
+    std::vector<float> x_ = {1.0f};
+    std::vector<float> W1_ = {1.0f, 0.0f};
+    std::vector<float> W2_ = {1.0f, 0.0f, 0.0f, 0.0f};
+    std::vector<float> W3_ = {1.0f, 0.0f};
 
-    gpu::Vector x(1, x_ptr);
-    gpu::Matrix W1(2,1,w1);
-    gpu::Matrix W2(2,2,w2);
-    gpu::Vector W3(3, w3);
+    gpu::Vector x(x_);
+    gpu::Matrix W1(2,1,W1_);
+    gpu::Matrix W2(2,2,W2_);
+    gpu::Vector W3(W3_);
 
     gpu::NeuralNetwork net(2,2, 0, 0.01);
+
 
     net.x(x);
     net.m_hidden_layer1.W(W1);
@@ -76,14 +73,13 @@ void gpu::NeuralNetTesting::test_backPropegation(){
 
     gpu::NeuralNetwork net(10,10, 0, 0.01);
 
-    std::shared_ptr<float> x_ptr = std::shared_ptr<float>(new float[3]{-2.11764, 0.3571 , -0.423171},
-                                                        [&](float* ptr){ delete[] ptr; });
-    gpu::Vector x(3, x_ptr);
+    std::vector<float> x_ = {2.11764f, 0.3571f , -0.423171f};
+    gpu::Vector x(x_);
     float y = 0;
 
     gpu::Matrix W1(10,3);
     gpu::Matrix W2(10,10);
-    gpu::Vector W3(10,0.0f);
+    gpu::Vector W3(10);
 
 
     gpu::Matrix W1_minus(10,3);
@@ -92,21 +88,22 @@ void gpu::NeuralNetTesting::test_backPropegation(){
     gpu::Matrix W2_minus(10,10);
     gpu::Matrix W2_plus(10,10);
 
-    gpu::Vector W3_minus(10, 0.0f);
-    gpu::Vector W3_plus(10, 0.0f);
+    gpu::Vector W3_minus(10);
+    gpu::Vector W3_plus(10);
 
     gpu::Matrix numericdLdW1(10,3);
     gpu::Matrix numericdLdW2(10,10);
-    gpu::Vector numericdLdW3(10, 0.0f);
+    gpu::Vector numericdLdW3(10);
 
     float perturb = 0.0001;
 
     float loss_minus;
     float loss_plus;
 
-    W1.matrixInitialization();
-    W2.matrixInitialization();
-    W3.vectorInitialization();
+
+    W1.matrixInitializationDevice();
+    W2.matrixInitializationDevice();
+    W3.vectorInitializationDevice();
 
     net.x(x);
     net.m_hidden_layer1.W(W1);
@@ -116,6 +113,7 @@ void gpu::NeuralNetTesting::test_backPropegation(){
 
     net.forwardPropegation();
     net.backPropegation();
+
 
     gpu::Vector actual_dLdW3 = net.m_output_layer.dLdW();
     gpu::Matrix actual_dLdW2 = net.m_hidden_layer2.dLdW();
@@ -222,7 +220,8 @@ void gpu::NeuralNetTesting::test_gradientDescent(){
 
     int numIter = 5;
 
-    gpu::Vector w(1, 100);
+    std::vector<float> w_ = {100.0f};
+    gpu::Vector w(w_);
     outputlayer.W(w);
     float loss = computeQuadraticLoss(w);
     float prev_loss;
@@ -278,12 +277,10 @@ float gpu::NeuralNetTesting::computeQuadraticLoss(gpu::Vector& w){
  * 
  */
 gpu::Matrix gpu::NeuralNetTesting::computeGradientQuadraticLoss(gpu::Vector& w){
-    float gradientQuadracticLoss = 2*w[0];
-    std::shared_ptr<float> g = std::shared_ptr<float>(new float[1]{gradientQuadracticLoss},
-                                                        [&](float* ptr){ delete[] ptr; });
+    std::vector<float> gradientQuadracticLoss = {2*w[0]};
 
 
-    gpu::Matrix gradientQuadracticLoss_(1,1,g);
+    gpu::Matrix gradientQuadracticLoss_(1,1,gradientQuadracticLoss);
 
     return gradientQuadracticLoss_;
 }

@@ -1,7 +1,7 @@
 #ifndef GPU_TESTING
 #define GPU_TESTING
-#include "../Matrix/Matrix.hpp"
-#include "../Matrix/Vector.hpp"
+#include "../Matrix/Matrix.cuh"
+#include "../Matrix/Vector.cuh"
 
 namespace gpu {
     /**

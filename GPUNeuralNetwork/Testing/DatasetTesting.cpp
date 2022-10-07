@@ -411,16 +411,14 @@ void gpu::DatasetTesting::test_getRow(){
 
     // Test to see if first row, considering zero indexing, was retreived.
     int ri = 1;
-    gpu::Vector actual_results = dat.getRow(ri);
-    std::shared_ptr<float> exp_res_ptr = std::shared_ptr<float>(new float[3]{4,5,6},
-                                                        [&](float* ptr){ delete[] ptr; });
-    gpu::Vector expected_results(3, exp_res_ptr);
+    std::vector<float> actual_results = dat.getRow(ri);
+    std::vector<float> expected_results ={4.0f,5.0f,6.0f};
 
     // Function pointer to helper function to be used as callback function
     // when comparing actual and expected values.
     std::function<bool(float,float)> f = &gpu::DatasetTesting::areFloatEqual;
 
-    if ( actual_results == expected_results)
+    if ( std::equal(actual_results.begin(), actual_results.end(), expected_results.begin(), f))
         std::cout << "Test succeeded! getRow methode returned expected results.\n";
     else
         std::cout << "Test failed! getROw methode returned unexpected results.\n";
@@ -470,10 +468,10 @@ void gpu::DatasetTesting::test_standardizeDataset(){
 
     gpu::Dataset actual_result = dat.standardizeDataset();
 
-    gpu::Dataset expected_result = {{-1.1619,-1.1619,-1.1619},
-                              {-0.387298,-0.387298,-0.387298},
-                              {0.387298,0.387298,0.387298},
-                              {1.1619,1.1619,1.1619}};
+    gpu::Dataset expected_result = {{-1.1619f,-1.1619f,-1.1619f},
+                              {-0.387298f,-0.387298f,-0.387298f},
+                              {0.387298f,0.387298f,0.387298f},
+                              {1.1619f,1.1619f,1.1619f}};
 
 
     // Test if standardizeMatrix produced expected output.

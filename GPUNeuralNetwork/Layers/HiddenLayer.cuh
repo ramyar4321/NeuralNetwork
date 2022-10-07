@@ -1,8 +1,8 @@
 #ifndef GPU_HIDDEN_LAYER
 #define GPU_HIDDEN_LAYER
 
-#include "../Matrix/Matrix.hpp"
-#include "../Matrix/Vector.hpp"
+#include "../Matrix/Matrix.cuh"
+#include "../Matrix/Vector.cuh"
 
 namespace gpu{
     class HiddenLayer{
@@ -23,13 +23,13 @@ namespace gpu{
             /*=======================*/
             // Matrix operations
 
-            void matrixVectorMult(gpu::Vector& z, const gpu::Matrix& W, const gpu::Vector& a);
-            void matrixTransposeVectorMult(gpu::Vector& delta, const gpu::Matrix& W, 
-                                           const gpu::Vector& delta_, const gpu::Vector& z);
-            void matrixVectorMult(gpu::Vector& delta, const gpu::Vector& W, 
-                                  const float& delta_, const gpu::Vector& z);
-            void tensor(gpu::Matrix& W, const gpu::Vector& a, const gpu::Vector& delta);
-            void matrixScalarMultSub(gpu::Matrix& W, const gpu::Matrix& dLdW, const float& alpha);
+            //void matrixVectorMult(gpu::Vector& z, const gpu::Matrix& W, const gpu::Vector& a);
+            //void matrixTransposeVectorMult(gpu::Vector& delta, const gpu::Matrix& W, 
+            //                               const gpu::Vector& delta_, const gpu::Vector& z);
+            //void matrixVectorMult(gpu::Vector& delta, const gpu::Vector& W, 
+            //                      const float& delta_, const gpu::Vector& z);
+            //void tensor(gpu::Matrix& W, const gpu::Vector& a, const gpu::Vector& delta);
+            //void matrixScalarMultSub(gpu::Matrix& W, const gpu::Matrix& dLdW, const float& alpha);
 
             /*=======================*/
             // Methodes for forward propegation
@@ -40,8 +40,8 @@ namespace gpu{
 
             /*=======================*/
             // Methodes for backward propegation
-            float reluPrime(const float& z);
-            gpu::Vector reluPrime();
+            //float reluPrime(const float& z);
+            //gpu::Vector reluPrime();
             void computeDelta(const gpu::Vector& W, const float& delta);
             void computeDelta(const gpu::Matrix& W, const gpu::Vector& delta);
             void computeGradient(const gpu::Vector& a);
@@ -63,7 +63,7 @@ namespace gpu{
 
             // Setter methods
             void W(const gpu::Matrix& W);
-            void WDeepCopy(const gpu::Matrix& W);
+            void WDeepCopy(gpu::Matrix& W);
     };
 }
 
