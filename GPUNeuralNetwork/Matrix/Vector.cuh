@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include "Scalar.cuh"
 
 namespace gpu{
     // Forward delcare Matrix class to break circular dependancy between
@@ -26,6 +27,7 @@ namespace gpu{
             void copyDeviceToHost();
 
             void vectorInitializationDevice();
+            gpu::Scalar dot(const gpu::Vector& rhs) const;
             void deepCopy(Vector& rhs);
             void printVec();
 

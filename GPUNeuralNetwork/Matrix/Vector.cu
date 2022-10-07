@@ -30,12 +30,17 @@ gpu::Vector::Vector(std::vector<float> rhs):
     this->copyHostToDevice();
 }
 
-
+/**
+ * TODO
+*/
 void gpu::Vector::allocateMemHost(){
     this->h_vec = std::shared_ptr<float>(new float[this->m_size]{0},
                                         [&](float* ptr){ delete[] ptr; });
 }
 
+/**
+ * TODO
+*/
 void gpu::Vector::allocateMemDevice(){
     this->d_vec = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
     cudaMalloc((void**) &this->d_vec, this->m_size*sizeof(float));
@@ -53,6 +58,25 @@ void gpu::Vector::copyHostToDevice(){
  */
 void gpu::Vector::copyDeviceToHost(){
     cudaMemcpy(this->h_vec.get(), this->d_vec.get(), this->m_size*sizeof(float), cudaMemcpyDeviceToHost);
+}
+
+/**
+ * Compute the dot product between two vectors.
+ * 
+ * TODO
+ * 
+ */
+__global__ void kDot(float* z, float* W, float* a, int W_size) {
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    float temp = 0.0f;
+
+    if(idx < W_size){
+        temp = W[idx]*a[idx]; 
+    }
+
+    atomicAdd(z, temp);
 }
 
 /**
@@ -76,6 +100,20 @@ void gpu::Vector::vectorInitializationDevice()
     curandGenerateNormal(gen, this->d_vec.get(), this->m_size, mean, stddev);
 
     curandDestroyGenerator(gen);
+
+}
+
+gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
+    gpu::Scalar res(0.0f);
+
+    int threads = 32;
+    int blocks = (this->getSize() + threads - 1)/threads;
+
+    kDot<<<blocks, threads>>>(res.d_scalar.get(), this->d_vec.get(), 
+                                rhs.d_vec.get(), this->getSize());
+    cudaDeviceSynchronize();
+
+    return res;
 
 }
 

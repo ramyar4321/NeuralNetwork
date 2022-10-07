@@ -1,3 +1,5 @@
+#ifndef GPU_SCALAR
+#define GPU_SCALAR
 #include <memory>
 
 namespace gpu{
@@ -13,6 +15,10 @@ namespace gpu{
             void allocateMemDevice();
             void copyHostToDevice();
             void copyDeviceToHost();
+
+            Scalar& operator=(const Scalar& rhs);
             
     };
 }
+
+#endif // End of GPU_SCALAR

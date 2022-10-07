@@ -24,7 +24,7 @@ gpu::OutputLayer::OutputLayer(int layerI_size):
  * 
  * TODO
  * 
- */
+ *
 __global__ void kDot(float* z, float* W, float* a, int W_size) {
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -36,7 +36,7 @@ __global__ void kDot(float* z, float* W, float* a, int W_size) {
     }
 
     atomicAdd(z, temp);
-}
+}*/
 
 /**
  * Compute the vector multiplication between a vector and a scalar value.
@@ -91,12 +91,7 @@ void gpu::OutputLayer::weightInitialization(){
  */
 void gpu::OutputLayer::computeOutput(const gpu::Vector& a)
 {
-    int threads = 32;
-    int blocks = (this->m_W.getSize() + threads - 1)/threads;
-
-    kDot<<<blocks, threads>>>(this->m_z.d_scalar.get(), this->m_W.d_vec.get(), 
-                                a.d_vec.get(), this->m_W.getSize());
-    cudaDeviceSynchronize();
+    this->m_z = this->m_W.dot(a);
 }
 
 /**

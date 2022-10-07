@@ -20,3 +20,15 @@ void gpu::Scalar::copyHostToDevice(){
 void gpu::Scalar::copyDeviceToHost(){
     cudaMemcpy(this->h_scalar.get(), this->d_scalar.get(), sizeof(float), cudaMemcpyDeviceToHost);
 }
+
+gpu::Scalar& gpu::Scalar::operator=(const gpu::Scalar& rhs){
+    // Check if object is being assigned to itself.
+    if(this == &rhs){
+        return *this;
+    }
+
+    this->h_scalar = rhs.h_scalar;
+    this->d_scalar = rhs.d_scalar;
+
+    return *this;
+}
