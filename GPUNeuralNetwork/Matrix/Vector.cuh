@@ -28,6 +28,7 @@ namespace gpu{
 
             void vectorInitializationDevice();
             gpu::Scalar dot(const gpu::Vector& rhs) const;
+            Matrix tensor(const Vector& rhs) const;
             void deepCopy(Vector& rhs);
             void printVec();
 

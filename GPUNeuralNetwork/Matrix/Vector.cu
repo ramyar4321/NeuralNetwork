@@ -80,6 +80,24 @@ __global__ void kDot(float* z, float* W, float* a, int W_size) {
 }
 
 /**
+ * This methode produces a matrix by computing the tensor between two vectors.
+ * 
+ * TODO
+ * 
+ */
+__global__ void kTensor(float* dLdW, float* a, float* delta, 
+                        int dLdW_num_rows, int dLdW_num_cols){
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < dLdW_num_cols && idy < dLdW_num_rows){
+        dLdW[idy*dLdW_num_cols + idx] = a[idx]*delta[idy];
+    }
+
+}
+
+/**
  * Initialize the elements of the mvector to random values that come
  * from a Gaussian Distribtuion centered at 0 with standard deviations of 
  * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
@@ -103,6 +121,9 @@ void gpu::Vector::vectorInitializationDevice()
 
 }
 
+/**
+ * TODO
+*/
 gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
     gpu::Scalar res(0.0f);
 
@@ -115,6 +136,26 @@ gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
 
     return res;
 
+}
+
+gpu::Matrix gpu::Vector::tensor(const Vector& rhs) const{
+
+    int num_rows = rhs.getSize();
+    int num_cols = this->m_size;
+    gpu::Matrix res(num_rows, num_cols);
+
+    int t = 32;
+    int bx = (num_cols + t - 1)/t;
+    int by = (num_rows + t - 1)/t;
+
+    dim3 threads(t,t);
+    dim3 blocks(bx, by);
+
+    kTensor<<<blocks, threads>>>(res.d_mat.get(), this->d_vec.get(), rhs.d_vec.get(), 
+                                  num_rows, num_cols);
+    cudaDeviceSynchronize();
+
+    return res;
 }
 
 void gpu::Vector::deepCopy(gpu::Vector& rhs){

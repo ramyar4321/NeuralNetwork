@@ -120,7 +120,7 @@ __global__ void kMatrixVectorMult(float* delta, float*W, float delta_,
  * 
  * TODO
  * 
- */
+ *
 __global__ void kTensor(float* dLdW, float* a, float* delta, 
                         int dLdW_num_rows, int dLdW_num_cols){
 
@@ -131,7 +131,7 @@ __global__ void kTensor(float* dLdW, float* a, float* delta,
         dLdW[idy*dLdW_num_cols + idx] = a[idx]*delta[idy];
     }
 
-}
+}*/
 
 /**
  * This methode mutiples a matrix with a scalar.
@@ -298,16 +298,7 @@ void gpu::HiddenLayer::computeDelta(const gpu::Matrix& W,
  */
 void gpu::HiddenLayer::computeGradient(const gpu::Vector& a){
 
-    int t = 32;
-    int bx = (this->m_dLdW.get_num_cols() + t - 1)/t;
-    int by = (this->m_dLdW.get_num_rows() + t - 1)/t;
-
-    dim3 threads(t,t);
-    dim3 blocks(bx, by);
-
-    kTensor<<<blocks, threads>>>(this->m_dLdW.d_mat.get(), a.d_vec.get(), this->m_delta.d_vec.get(), 
-                                  this->m_dLdW.get_num_rows(), this->m_dLdW.get_num_cols());
-    cudaDeviceSynchronize();
+    this->m_dLdW = a.tensor(this->m_delta);
 }
 
 /**
