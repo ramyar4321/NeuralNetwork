@@ -98,6 +98,36 @@ __global__ void kTensor(float* dLdW, float* a, float* delta,
 }
 
 /**
+ * Compute the vector multiplication between a vector and a scalar value.
+ * 
+ * 
+ * 
+ */
+__global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size){
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if(idx < dLdW_size){
+        dLdW[idx] = a[idx]*delta;
+    }
+}
+
+/**
+ * 
+ * This methode mutiplies a vector by a scalar.
+ * The resulting vector is then subtracted from a another vector.
+ * 
+ */
+__global__ void kVecScalarMultSub(float* W, float* dLdW, int W_size){
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if(idx < W_size){
+        W[idx] -= dLdW[idx];
+    }
+}
+
+/**
  * Initialize the elements of the mvector to random values that come
  * from a Gaussian Distribtuion centered at 0 with standard deviations of 
  * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
@@ -260,6 +290,32 @@ float& gpu::Vector::operator[](const int &input) {
     return h_vec.get()[input];
 }
 
+gpu::Vector gpu::Vector::operator*(const float& rhs) const{
+
+    gpu::Vector res(this->m_size);
+
+    int threads = 32;
+    int blocks = (this->getSize() + threads -1)/threads;
+
+    kVecScalarMult<<<blocks, threads>>>(res.d_vec.get(), this->d_vec.get(), 
+                                        rhs, this->getSize());
+    cudaDeviceSynchronize();
+
+    return res;
+
+}
+
+gpu::Vector& gpu::Vector::operator-=(const Vector& rhs){
+
+    int threads = 32;
+    int blocks = (this->getSize() + threads -1)/threads;
+
+    kVecScalarMultSub<<<blocks, threads>>>(this->d_vec.get(), rhs.d_vec.get(), this->getSize());
+    cudaDeviceSynchronize();
+
+    return *this;
+
+}
 
 /**
  * Return size of this vector.

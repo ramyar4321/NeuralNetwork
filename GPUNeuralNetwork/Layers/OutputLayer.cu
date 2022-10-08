@@ -43,7 +43,7 @@ __global__ void kDot(float* z, float* W, float* a, int W_size) {
  * 
  * 
  * 
- */
+ *
 __global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -51,14 +51,14 @@ __global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size
     if(idx < dLdW_size){
         dLdW[idx] = a[idx]*delta;
     }
-}
+}*/
 
 /**
  * 
  * This methode mutiplies a vector by a scalar.
  * The resulting vector is then subtracted from a another vector.
  * 
- */
+ *
 __global__ void kVecScalarMultSub(float* W, float* dLdW, float alpha, int W_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -66,7 +66,7 @@ __global__ void kVecScalarMultSub(float* W, float* dLdW, float alpha, int W_size
     if(idx < W_size){
         W[idx] -= dLdW[idx]*alpha;
     }
-}
+}*/
 
 /*=======================*/
 // Methodes for forward propegation
@@ -242,12 +242,7 @@ void gpu::OutputLayer::computeDelta(const float& y){
  */
 void gpu::OutputLayer::computeGradient(const gpu::Vector& a){
 
-    int threads = 32;
-    int blocks = (this->m_dLdW.getSize() + threads -1)/threads;
-
-    kVecScalarMult<<<blocks, threads>>>(this->m_dLdW.d_vec.get(), a.d_vec.get(), 
-                                        this->m_delta, this->m_dLdW.getSize());
-    cudaDeviceSynchronize();
+    this->m_dLdW = a*this->m_delta;
 
 }
 
@@ -280,12 +275,7 @@ float gpu::OutputLayer::backPropegation(const float& y, const gpu::Vector& a){
  */
 void gpu::OutputLayer::gradientDecent(const float& alpha){
 
-    int threads = 32;
-    int blocks = (this->m_W.getSize() + threads -1)/threads;
-
-    kVecScalarMultSub<<<blocks, threads>>>(this->m_W.d_vec.get(), this->m_dLdW.d_vec.get(),
-                                             alpha, this->m_W.getSize());
-    cudaDeviceSynchronize();
+    this->m_W -= this->m_dLdW*alpha;
 
 }
 

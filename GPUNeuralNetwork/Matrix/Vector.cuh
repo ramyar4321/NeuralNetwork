@@ -37,6 +37,8 @@ namespace gpu{
             bool operator==(Vector& rhs);
             const float operator[](const int &input) const;
             float& operator[](const int &input);
+            Vector operator*(const float& rhs) const;
+            Vector& operator-=(const Vector& rhs);
 
 
             int getSize() const;
