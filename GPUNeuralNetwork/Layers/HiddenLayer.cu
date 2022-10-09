@@ -54,26 +54,6 @@ __global__ void kReluPrime(float* f_prime, float* z, float z_size){
 }
 
 
-
-/**
- * This methode mutiples a matrix with a scalar.
- * The result is then subtracted from the another matrix.
- * 
- * TODO
- * 
- */
-__global__ void kMatrixScalarMultSub(float* W, float* dLdW, float alpha,
-                                      int W_num_rows, int W_num_cols){
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int idy = blockIdx.y*blockDim.y + threadIdx.y;
-
-    if(idx < W_num_cols && idy < W_num_rows){
-        W[idy*W_num_cols + idx] -= dLdW[idy*W_num_cols+idx]*alpha;
-    }
-
-}
-
 /**
  * TODO
 */
@@ -280,16 +260,7 @@ gpu::Vector gpu::HiddenLayer::backPropegation(const gpu::Matrix& W, const gpu::V
  */
 void gpu::HiddenLayer::gradientDecent(const float& alpha){
 
-    int t = 32;
-    int bx = (this->m_dLdW.get_num_cols() + t - 1)/t;
-    int by = (this->m_dLdW.get_num_rows() + t - 1)/t;
-
-    dim3 threads(t,t);
-    dim3 blocks(bx, by);
-
-    kMatrixScalarMultSub<<<blocks, threads>>>(this->m_W.d_mat.get(), this->m_dLdW.d_mat.get(), alpha,
-                                              this->m_W.get_num_rows(), this->m_W.get_num_cols());
-    cudaDeviceSynchronize();
+    this->m_W -= this->m_dLdW*alpha;
 
 }
 

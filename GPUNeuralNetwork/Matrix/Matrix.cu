@@ -130,6 +130,28 @@ __global__ void kTranspose(float* W_T, float* W,
 
 /**
  * TODO
+*/
+__global__ void kMatrixScalarMult(float* res, float* dLdW, float alpha,
+                                    int dLdW_num_rows, int dLdW_num_cols){
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < dLdW_num_cols && idy < dLdW_num_rows){
+        res[idy*dLdW_num_cols + idx] = dLdW[idy*dLdW_num_cols +idx]*alpha;
+    }
+}
+
+__global__ void kMatrixMatrixSub(float* W, float* rhs, int W_num_rows, int W_num_cols){
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < W_num_cols && idx < W_num_rows){
+        W[idy*W_num_cols +idx] -= rhs[idy*W_num_rows +idx];
+    }
+}
+
+/**
+ * TODO
  * 
  */
 void gpu::Matrix::matrixInitializationDevice()
@@ -306,6 +328,42 @@ gpu::Vector gpu::Matrix::operator*(const Vector& rhs) const{
     cudaDeviceSynchronize();
 
     return res;
+}
+
+/**
+ * TODO
+*/
+gpu::Matrix gpu::Matrix::operator*(const float& rhs) const{
+
+    gpu::Matrix res(this->get_num_rows(), this->get_num_cols());
+
+    int t = 32;
+    int bx = (this->get_num_cols() + t - 1)/t;
+    int by = (this->get_num_rows() + t - 1)/t;
+
+    dim3 threads(t,t);
+    dim3 blocks(bx, by);
+
+    kMatrixScalarMult<<<blocks, threads>>>(res.d_mat.get(), this->d_mat.get(), rhs,
+                                              this->get_num_rows(), this->get_num_cols());
+    cudaDeviceSynchronize();
+
+    return res;
+}
+
+gpu::Matrix& gpu::Matrix::operator-=(const gpu::Matrix& rhs){
+    int t = 32;
+    int bx = (this->get_num_cols() + t - 1)/t;
+    int by = (this->get_num_rows() + t - 1)/t;
+
+    dim3 threads(t,t);
+    dim3 blocks(bx, by);
+
+    kMatrixMatrixSub<<<blocks, threads>>>(this->d_mat.get(), rhs.d_mat.get(),
+                                              this->get_num_rows(), this->get_num_cols());
+    cudaDeviceSynchronize();
+
+    return *this;
 }
 
 

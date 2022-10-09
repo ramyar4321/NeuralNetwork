@@ -49,6 +49,8 @@ namespace gpu{
             const float& operator()(const int& row, const int& col) const;
             float& operator()(const int& row, const int& col);
             Vector operator*(const Vector& rhs) const;
+            Matrix operator*(const float& rhs) const;
+            Matrix& operator-=(const Matrix& rhs);
             
 
 
