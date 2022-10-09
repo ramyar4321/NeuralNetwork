@@ -24,13 +24,6 @@ namespace gpu{
             OutputLayer(int layerI_size);
 
             /*=======================*/
-            // Vector operations
-            //void dot(float& z, const gpu::Vector& W, const gpu::Vector& a);
-            //void vecScalarMult(gpu::Vector& dLdW, const gpu::Vector& a, const float& delta);
-            //void vecScalarMultSub(gpu::Vector& W, const gpu::Vector& dLdW, const float& alpha);
-
-
-            /*=======================*/
             // Methodes for forward propegation
 
             void weightInitialization();

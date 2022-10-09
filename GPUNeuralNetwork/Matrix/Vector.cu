@@ -33,6 +33,15 @@ gpu::Vector::Vector(std::vector<float> rhs):
 /**
  * TODO
 */
+gpu::Vector::Vector(const gpu::Vector& other):
+                m_size(other.getSize()),
+                h_vec(other.h_vec),
+                d_vec(other.d_vec)
+{}
+
+/**
+ * TODO
+*/
 void gpu::Vector::allocateMemHost(){
     this->h_vec = std::shared_ptr<float>(new float[this->m_size]{0},
                                         [&](float* ptr){ delete[] ptr; });
@@ -100,7 +109,7 @@ __global__ void kTensor(float* dLdW, float* a, float* delta,
 /**
  * Compute the vector multiplication between a vector and a scalar value.
  * 
- * 
+ * TODO
  * 
  */
 __global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size){
@@ -124,6 +133,14 @@ __global__ void kVecScalarMultSub(float* W, float* dLdW, int W_size){
 
     if(idx < W_size){
         W[idx] -= dLdW[idx];
+    }
+}
+
+__global__ void kVecVecElementwiseMult(float* delta, float* f_prime,  int delta_size){
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if(idx < delta_size){
+        delta[idx] *= f_prime[idx];
     }
 }
 
@@ -168,6 +185,9 @@ gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
 
 }
 
+/**
+ * TODO
+*/
 gpu::Matrix gpu::Vector::tensor(const Vector& rhs) const{
 
     int num_rows = rhs.getSize();
@@ -188,6 +208,9 @@ gpu::Matrix gpu::Vector::tensor(const Vector& rhs) const{
     return res;
 }
 
+/**
+ * TODO
+*/
 void gpu::Vector::deepCopy(gpu::Vector& rhs){
     this->m_size = rhs.getSize();
 
@@ -209,6 +232,9 @@ void gpu::Vector::printVec(){
     }
 }
 
+/**
+ * TODO
+*/
 gpu::Vector& gpu::Vector::operator=(const Vector& rhs){
     // Check if object is being assigned to itself.
     if(this == &rhs){
@@ -224,6 +250,9 @@ gpu::Vector& gpu::Vector::operator=(const Vector& rhs){
 
 }
 
+/**
+ * TODO
+*/
 void gpu::Vector::operator=(const std::vector<float>& rhs){
     this->m_size = rhs.size();
 
@@ -290,6 +319,9 @@ float& gpu::Vector::operator[](const int &input) {
     return h_vec.get()[input];
 }
 
+/**
+ * TODO
+*/
 gpu::Vector gpu::Vector::operator*(const float& rhs) const{
 
     gpu::Vector res(this->m_size);
@@ -305,6 +337,21 @@ gpu::Vector gpu::Vector::operator*(const float& rhs) const{
 
 }
 
+gpu::Vector& gpu::Vector::operator*=( const gpu::Vector& rhs){
+
+    int threads = 32;
+    int blocks = (this->getSize() + threads - 1)/threads;
+
+    kVecVecElementwiseMult<<<blocks, threads>>>(this->d_vec.get(), rhs.d_vec.get(), this->getSize());
+    cudaDeviceSynchronize();
+
+    return *this;
+
+}
+
+/**
+ * TODO
+*/
 gpu::Vector& gpu::Vector::operator-=(const Vector& rhs){
 
     int threads = 32;

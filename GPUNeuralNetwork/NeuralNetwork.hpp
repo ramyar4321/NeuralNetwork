@@ -6,7 +6,7 @@
 #include "Matrix/Matrix.cuh"
 #include "Matrix/Vector.cuh"
 #include "Layers/HiddenLayer.cuh"
-#include "Layers/OutputLayer.cuh"
+#include "Layers/OutputLayer.hpp"
 
 namespace gpu {
     /** 

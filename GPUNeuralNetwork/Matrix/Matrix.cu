@@ -96,6 +96,39 @@ void gpu::Matrix::copyDeviceToHost(){
 
 
 /**
+ * This methode multiples a matrix with another vector.
+ * 
+ * TODO
+ * 
+ */
+__global__ void kMatrixVectorMult(float* z, float* W, float* a, int W_num_cols){
+    float temp = 0;
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if(idx < W_num_cols)
+        for(int i=0; i < W_num_cols; i++){
+            temp += W[idx*W_num_cols + i]*a[i];
+        }
+    z[idx] = temp;
+
+}
+
+/**
+ * TODO
+*/
+__global__ void kTranspose(float* W_T, float* W, 
+                            int W_num_rows, int W_num_cols){
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < W_num_rows && idy < W_num_cols){
+        W_T[idy*W_num_cols + idx] = W[idx*W_num_rows + idy];
+    }
+}
+
+/**
  * TODO
  * 
  */
@@ -133,6 +166,27 @@ void gpu::Matrix::deepCopy(gpu::Matrix& rhs){
     }
 
     this->copyHostToDevice();
+}
+
+/**
+ * TODO 
+*/
+gpu::Matrix gpu::Matrix::transpose() const{
+
+    gpu::Matrix transpose_mat(this->get_num_cols(), this->get_num_rows());
+
+    int t = 32;
+    int bx = (this->get_num_cols() + t - 1)/t;
+    int by = (this->get_num_rows() + t - 1)/t;
+
+    dim3 threads(t,t);
+    dim3 blocks(bx, by);
+
+    kTranspose<<<blocks, threads>>>(transpose_mat.d_mat.get(), this->d_mat.get(), 
+                                    this->get_num_rows(), this->get_num_cols());
+    cudaDeviceSynchronize();
+
+    return transpose_mat;
 }
 
 /**
@@ -237,7 +291,22 @@ float& gpu::Matrix::operator()(const int& row, const int& col) {
     return this->h_mat.get()[row*this->m_num_cols + col];
 }
 
+/**
+ * 
+*/
+gpu::Vector gpu::Matrix::operator*(const Vector& rhs) const{
 
+    Vector res(this->get_num_cols());
+
+    int threads =32;
+    int blocks = (this->get_num_cols() + threads -1)/threads;
+
+    kMatrixVectorMult<<<blocks, threads>>>(res.d_vec.get(), this->d_mat.get(), 
+                                            rhs.d_vec.get(), this->get_num_cols());
+    cudaDeviceSynchronize();
+
+    return res;
+}
 
 
 //================================//

@@ -18,7 +18,7 @@ gpu::HiddenLayer::HiddenLayer(int layerI_size, int layerJ_size):
 {}
 
 /*=======================*/
-// Matrix operations
+// CUDA kernels
 
 /**
  * Compute activation of neuron j of layer J using the derivative of ReLu
@@ -43,95 +43,17 @@ gpu::HiddenLayer::HiddenLayer(int layerI_size, int layerJ_size):
  * TODO
  * 
  */
-__device__ float reluPrime(int index, float* z){
-
-    float f_prime = (float)(z[index] >= 0);
-
-    return f_prime;
-
-}
-
-/**
- * This methode multiples a matrix with another vector.
- * 
- * TODO
- * 
- */
-__global__ void kMatrixVectorMult(float* z, float* W, float* a, int W_num_cols){
-    float temp = 0;
+__global__ void kReluPrime(float* f_prime, float* z, float z_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if(idx < W_num_cols)
-        for(int i=0; i < W_num_cols; i++){
-            temp += W[idx*W_num_cols + i]*a[i];
-        }
-    z[idx] = temp;
-
-}
-
-/**
- * 
- * This methode performs the following operations. 
- * A matrix is first transposed, and then multipled against 
- * a vector. The resulting vector is then multipled by another vector. 
- * 
- * TODO
- * 
- */
-__global__ void kMatrixTransposeVectorMult(float* delta, float* W, float* delta_,
-                                            float* z, int W_num_rows, int W_num_cols){
-    
-    float temp;
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-
-    if(idx < W_num_cols){
-        for(int k=0; k < W_num_rows; k++){
-            temp += W[idx*W_num_rows + k]*delta_[k];
-        }
-        delta[idx] = temp*reluPrime(idx, z);
+    if(idx < z_size){
+        f_prime[idx] = (float)(z[idx] >= 0);
     }
 
 }
 
-/**
- * 
- * This methode performs the following operations.
- * A matrix is multiplied against a vector. 
- * The result is then multiped against another vector.
- * 
- * TODO
- * 
- */
-__global__ void kMatrixVectorMult(float* delta, float*W, float delta_, 
-                                    float* z, int delta_size){
 
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-
-    if(idx < delta_size){
-        delta[idx] = W[idx]*delta_;
-        delta[idx] *= reluPrime(idx, z);
-    }
-}
-
-/**
- * This methode produces a matrix by computing the tensor between two vectors.
- * 
- * TODO
- * 
- *
-__global__ void kTensor(float* dLdW, float* a, float* delta, 
-                        int dLdW_num_rows, int dLdW_num_cols){
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int idy = blockIdx.y*blockDim.y + threadIdx.y;
-
-    if(idx < dLdW_num_cols && idy < dLdW_num_rows){
-        dLdW[idy*dLdW_num_cols + idx] = a[idx]*delta[idy];
-    }
-
-}*/
 
 /**
  * This methode mutiples a matrix with a scalar.
@@ -152,6 +74,9 @@ __global__ void kMatrixScalarMultSub(float* W, float* dLdW, float alpha,
 
 }
 
+/**
+ * TODO
+*/
 __global__ void kReluActivation(float* a, float* z, int a_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -183,12 +108,7 @@ void gpu::HiddenLayer::weightInitialization(){
 void gpu::HiddenLayer::computeOutput(const gpu::Vector &a)
 {
 
-    int threads =32;
-    int blocks = (this->m_z.getSize() + threads -1)/threads;
-
-    kMatrixVectorMult<<<blocks, threads>>>(this->m_z.d_vec.get(), this->m_W.d_mat.get(), 
-                                            a.d_vec.get(), this->m_W.get_num_cols());
-    cudaDeviceSynchronize();
+    this->m_z = this->m_W*a;
 
 }
 
@@ -229,7 +149,20 @@ gpu::Vector gpu::HiddenLayer::forwardPropegation(const gpu::Vector& a){
 /*=======================*/
 // Methodes for backward propegation
 
+/**
+ * TODO
+*/
+gpu::Vector gpu::HiddenLayer::reluPrime(){
+    gpu::Vector f_prime(this->m_z.getSize());
 
+    int threads = 32;
+    int blocks = (this->m_z.getSize() + threads -1)/threads;
+
+    kReluPrime<<<blocks, threads>>>(f_prime.d_vec.get(), this->m_z.d_vec.get(), this->m_z.getSize());
+
+    return f_prime;
+
+}
 
 /**
  * For layers J < K, compute the error term associated with each neuron j of layer J.
@@ -247,12 +180,10 @@ gpu::Vector gpu::HiddenLayer::forwardPropegation(const gpu::Vector& a){
  */
 void gpu::HiddenLayer::computeDelta(const gpu::Vector& W, const float& delta){
 
-    int threads = 32;
-    int blocks = (this->m_delta.getSize() + threads - 1)/threads;
+    gpu::Vector f_prime = this->reluPrime();
 
-    kMatrixVectorMult<<<blocks, threads>>>(this->m_delta.d_vec.get(), W.d_vec.get(), delta,
-                                            this->m_z.d_vec.get(), this->m_delta.getSize());
-    cudaDeviceSynchronize();
+    this->m_delta = W*delta;
+    this->m_delta *= f_prime;
 
 }
 
@@ -272,13 +203,12 @@ void gpu::HiddenLayer::computeDelta(const gpu::Vector& W, const float& delta){
 void gpu::HiddenLayer::computeDelta(const gpu::Matrix& W, 
                                     const gpu::Vector& delta){
 
-    int threads = 32;
-    int blocks = (this->m_delta.getSize() + threads -1)/threads;
-    
-    kMatrixTransposeVectorMult<<<blocks, threads>>>(this->m_delta.d_vec.get(), W.d_mat.get(), 
-                                                    delta.d_vec.get(), this->m_z.d_vec.get(), 
-                                                    W.get_num_rows(), W.get_num_cols());
-    cudaDeviceSynchronize();
+    gpu::Vector f_prime = this->reluPrime();
+
+    gpu::Matrix W_transpose = W.transpose();
+    this->m_delta = W_transpose*delta;
+
+    this->m_delta *= f_prime;
 
 }
 

@@ -41,12 +41,15 @@ namespace gpu{
             
             void matrixInitializationDevice(); 
             void deepCopy(Matrix& rhs);
+            Matrix transpose() const;
             void printMat();
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(Matrix& rhs);
             const float& operator()(const int& row, const int& col) const;
             float& operator()(const int& row, const int& col);
+            Vector operator*(const Vector& rhs) const;
+            
 
 
             int get_num_rows() const;

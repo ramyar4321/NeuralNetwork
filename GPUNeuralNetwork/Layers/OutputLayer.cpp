@@ -1,4 +1,4 @@
-#include "OutputLayer.cuh"
+#include "OutputLayer.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -17,56 +17,7 @@ gpu::OutputLayer::OutputLayer(int layerI_size):
                                 m_dLdW(layerI_size)
 {}
 
-/*=======================*/
 
-/**
- * Compute the dot product between two vectors.
- * 
- * TODO
- * 
- *
-__global__ void kDot(float* z, float* W, float* a, int W_size) {
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-
-    float temp = 0.0f;
-
-    if(idx < W_size){
-        temp = W[idx]*a[idx]; 
-    }
-
-    atomicAdd(z, temp);
-}*/
-
-/**
- * Compute the vector multiplication between a vector and a scalar value.
- * 
- * 
- * 
- *
-__global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size){
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-
-    if(idx < dLdW_size){
-        dLdW[idx] = a[idx]*delta;
-    }
-}*/
-
-/**
- * 
- * This methode mutiplies a vector by a scalar.
- * The resulting vector is then subtracted from a another vector.
- * 
- *
-__global__ void kVecScalarMultSub(float* W, float* dLdW, float alpha, int W_size){
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-
-    if(idx < W_size){
-        W[idx] -= dLdW[idx]*alpha;
-    }
-}*/
 
 /*=======================*/
 // Methodes for forward propegation

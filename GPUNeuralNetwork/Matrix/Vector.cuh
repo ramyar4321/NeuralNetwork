@@ -20,6 +20,7 @@ namespace gpu{
 
             Vector(int size);
             Vector(std::vector<float> rhs);
+            Vector( const Vector& other);
 
             void allocateMemHost();
             void allocateMemDevice();
@@ -38,6 +39,7 @@ namespace gpu{
             const float operator[](const int &input) const;
             float& operator[](const int &input);
             Vector operator*(const float& rhs) const;
+            Vector& operator*=(const Vector& rhs);
             Vector& operator-=(const Vector& rhs);
 
 
