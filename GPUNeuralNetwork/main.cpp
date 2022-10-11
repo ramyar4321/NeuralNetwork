@@ -1,6 +1,7 @@
 #include "NeuralNetwork.hpp"
 #include "Testing/NeuralNetTesting.hpp"
 #include "Testing/DatasetTesting.hpp"
+#include "Testing/MatrixTesting.hpp"
 #include "Dataset.hpp"
 #include <iostream>
 
@@ -25,7 +26,18 @@ int main(){
     float acc = net.computeAccuracy(y_pred, y_test);
     std::cout << acc << std::endl;*/
     
-    gpu::NeuralNetTesting test_net;
+
+    /*gpu::MatrixTesting test_mat;
+    test_mat.testCopyConstructor();
+    test_mat.testVectorConstructor();
+    test_mat.testDeepCopy();
+    test_mat.testTranspose();
+    test_mat.testEqualOperator();
+    test_mat.testIsEqualOperator();
+    test_mat.testMultOperator();
+    test_mat.testSubAssignOperator();*/
+
+    /*gpu::NeuralNetTesting test_net;
     test_net.test_forwardPropegation();
     test_net.test_backPropegation();
     test_net.test_gradientDescent();
@@ -41,7 +53,7 @@ int main(){
     test_dataset.test_getRow();
     test_dataset.test_getColumn();
     test_dataset.test_standardizeDataset();
-    test_dataset.test_setValue(); 
+    test_dataset.test_setValue();*/
 
     return 0;
 }

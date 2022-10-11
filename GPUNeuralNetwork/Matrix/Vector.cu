@@ -319,6 +319,7 @@ float& gpu::Vector::operator[](const int &input) {
     return h_vec.get()[input];
 }
 
+
 /**
  * TODO
 */

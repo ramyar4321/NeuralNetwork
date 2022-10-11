@@ -2,6 +2,7 @@
 
 /*=======================*/
 // Constructor
+
 /**
  * Constructor for a given hidden layer J in the neural network.
  * 
@@ -34,7 +35,8 @@ gpu::HiddenLayer::HiddenLayer(int layerI_size, int layerJ_size):
  * The derivative is undefined at z_j = 0 but it can be set to zero
  * in order to produce sparse vector.
  * 
- * @param z A value that contains the output of a given neuron i in layer I
+ * @param 
+ * @param z A vector that contains the output of a given neuron i in layer I
  * 
  * @return @f$f'(z_j)$ where @f$z_j$ 
  *         is the output of neuron j of layer J 

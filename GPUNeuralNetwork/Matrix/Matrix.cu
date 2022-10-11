@@ -213,7 +213,7 @@ gpu::Matrix gpu::Matrix::transpose() const{
 
 /**
  * TODO
- */
+ *
 void gpu::Matrix::printMat(){
     this->copyDeviceToHost();
 
@@ -222,7 +222,7 @@ void gpu::Matrix::printMat(){
             std::cout << this->h_mat.get()[j*this->m_num_cols+i] << std::endl;
         }
     } 
-}
+}*/
 
 //================================//
 // Operators.

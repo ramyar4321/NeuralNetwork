@@ -12,17 +12,17 @@ namespace gpu {
 
         public:
 
-        // Test methodes of the NeuralNetwork class
-        void test_forwardPropegation();
-        void test_backPropegation();
-        void test_gradientDescent();
+            // Test methodes of the NeuralNetwork class
+            void test_forwardPropegation();
+            void test_backPropegation();
+            void test_gradientDescent();
      
 
-        // Helper functions
+            // Helper functions
 
-        static bool areFloatEqual(float a, float b);
-        float computeQuadraticLoss(gpu::Vector& w);
-        gpu::Matrix computeGradientQuadraticLoss(gpu::Vector& w);
+            static bool areFloatEqual(float a, float b);
+            float computeQuadraticLoss(gpu::Vector& w);
+            gpu::Matrix computeGradientQuadraticLoss(gpu::Vector& w);
 
     };
 }

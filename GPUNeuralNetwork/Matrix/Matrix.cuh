@@ -42,7 +42,7 @@ namespace gpu{
             void matrixInitializationDevice(); 
             void deepCopy(Matrix& rhs);
             Matrix transpose() const;
-            void printMat();
+            //void printMat();
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(Matrix& rhs);

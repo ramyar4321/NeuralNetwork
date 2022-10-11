@@ -21,17 +21,6 @@ namespace gpu{
             HiddenLayer(int layerI_size, int layerJ_size);
 
             /*=======================*/
-            // Matrix operations
-
-            //void matrixVectorMult(gpu::Vector& z, const gpu::Matrix& W, const gpu::Vector& a);
-            //void matrixTransposeVectorMult(gpu::Vector& delta, const gpu::Matrix& W, 
-            //                               const gpu::Vector& delta_, const gpu::Vector& z);
-            //void matrixVectorMult(gpu::Vector& delta, const gpu::Vector& W, 
-            //                      const float& delta_, const gpu::Vector& z);
-            //void tensor(gpu::Matrix& W, const gpu::Vector& a, const gpu::Vector& delta);
-            //void matrixScalarMultSub(gpu::Matrix& W, const gpu::Matrix& dLdW, const float& alpha);
-
-            /*=======================*/
             // Methodes for forward propegation
             void weightInitialization();
             void computeOutput(const gpu::Vector& a);
