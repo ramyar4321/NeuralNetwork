@@ -31,10 +31,10 @@ namespace gpu{
             gpu::Scalar dot(const gpu::Vector& rhs) const;
             Matrix tensor(const Vector& rhs) const;
             void deepCopy(Vector& rhs);
-            void printVec();
+            //void printVec();
 
             Vector& operator=(const Vector& rhs);
-            void  operator=(const std::vector<float>& rhs);
+            //void  operator=(const std::vector<float>& rhs);
             bool operator==(Vector& rhs);
             const float operator[](const int &input) const;
             float& operator[](const int &input);

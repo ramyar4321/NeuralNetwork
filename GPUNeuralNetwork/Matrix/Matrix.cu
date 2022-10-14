@@ -1,6 +1,5 @@
 #include "Matrix.cuh"
 #include "Vector.cuh"
-#include <iostream>
 #include <algorithm>
 #include <curand.h>
 

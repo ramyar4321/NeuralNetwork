@@ -7,6 +7,11 @@ gpu::Scalar::Scalar(float init_val){
     this->copyHostToDevice();
 }
 
+gpu::Scalar::Scalar( gpu::Scalar& other):
+                 h_scalar(other.h_scalar),
+                 d_scalar(other.d_scalar)       
+{}
+
 void gpu::Scalar::allocateMemHost(float init_val){
     this->h_scalar = std::make_shared<float>(init_val);
 }
@@ -31,4 +36,24 @@ gpu::Scalar& gpu::Scalar::operator=(const gpu::Scalar& rhs){
     this->d_scalar = rhs.d_scalar;
 
     return *this;
+}
+
+bool gpu::Scalar::operator==(gpu::Scalar& rhs){
+    bool areEqual = true;
+
+    // Fixed error for comparison between two given values
+    constexpr double epsilon = 0.01; 
+
+    rhs.copyDeviceToHost();
+    this->copyDeviceToHost();
+
+    // Variables to store scalar values to be compared
+    float this_val = *this->h_scalar.get();
+    float rhs_val = *rhs.h_scalar.get();
+
+    if(!(std::abs(this_val - rhs_val) < epsilon)){
+        areEqual = false;
+    }
+
+    return areEqual;
 }

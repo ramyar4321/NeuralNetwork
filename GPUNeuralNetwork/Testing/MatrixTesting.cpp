@@ -1,4 +1,5 @@
 #include "MatrixTesting.hpp"
+#include "../Matrix/Matrix.cuh"
 #include "../Matrix/Vector.cuh"
 #include <vector>
 #include <iostream>
@@ -46,9 +47,9 @@ void gpu::MatrixTesting::testVectorConstructor(){
     }
 
     if(testPassed){
-        std::cout << "Test passed! Matrix constructor created matrix using vector." << std::endl;
+        std::cout << "Test passed! Matrix constructor created matrix using std::vector." << std::endl;
     }else{
-        std::cout << "Test failed! Matrix constructor failed to create matrix using vector." << std::endl;
+        std::cout << "Test failed! Matrix constructor failed to create matrix using std::vector." << std::endl;
     }
 
 }
@@ -191,9 +192,9 @@ void gpu::MatrixTesting::testEqualOperator(){
  *   false for two matrices that have same dimensions
  *    but different elements.
  * 
- *  - Second test will test if operator== returns
- *    true for two mmatrices that have the same dimensions
- *    and the same corresponding elements.
+ * - Second test will test if operator== returns
+ *   true for two mmatrices that have the same dimensions
+ *   and the same corresponding elements.
  * 
  * 
 */

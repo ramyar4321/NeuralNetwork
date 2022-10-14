@@ -1,7 +1,6 @@
 #ifndef MATRIX_TESTING
 #define MATRIX_TESTING
 
-#include "../Matrix/Matrix.cuh"
 
 namespace gpu{
     /**
@@ -24,8 +23,6 @@ namespace gpu{
             void testMultOperator();
             void testSubAssignOperator();
 
-            // Helper functions
-            void printMat(gpu::Matrix& mat);
     };
 }
 

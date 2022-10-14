@@ -223,14 +223,14 @@ void gpu::Vector::deepCopy(gpu::Vector& rhs){
     this->copyHostToDevice();
 }
 
-void gpu::Vector::printVec(){
+/*void gpu::Vector::printVec(){
 
     this->copyDeviceToHost();
 
     for (int i=0; i< this->m_size; ++i) {
         std::cout << this->h_vec.get()[i] << std::endl;
     }
-}
+}*/
 
 /**
  * TODO
@@ -252,7 +252,7 @@ gpu::Vector& gpu::Vector::operator=(const Vector& rhs){
 
 /**
  * TODO
-*/
+*
 void gpu::Vector::operator=(const std::vector<float>& rhs){
     this->m_size = rhs.size();
 
@@ -262,7 +262,7 @@ void gpu::Vector::operator=(const std::vector<float>& rhs){
     }
 
     this->copyHostToDevice();
-}
+}*/
 
 /**
  * Overload equality operator.

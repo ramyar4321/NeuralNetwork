@@ -10,6 +10,8 @@ namespace gpu{
             std::shared_ptr<float> d_scalar;
 
             Scalar(float init_val);
+            Scalar( Scalar& other);
+
 
             void allocateMemHost(float init_val);
             void allocateMemDevice();
@@ -17,6 +19,7 @@ namespace gpu{
             void copyDeviceToHost();
 
             Scalar& operator=(const Scalar& rhs);
+            bool operator==(Scalar& rhs);
             
     };
 }

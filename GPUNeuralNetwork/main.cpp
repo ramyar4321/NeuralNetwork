@@ -2,6 +2,7 @@
 #include "Testing/NeuralNetTesting.hpp"
 #include "Testing/DatasetTesting.hpp"
 #include "Testing/MatrixTesting.hpp"
+#include "Testing/VectorTesting.hpp"
 #include "Dataset.hpp"
 #include <iostream>
 
@@ -36,6 +37,17 @@ int main(){
     test_mat.testIsEqualOperator();
     test_mat.testMultOperator();
     test_mat.testSubAssignOperator();*/
+
+    gpu::VectorTesting test_vec;
+    //test_vec.testVectorConstructor();
+    //test_vec.testCopyConstructor();
+    //test_vec.testDot();
+    //test_vec.testTensor();
+    //test_vec.testDeepCopy();
+    //test_vec.testEqualOperator();
+    //test_vec.testMultOperator();
+    //test_vec.testMultAssignOperator();
+    //test_vec.testSubAssignOperator();
 
     /*gpu::NeuralNetTesting test_net;
     test_net.test_forwardPropegation();
