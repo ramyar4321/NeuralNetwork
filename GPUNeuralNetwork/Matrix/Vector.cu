@@ -252,7 +252,7 @@ gpu::Vector& gpu::Vector::operator=(const Vector& rhs){
 
 /**
  * TODO
-*
+*/
 void gpu::Vector::operator=(const std::vector<float>& rhs){
     this->m_size = rhs.size();
 
@@ -262,7 +262,7 @@ void gpu::Vector::operator=(const std::vector<float>& rhs){
     }
 
     this->copyHostToDevice();
-}*/
+}
 
 /**
  * Overload equality operator.

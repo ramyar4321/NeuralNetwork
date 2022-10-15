@@ -3,8 +3,10 @@
 #include "Testing/DatasetTesting.hpp"
 #include "Testing/MatrixTesting.hpp"
 #include "Testing/VectorTesting.hpp"
+#include "Testing/ScalarTesting.hpp"
 #include "Dataset.hpp"
 #include <iostream>
+
 
 int main(){
     /*gpu::NeuralNetwork net(50,50, 10, 0.001);
@@ -38,24 +40,29 @@ int main(){
     test_mat.testMultOperator();
     test_mat.testSubAssignOperator();*/
 
-    gpu::VectorTesting test_vec;
-    //test_vec.testVectorConstructor();
-    //test_vec.testCopyConstructor();
-    //test_vec.testDot();
-    //test_vec.testTensor();
-    //test_vec.testDeepCopy();
-    //test_vec.testEqualOperator();
-    //test_vec.testMultOperator();
-    //test_vec.testMultAssignOperator();
-    //test_vec.testSubAssignOperator();
+    /*gpu::VectorTesting test_vec;
+    test_vec.testVectorConstructor();
+    test_vec.testCopyConstructor();
+    test_vec.testDot();
+    test_vec.testTensor();
+    test_vec.testDeepCopy();
+    test_vec.testEqualOperator();
+    test_vec.testMultOperator();
+    test_vec.testMultAssignOperator();
+    test_vec.testSubAssignOperator();*/
+
+    gpu::ScalarTesting test_scalar;
+    //test_scalar.testCopyConstructor();
+    //test_scalar.testEqualOperator();
+    test_scalar.testIsEqualOperator();
 
     /*gpu::NeuralNetTesting test_net;
     test_net.test_forwardPropegation();
     test_net.test_backPropegation();
-    test_net.test_gradientDescent();
+    test_net.test_gradientDescent();*/
 
 
-    gpu::DatasetTesting test_dataset;
+    /*gpu::DatasetTesting test_dataset;
     test_dataset.test_import_dataset();
     test_dataset.test_X_train_split();
     test_dataset.test_X_test_split();
@@ -66,6 +73,8 @@ int main(){
     test_dataset.test_getColumn();
     test_dataset.test_standardizeDataset();
     test_dataset.test_setValue();*/
+
+    cudaDeviceReset();
 
     return 0;
 }

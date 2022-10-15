@@ -1,3 +1,6 @@
+#ifndef VECTOR_TESTING
+#define VECTOR_TESTING
+
 namespace gpu{
     /**
      * 
@@ -24,3 +27,5 @@ namespace gpu{
             void testSubAssignOperator();
     };
 }
+
+#endif // End of VECTOR_TESTING
