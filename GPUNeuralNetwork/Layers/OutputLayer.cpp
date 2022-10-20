@@ -23,7 +23,7 @@ gpu::OutputLayer::OutputLayer(int layerI_size):
 // Methodes for forward propegation
 
 /**
- * Initialize the wieghts of this hidden layer.
+ * Initialize the weights of this hidden layer.
  */
 void gpu::OutputLayer::weightInitialization(){
     this->m_W.vectorInitializationDevice();
@@ -37,7 +37,7 @@ void gpu::OutputLayer::weightInitialization(){
  * 
  * @param a The vector that contains the activations of each neuron in layer I
  * 
- * TODO
+
  * 
  */
 void gpu::OutputLayer::computeOutput(const gpu::Vector& a)
@@ -48,17 +48,15 @@ void gpu::OutputLayer::computeOutput(const gpu::Vector& a)
 /**
  * Compute the sigmoid activation of the output neuron.
  * 
- * The sigmoid activation function for the output neuron can be defined as the following
- * @f$\sigma (z_3) = \frac{1}{1+ \exp (- z_3)} = \frac{\exp (z_3)}{1+ \exp ( z_3)}$. 
- * If z_3 is positive and its magnitude large, it can cause overflow when computing @f$\exp ( z_3)$ and
- * if z_3 is negative and its magnitude is too large, it can cause overflow when computing @f$\exp (- z_3)$.
- * In order to avoid numerical instability, let @f$\sigma (z_3) = \frac{1}{1+ \exp (- z_3)}$ for @f$ z_3 >=0 $
- * and let @f$\sigma (z_3) = \frac{\exp (z_3)}{1+ \exp ( z_3)}$ for @f$ z_3 < 0 $.
+ * The sigmoid activation function for the output neuron j of output layer J can be defined as the following
+ * @f$\sigma (z_j) = \frac{1}{1+ \exp (- z_j)} = \frac{\exp (z_j)}{1+ \exp ( z_j)}$. 
+ * If z_j is positive and its magnitude large, it can cause overflow when computing @f$\exp ( z_j)$ and
+ * if z_j is negative and its magnitude is too large, it can cause overflow when computing @f$\exp (- z_j)$.
+ * In order to avoid numerical instability, let @f$\sigma (z_j) = \frac{1}{1+ \exp (- z_j)}$ for @f$ z_j >=0 $
+ * and let @f$\sigma (z_j) = \frac{\exp (z_j)}{1+ \exp ( z_j)}$ for @f$ z_j < 0 $.
  * 
  * @see https://stackoverflow.com/questions/41800604/need-help-understanding-the-caffe-code-for-sigmoidcrossentropylosslayer-for-mult
  * @see https://stackoverflow.com/questions/40353672/caffe-sigmoidcrossentropyloss-layer-loss-function
- * 
- * @param z The output of the output neuron in the last layer.
  * 
  * 
  */
@@ -121,7 +119,7 @@ float gpu::OutputLayer::bceLoss(const float &y){
 
 /**
  * Compute the derivative of the sigmoid activiation which can be defined as
- * @f$\sigma^{'} = \sigma(1-\sigma)$. SInce m_a is the output of the sigmoid function,
+ * @f$\sigma^{'} = \sigma(1-\sigma)$. Since m_a is the output of the sigmoid function,
  * then the derivative of the sigmoid activiation can be rewritten as
  * @f$\sigma^{'} = {m_a}(1-{m_a})$
  * 
@@ -217,7 +215,7 @@ float gpu::OutputLayer::backPropegation(const float& y, const gpu::Vector& a){
  * 
  * 
  * Perform gradient descent. For any given weight between layers I < J
- * where Iis the previous layer and J is the output layer,
+ * where I is the previous layer and J is the output layer,
  * the weight can be updated using the following.
  * @f$ w_{ji} = w_{ji} - \alpha \frac{dL}{dw_{ji}}$
  * 

@@ -29,7 +29,6 @@ namespace gpu{
 
             /*=======================*/
             // Methodes for backward propegation
-            //float reluPrime(const float& z);
             gpu::Vector reluPrime();
             void computeDelta(const gpu::Vector& W, const float& delta);
             void computeDelta(const gpu::Matrix& W, const gpu::Vector& delta);

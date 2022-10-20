@@ -9,6 +9,13 @@ namespace gpu{
     // Forward delcare Matrix class to break circular dependancy between
     // Vector and Matrix classes.
     class Matrix;
+    /**
+     * Vector class to store mathematical vector. 
+     * Each element of vector will be initialized to zero.
+     * 
+     * This is not meant to be a general purpose class, rather it will only
+     * have methodes that will be used by the Neural Network class.
+    */
     class Vector{
         private:
             int m_size;

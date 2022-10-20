@@ -22,29 +22,15 @@ gpu::HiddenLayer::HiddenLayer(int layerI_size, int layerJ_size):
 // CUDA kernels
 
 /**
- * Compute activation of neuron j of layer J using the derivative of ReLu
- * activation function.
- * @f$\begin{math}
-        f'(z_j)=\left\{
-            \begin{array}{ll}
-                0, & \mbox{if $x<0$}.\\
-                1, & \mbox{if $x>0$}.
-            \end{array}
-        \right.
-    \end{math}$
- * The derivative is undefined at z_j = 0 but it can be set to zero
- * in order to produce sparse vector.
+ * CUDA kernel that computes the elements of vector
+ * containing f' for neurons of a given hidden layer J.
  * 
- * @param 
- * @param z A vector that contains the output of a given neuron i in layer I
+ * @param f_prime Vector containing f' for neurons of given hidden layer J
+ * @param z       Vector cotnaining the output of neurons of given hideen layer J
+ * @param z_size  Size of vector z. Assumed to be the equal to size of f_prime.
  * 
- * @return @f$f'(z_j)$ where @f$z_j$ 
- *         is the output of neuron j of layer J 
- *         and f' is the derivative of the relu activation function.
  * 
- * TODO
- * 
- */
+*/
 __global__ void kReluPrime(float* f_prime, float* z, float z_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
@@ -57,7 +43,13 @@ __global__ void kReluPrime(float* f_prime, float* z, float z_size){
 
 
 /**
- * TODO
+ * CUDA kernel that computes the elements of a vector 
+ * containing the activations for neurons of given hidden layer J.
+ * 
+ * @param a Vector containing the ReLu activation of neurons in hidden layer J.
+ * @param z Vector containing input of neurons in hidden layer J.
+ * @param a_size Size of a vector a. Assumed to be equal to size of z.
+ *  
 */
 __global__ void kReluActivation(float* a, float* z, int a_size){
 
@@ -72,7 +64,7 @@ __global__ void kReluActivation(float* a, float* z, int a_size){
 // Methodes for forward propegation
 
 /**
- * Initialize the wieghts of this hidden layer.
+ * Initialize the weights of this hidden layer.
  */
 void gpu::HiddenLayer::weightInitialization(){
     this->m_W.matrixInitializationDevice();
@@ -97,7 +89,7 @@ void gpu::HiddenLayer::computeOutput(const gpu::Vector &a)
 /**
  * Compute the activation of each neuron j in layer J using the ReLu activation function. 
  * The activation for each neuron can be computed as follows 
- * @f$z_j = max(0, z_j)$ where @f$z_j$ is the output of neuron j in layer J.
+ * @f$a_j = max(0, z_j)$ where @f$z_j$ is the output of neuron j in layer J.
  * 
  */
 void gpu::HiddenLayer::reluActivation()
@@ -132,8 +124,21 @@ gpu::Vector gpu::HiddenLayer::forwardPropegation(const gpu::Vector& a){
 // Methodes for backward propegation
 
 /**
- * TODO
-*/
+ * Compute activation of neuron j of layer J using the derivative of ReLu
+ * activation function.
+ * @f$\begin{math}
+        f'(z_j)=\left\{
+            \begin{array}{ll}
+                0, & \mbox{if $x<0$}.\\
+                1, & \mbox{if $x>0$}.
+            \end{array}
+        \right.
+    \end{math}$
+ * The derivative is undefined at z_j = 0 but it can be set to zero
+ * in order to produce sparse vector.
+ *
+ * 
+ */
 gpu::Vector gpu::HiddenLayer::reluPrime(){
     gpu::Vector f_prime(this->m_z.getSize());
 
@@ -157,7 +162,7 @@ gpu::Vector gpu::HiddenLayer::reluPrime(){
  * 
  * 
  * @param W A vector containing the weigths between layer J and K
- * @param delta The error terms of each neuron k of layer K.
+ * @param delta The error terms of neuron k of layer K.
  * 
  */
 void gpu::HiddenLayer::computeDelta(const gpu::Vector& W, const float& delta){
@@ -252,8 +257,7 @@ gpu::Vector gpu::HiddenLayer::backPropegation(const gpu::Matrix& W, const gpu::V
 /**
  * 
  * 
- * Perform gradient descent. For any given weight between layers I < J
- * where Iis the previous layer and J is the output layer,
+ * Perform gradient descent. For any given weight between layers I < J,
  * the weight can be updated using the following.
  * @f$ w_{ji} = w_{ji} - \alpha \frac{dL}{dw_{ji}}$
  * 

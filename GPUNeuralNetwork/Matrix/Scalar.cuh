@@ -3,6 +3,13 @@
 #include <memory>
 
 namespace gpu{
+    /**
+     * This scalar class is used to store a floating point value.
+     * 
+     * The main purpose of this class is to store and results
+     * of dot product operation using CUDA kernel(s).
+     *
+    */
     class Scalar{
         public:
 

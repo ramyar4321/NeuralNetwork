@@ -8,7 +8,12 @@
 //================================//
 
 /**
- * TDOD
+ * Constructor for matrix class. 
+ * Constructs matrix with given dimensions.
+ * 
+ * @param num_rows The number of rows of matrix
+ * @param num_cols The number of columns of matrix.
+ * 
  */
 gpu::Matrix::Matrix(int num_rows, 
                     int num_cols):
@@ -20,7 +25,12 @@ gpu::Matrix::Matrix(int num_rows,
 }
 
 /**
- * TODO
+ * Constructor for matrix class.
+ * Construct matrix using a vector.
+ * 
+ * @param num_rows The number of rows of matrix
+ * @param num_cols The number of columns of matrix.
+ * 
  */
 gpu::Matrix::Matrix(int num_rows, int num_cols, std::vector<float> rhs):
     m_num_rows(num_rows),
@@ -40,7 +50,7 @@ gpu::Matrix::Matrix(int num_rows, int num_cols, std::vector<float> rhs):
 }
 
 /**
- * TODO
+ * Copy constructor for matrix class.
  */
 gpu::Matrix::Matrix(const Matrix& rhs):
     // Since rhs is of type Matrix, we
@@ -51,8 +61,15 @@ gpu::Matrix::Matrix(const Matrix& rhs):
     d_mat(rhs.d_mat)
 {}
 
+//================================//
+// Memeory management
+//================================//
+
 /**
- * TODO
+ * 
+ * Allocate matrix on host.
+ * Initialize all elements of the matrix to zero.
+ * 
  */
 void gpu::Matrix::allocateMemHost(){
 
@@ -63,7 +80,7 @@ void gpu::Matrix::allocateMemHost(){
 }
 
 /**
- * TODO
+ * Allocate memeory space for matrix on device.
  */
 void gpu::Matrix::allocateMemDevice(){
     int size  = this->m_num_cols * this->m_num_rows;
@@ -72,7 +89,7 @@ void gpu::Matrix::allocateMemDevice(){
 }
 
 /**
- * TODO
+ * Copy matrix from host to device.
  */
 void gpu::Matrix::copyHostToDevice(){
     int size  = this->m_num_cols * this->m_num_rows;
@@ -80,7 +97,7 @@ void gpu::Matrix::copyHostToDevice(){
 }
 
 /**
- * TODO
+ * Copy matrix from device to host.
  */
 void gpu::Matrix::copyDeviceToHost(){
     int size  = this->m_num_cols * this->m_num_rows;
@@ -89,69 +106,100 @@ void gpu::Matrix::copyDeviceToHost(){
 
 
 //================================//
-// Matrix operations support.
+// CUDA kernels.
 //================================//
 
-
-
 /**
- * This methode multiples a matrix with another vector.
+ * CUDA kernel used in multiplying a matrix by a vector.
  * 
- * TODO
+ * @param res A vector containing the results of the matrix-vector multiplcation
+ * @param mat The matrix used in matrix-vector multiplication
+ * @param vec The vector used in matrix-vector multiplication
+ * @param mat_num_cols The numver of columns in the matrix. 
+ *                      Assumed to be equal to size of vec.
  * 
  */
-__global__ void kMatrixVectorMult(float* z, float* W, float* a, int W_num_cols){
+__global__ void kMatrixVectorMult(float* res, float* mat, float* vec, int mat_num_cols){
     float temp = 0;
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if(idx < W_num_cols)
-        for(int i=0; i < W_num_cols; i++){
-            temp += W[idx*W_num_cols + i]*a[i];
+    if(idx < mat_num_cols)
+        for(int i=0; i < mat_num_cols; i++){
+            temp += mat[idx*mat_num_cols + i]*vec[i];
         }
-    z[idx] = temp;
+    res[idx] = temp;
 
 }
 
 /**
- * TODO
-*/
-__global__ void kTranspose(float* W_T, float* W, 
-                            int W_num_rows, int W_num_cols){
-
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int idy = blockIdx.y*blockDim.y + threadIdx.y;
-
-    if(idx < W_num_rows && idy < W_num_cols){
-        W_T[idy*W_num_cols + idx] = W[idx*W_num_rows + idy];
-    }
-}
-
-/**
- * TODO
-*/
-__global__ void kMatrixScalarMult(float* res, float* dLdW, float alpha,
-                                    int dLdW_num_rows, int dLdW_num_cols){
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int idy = blockIdx.y*blockDim.y + threadIdx.y;
-
-    if(idx < dLdW_num_cols && idy < dLdW_num_rows){
-        res[idy*dLdW_num_cols + idx] = dLdW[idy*dLdW_num_cols +idx]*alpha;
-    }
-}
-
-__global__ void kMatrixMatrixSub(float* W, float* rhs, int W_num_rows, int W_num_cols){
-    int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    int idy = blockIdx.y*blockDim.y + threadIdx.y;
-
-    if(idx < W_num_cols && idx < W_num_rows){
-        W[idy*W_num_cols +idx] -= rhs[idy*W_num_rows +idx];
-    }
-}
-
-/**
- * TODO
+ * CUDA kernel used in transposing a matrix.
  * 
+ * @param mat_T A matrix to store the transpose of matrix mat
+ * @param mat   The matrix to be transposed.
+ * @param mat_num_rows The number of rows of the matrix mat
+ * @param mat_num_cols The number of columns of the matrix mat
+ * 
+*/
+__global__ void kTranspose(float* mat_T, float* mat, 
+                            int mat_num_rows, int mat_num_cols){
+
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < mat_num_rows && idy < mat_num_cols){
+        mat_T[idy*mat_num_cols + idx] = mat[idx*mat_num_rows + idy];
+    }
+}
+
+/**
+ * CUDA kernel used in multiplying a matrix by a scalar value.
+ * 
+ * @param res The matrix used to store the result of the matrix-scalar multiplication.
+ * @param mat The matrix used matrix-scalar multiplication
+ * @param scalar The scalar value used in matrix-scalar multiplcation.
+ * @param mat_num_rows The number of columns of the matrix
+ * @param mat_num_cols The number of rows of the matrix.
+ * 
+*/
+__global__ void kMatrixScalarMult(float* res, float* mat, float scalar,
+                                    int mat_num_rows, int mat_num_cols){
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < mat_num_cols && idy < mat_num_rows){
+        res[idy*mat_num_cols + idx] = mat[idy*mat_num_cols +idx]*scalar;
+    }
+}
+
+/**
+ * CUDA kernel used in element-wise subtraction of two matrices
+ * and storing the result in one of the two matrices.
+ * 
+ * @param lhsMat Left hand side matrix used in matrix-matrix elementwise subtraction.
+ *               The resulting matrix will be stored in mat1.
+ * @param rhsMat Right hand side matrix used in matrix-matrix elementwise subtraction.
+ * @param mat_num_rows The number of rows of either matrices.
+ * @param mat_num_columns  The number of columns of either matrices.
+*/
+__global__ void kMatrixMatrixSub(float* lhsMat, float* rhsMat, int mat_num_rows, int mat_num_cols){
+    int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    int idy = blockIdx.y*blockDim.y + threadIdx.y;
+
+    if(idx < mat_num_cols && idx < mat_num_rows){
+        lhsMat[idy*mat_num_cols +idx] -= rhsMat[idy*mat_num_rows +idx];
+    }
+}
+
+//================================//
+// Matrix support operations.
+//================================//
+
+/**
+ * Initialize the elements of the matrix to random values that come
+ * from a Gaussian Distribtuion centered at 0 with standard deviations of 
+ * @f$\sqrt{ \farc{1}{n_{I}}} $ where @f$n_{I}$ is the size of layer @f$I$.
+ * Initialization occurs on the device.
  */
 void gpu::Matrix::matrixInitializationDevice()
 {
@@ -172,7 +220,11 @@ void gpu::Matrix::matrixInitializationDevice()
 }
 
 /**
- * TODO
+ * Perform deep copy of matrix. 
+ * 
+ * That is, set the dimensions of this matrix
+ * to the dimensions of rhs matrix. Then copy all
+ * corresponding elements of rhs matrix to this matrix.
  */
 void gpu::Matrix::deepCopy(gpu::Matrix& rhs){
     this->m_num_rows = rhs.get_num_rows();
@@ -190,7 +242,7 @@ void gpu::Matrix::deepCopy(gpu::Matrix& rhs){
 }
 
 /**
- * TODO 
+ * Transpose matrix.
 */
 gpu::Matrix gpu::Matrix::transpose() const{
 
@@ -209,19 +261,6 @@ gpu::Matrix gpu::Matrix::transpose() const{
 
     return transpose_mat;
 }
-
-/**
- * TODO
- *
-void gpu::Matrix::printMat(){
-    this->copyDeviceToHost();
-
-    for (int j=0; j< this->m_num_rows; ++j) {
-        for (int i=0; i< this->m_num_cols; ++i) {
-            std::cout << this->h_mat.get()[j*this->m_num_cols+i] << std::endl;
-        }
-    } 
-}*/
 
 //================================//
 // Operators.
@@ -243,9 +282,6 @@ gpu::Matrix& gpu::Matrix::operator=(const Matrix& rhs){
     this->h_mat = rhs.h_mat;
     this->d_mat = rhs.d_mat;
 
-    // Return dereferenced pointer to this matrix.
-    // Since it will persist after this methode call,
-    // dereferencing is safe.
     return *this;
 }
 
@@ -256,8 +292,6 @@ gpu::Matrix& gpu::Matrix::operator=(const Matrix& rhs){
  * they have the same dimensions and their
  * corresonding elements are equal.
  * 
- * return true if two matrices are equal,
- *        false otherwise
  */
 bool gpu::Matrix::operator==(Matrix& rhs) {
 
@@ -270,6 +304,8 @@ bool gpu::Matrix::operator==(Matrix& rhs) {
     // Fixed error for comparison between two given values
     constexpr double epsilon = 0.01; 
 
+    // Comparsion is done on host
+    // since it is easier.
     this->copyDeviceToHost();
     rhs.copyDeviceToHost();
 
@@ -314,6 +350,9 @@ float& gpu::Matrix::operator()(const int& row, const int& col) {
 
 /**
  * 
+ * Overload multiplication operator without assignment
+ * in order to allow mutliplication between matrix and vector.
+ * 
 */
 gpu::Vector gpu::Matrix::operator*(const Vector& rhs) const{
 
@@ -330,7 +369,10 @@ gpu::Vector gpu::Matrix::operator*(const Vector& rhs) const{
 }
 
 /**
- * TODO
+ * 
+ * Overload multiplication operator without assignment
+ * to allow multiplication between matrix and scalar.
+ * 
 */
 gpu::Matrix gpu::Matrix::operator*(const float& rhs) const{
 
@@ -350,6 +392,10 @@ gpu::Matrix gpu::Matrix::operator*(const float& rhs) const{
     return res;
 }
 
+/**
+ * Overload subtraction operator with assignment
+ * in order to allow elementwise subtraction between two matrices.
+*/
 gpu::Matrix& gpu::Matrix::operator-=(const gpu::Matrix& rhs){
     int t = 32;
     int bx = (this->get_num_cols() + t - 1)/t;

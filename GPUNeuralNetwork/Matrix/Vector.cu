@@ -3,9 +3,13 @@
 #include <curand.h>
 #include <iostream>
 
+//================================//
+// Constructors.
+//================================//
+
 /**
- * Constructor for Vector object with size of vector and
- * initial values for each element are specified.
+ * Constructor for Vector object 
+ * when size of vector specified.
  */
 gpu::Vector::Vector(int size):
                     m_size(size)
@@ -15,7 +19,7 @@ gpu::Vector::Vector(int size):
 }
 
 /**
- * Constructor for Vector object with initializer list.
+ * Constructor for Vector object with std::vector.
  */
 gpu::Vector::Vector(std::vector<float> rhs):
                     m_size(rhs.size())
@@ -31,7 +35,7 @@ gpu::Vector::Vector(std::vector<float> rhs):
 }
 
 /**
- * TODO
+ * Copy constructor for Vector class.
 */
 gpu::Vector::Vector(const gpu::Vector& other):
                 m_size(other.getSize()),
@@ -39,8 +43,15 @@ gpu::Vector::Vector(const gpu::Vector& other):
                 d_vec(other.d_vec)
 {}
 
+//================================//
+// Memeory management
+//================================//
+
 /**
- * TODO
+ *
+ * Allocate vector on host.
+ * Initialize all elements to zero.
+ * 
 */
 void gpu::Vector::allocateMemHost(){
     this->h_vec = std::shared_ptr<float>(new float[this->m_size]{0},
@@ -48,7 +59,7 @@ void gpu::Vector::allocateMemHost(){
 }
 
 /**
- * TODO
+ * Allocate memeory space for vector on device. 
 */
 void gpu::Vector::allocateMemDevice(){
     this->d_vec = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
@@ -56,86 +67,118 @@ void gpu::Vector::allocateMemDevice(){
 }
 
 /**
- * TODO
+ * Copy vector from host to device.
  */
 void gpu::Vector::copyHostToDevice(){
     cudaMemcpy(this->d_vec.get(), this->h_vec.get(), this->m_size*sizeof(float), cudaMemcpyHostToDevice);
 }
 
 /**
- * TODO
+ * Copy vector from device to host.
  */
 void gpu::Vector::copyDeviceToHost(){
     cudaMemcpy(this->h_vec.get(), this->d_vec.get(), this->m_size*sizeof(float), cudaMemcpyDeviceToHost);
 }
 
+//================================//
+// CUDA kernels
+//================================//
+
 /**
- * Compute the dot product between two vectors.
+ * CUDA kernel used in computing the dot 
+ * product between two vectors.
  * 
- * TODO
+ * @param res A scalar value used to store the result of the dot product
+ * @param lhsVec Left hand side vector in the dot prouct
+ * @param rhsVec Right hand side vector involved in the dot product
+ * @param vec_size The size of either one of the vectors. 
+ *                 Both vectors are assumed to be the same size.
  * 
  */
-__global__ void kDot(float* z, float* W, float* a, int W_size) {
+__global__ void kDot(float* res, float* lhsVec, float* rhsVec, int vec_size) {
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
     float temp = 0.0f;
 
-    if(idx < W_size){
-        temp = W[idx]*a[idx]; 
+    if(idx < vec_size){
+        temp = lhsVec[idx]*rhsVec[idx]; 
     }
 
-    atomicAdd(z, temp);
+    atomicAdd(res, temp);
 }
 
 /**
- * This methode produces a matrix by computing the tensor between two vectors.
+ * CUDA kernel used in computing the tensor product 
+ * between two vectors.
  * 
- * TODO
+ * @param res A matrix used to store the result of the tensor product
+ * @param lhsVec Left hand side vector used in the tensor product
+ * @param rhsVec Right hand side vector used in the tensor product
+ * @param res_num_rows The number of rows of the res matrix.
+ *                      It is equal to the size of right hand side vec vector.
+ * @param res_num_cols The number of columns of the res matrix.
+ *                      It is equal to the size of left hand side vector.
  * 
  */
-__global__ void kTensor(float* dLdW, float* a, float* delta, 
-                        int dLdW_num_rows, int dLdW_num_cols){
+__global__ void kTensor(float* res, float* lhsVec, float* rhsVec, 
+                        int res_num_rows, int res_num_cols){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int idy = blockIdx.y*blockDim.y + threadIdx.y;
 
-    if(idx < dLdW_num_cols && idy < dLdW_num_rows){
-        dLdW[idy*dLdW_num_cols + idx] = a[idx]*delta[idy];
+    if(idx < res_num_cols && idy < res_num_rows){
+        res[idy*res_num_cols + idx] = lhsVec[idx]*rhsVec[idy];
     }
 
 }
 
 /**
- * Compute the vector multiplication between a vector and a scalar value.
+ * CUDA kernel used to multiplying a vector by a scalar value.
  * 
- * TODO
+ * @param res A vector used to store the result of multiplying 
+ *            a vector by a scalar.
+ * @param vec The vector in vector-scalar multiplication
+ * @param scalar The scalar in vector-scalar multiplication
+ * @param res_size The size of the result vector.
  * 
  */
-__global__ void kVecScalarMult(float* dLdW, float* a, float delta, int dLdW_size){
+__global__ void kVecScalarMult(float* res, float* vec, float scalar, int res_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if(idx < dLdW_size){
-        dLdW[idx] = a[idx]*delta;
+    if(idx < res_size){
+        res[idx] = vec[idx]*scalar;
     }
 }
 
 /**
+ * CUDA kernel used in elementwise subtraction between
+ * two vectors. 
  * 
- * This methode mutiplies a vector by a scalar.
- * The resulting vector is then subtracted from a another vector.
+ * @param lhsVec Left hand side vector involved in vector subtraction.
+ *               The result is stored in lhsVec.
+ * @param rhsVec Right hand side vector invloved in vector subtraction.
+ * @param vec_size The size of either one of the vectors.
  * 
  */
-__global__ void kVecScalarMultSub(float* W, float* dLdW, int W_size){
+__global__ void kVecVecSub(float* lhsVec, float* rhsVec, int vec_size){
 
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if(idx < W_size){
-        W[idx] -= dLdW[idx];
+    if(idx < vec_size){
+        lhsVec[idx] -= rhsVec[idx];
     }
 }
 
+/**
+ * CUDA kernel used in multiplying corresponding elements between two vectors.
+ *
+ * @param lhsVec Left hand side vector involved in elementwise vector multiplication
+ * @param rhsVec Right hand side vector involved in elementwise vector multiplication
+ * @param vec_size Size of either one of the vectors
+ * 
+*/
 __global__ void kVecVecElementwiseMult(float* delta, float* f_prime,  int delta_size){
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
@@ -169,7 +212,9 @@ void gpu::Vector::vectorInitializationDevice()
 }
 
 /**
- * TODO
+ * 
+ * Compute the dot product between two vectors.
+ * 
 */
 gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
     gpu::Scalar res(0.0f);
@@ -186,7 +231,7 @@ gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
 }
 
 /**
- * TODO
+ * Compute the tensor product between two vectors.
 */
 gpu::Matrix gpu::Vector::tensor(const Vector& rhs) const{
 
@@ -209,7 +254,13 @@ gpu::Matrix gpu::Vector::tensor(const Vector& rhs) const{
 }
 
 /**
- * TODO
+ * 
+ * Perform deep copy of vector.
+ * 
+ * That is, set the size of this vector
+ * to the size of rhs vector. Then copy all
+ * corresponding elements of rhs vector to this vector.
+ * 
 */
 void gpu::Vector::deepCopy(gpu::Vector& rhs){
     this->m_size = rhs.getSize();
@@ -223,17 +274,9 @@ void gpu::Vector::deepCopy(gpu::Vector& rhs){
     this->copyHostToDevice();
 }
 
-/*void gpu::Vector::printVec(){
-
-    this->copyDeviceToHost();
-
-    for (int i=0; i< this->m_size; ++i) {
-        std::cout << this->h_vec.get()[i] << std::endl;
-    }
-}*/
-
 /**
- * TODO
+ * Overload assignment operator in order to 
+ * allow assignment of another vector.
 */
 gpu::Vector& gpu::Vector::operator=(const Vector& rhs){
     // Check if object is being assigned to itself.
@@ -251,7 +294,8 @@ gpu::Vector& gpu::Vector::operator=(const Vector& rhs){
 }
 
 /**
- * TODO
+ * Overload assignment operator in order to allow
+ * assignment of std::vector. 
 */
 void gpu::Vector::operator=(const std::vector<float>& rhs){
     this->m_size = rhs.size();
@@ -321,7 +365,9 @@ float& gpu::Vector::operator[](const int &input) {
 
 
 /**
- * TODO
+ * Overload multiplication operator without assignment
+ * to allow mutliplcation of vector with a scalar value.
+ * 
 */
 gpu::Vector gpu::Vector::operator*(const float& rhs) const{
 
@@ -338,6 +384,11 @@ gpu::Vector gpu::Vector::operator*(const float& rhs) const{
 
 }
 
+/**
+ * Overload multiplcation operator with assignment
+ * in order to allow elementwise multiplcation
+ * between two vectors. 
+*/
 gpu::Vector& gpu::Vector::operator*=( const gpu::Vector& rhs){
 
     int threads = 32;
@@ -351,14 +402,16 @@ gpu::Vector& gpu::Vector::operator*=( const gpu::Vector& rhs){
 }
 
 /**
- * TODO
+ * Overload subtraction operator with assignment
+ * in order to allow subtraction between two vectors.
+ * 
 */
 gpu::Vector& gpu::Vector::operator-=(const Vector& rhs){
 
     int threads = 32;
     int blocks = (this->getSize() + threads -1)/threads;
 
-    kVecScalarMultSub<<<blocks, threads>>>(this->d_vec.get(), rhs.d_vec.get(), this->getSize());
+    kVecVecSub<<<blocks, threads>>>(this->d_vec.get(), rhs.d_vec.get(), this->getSize());
     cudaDeviceSynchronize();
 
     return *this;

@@ -1,5 +1,13 @@
 #include "Scalar.cuh"
 
+//================================//
+// Constructors.
+//================================//
+
+/**
+ * Constructor for Scalar class.
+ * Constructor scalar using float value. 
+*/
 gpu::Scalar::Scalar(float init_val){
     this->allocateMemHost(init_val);
     this->allocateMemDevice();
@@ -7,25 +15,57 @@ gpu::Scalar::Scalar(float init_val){
     this->copyHostToDevice();
 }
 
+/**
+ * Copy Constructor.
+ * 
+*/
 gpu::Scalar::Scalar( gpu::Scalar& other):
                  h_scalar(other.h_scalar),
                  d_scalar(other.d_scalar)       
 {}
 
+//================================//
+// Memeory management
+//================================//
+
+/**
+ * Allocate scalar value on host.
+ * Initialize scalar to init_val.
+*/
 void gpu::Scalar::allocateMemHost(float init_val){
     this->h_scalar = std::make_shared<float>(init_val);
 }
+
+/**
+ * Allocate space on device for scalar value.
+*/
 void gpu::Scalar::allocateMemDevice(){
     this->d_scalar = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
     cudaMalloc((void**) &this->d_scalar, sizeof(float));
 }
+
+/**
+ * Copy scalar value from host to device.
+ * 
+*/
 void gpu::Scalar::copyHostToDevice(){
     cudaMemcpy(this->d_scalar.get(), this->h_scalar.get(), sizeof(float), cudaMemcpyHostToDevice);
 }
+
+/**
+ * Copy scalar value from device to host.
+*/
 void gpu::Scalar::copyDeviceToHost(){
     cudaMemcpy(this->h_scalar.get(), this->d_scalar.get(), sizeof(float), cudaMemcpyDeviceToHost);
 }
 
+//================================//
+// Operators.
+//================================//
+
+/**
+ * Overload assignment operator.
+*/
 gpu::Scalar& gpu::Scalar::operator=(const gpu::Scalar& rhs){
     // Check if object is being assigned to itself.
     if(this == &rhs){
@@ -38,6 +78,10 @@ gpu::Scalar& gpu::Scalar::operator=(const gpu::Scalar& rhs){
     return *this;
 }
 
+/**
+ * Overload equality operator in order to 
+ * allow comparison between two scalar objects.
+*/
 bool gpu::Scalar::operator==(gpu::Scalar& rhs){
     bool areEqual = true;
 

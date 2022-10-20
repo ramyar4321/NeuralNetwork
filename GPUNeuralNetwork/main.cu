@@ -9,6 +9,8 @@
 
 
 int main(){
+
+    // Ucomment to run neural network
     /*gpu::NeuralNetwork net(50,50, 10, 0.001);
 
     gpu::Dataset dat(306, 4,0.75);
@@ -29,7 +31,7 @@ int main(){
     float acc = net.computeAccuracy(y_pred, y_test);
     std::cout << acc << std::endl;*/
     
-
+    // Uncomment to run tests for the Matrix class.
     /*gpu::MatrixTesting test_mat;
     test_mat.testCopyConstructor();
     test_mat.testVectorConstructor();
@@ -40,6 +42,7 @@ int main(){
     test_mat.testMultOperator();
     test_mat.testSubAssignOperator();*/
 
+    // Uncomment to run tests for the Vector class
     /*gpu::VectorTesting test_vec;
     test_vec.testVectorConstructor();
     test_vec.testCopyConstructor();
@@ -51,17 +54,19 @@ int main(){
     test_vec.testMultAssignOperator();
     test_vec.testSubAssignOperator();*/
 
+    // Uncomment to run tests for the Scalar class
     gpu::ScalarTesting test_scalar;
     //test_scalar.testCopyConstructor();
     //test_scalar.testEqualOperator();
     test_scalar.testIsEqualOperator();
 
+    // Uncomment to run tests for the neural network.
     /*gpu::NeuralNetTesting test_net;
     test_net.test_forwardPropegation();
     test_net.test_backPropegation();
     test_net.test_gradientDescent();*/
 
-
+    // Uncomment to run tests for Dataset class.
     /*gpu::DatasetTesting test_dataset;
     test_dataset.test_import_dataset();
     test_dataset.test_X_train_split();

@@ -17,7 +17,7 @@ namespace gpu{
      * Each element of the matrix will be intialized to 0.0.
      * 
      * This is not meant to be a general purpose class, rather it will only
-     * have methodes that will be used by the Neural Netowrk class.
+     * have methodes that will be used by the Neural Network class.
      */
     class Matrix{
         private:
@@ -42,7 +42,6 @@ namespace gpu{
             void matrixInitializationDevice(); 
             void deepCopy(Matrix& rhs);
             Matrix transpose() const;
-            //void printMat();
 
             Matrix& operator=(const Matrix& rhs);
             bool operator==(Matrix& rhs);

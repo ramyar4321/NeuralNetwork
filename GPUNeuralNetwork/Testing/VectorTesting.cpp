@@ -289,7 +289,7 @@ void gpu::VectorTesting::testMultAssignOperator(){
 }
 
 /**
- * 
+ * Test operator-= of Vector class.
 */
 void gpu::VectorTesting::testSubAssignOperator(){
 
