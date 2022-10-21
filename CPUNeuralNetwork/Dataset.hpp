@@ -3,8 +3,8 @@
 
 #include <string>
 #include <vector>
-#include "Matrix.hpp"
-#include "Vector.hpp"
+#include "Matrices/Matrix.hpp"
+#include "Matrices/Vector.hpp"
 
 namespace cpu{
     /**

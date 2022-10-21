@@ -3,8 +3,8 @@
 
 #include <vector>
 #include "Dataset.hpp"
-#include "Matrix.hpp"
-#include "Vector.hpp"
+#include "Matrices/Matrix.hpp"
+#include "Matrices/Vector.hpp"
 #include "Layers/HiddenLayer.hpp"
 #include "Layers/OutputLayer.hpp"
 

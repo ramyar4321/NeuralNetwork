@@ -1,7 +1,7 @@
 #ifndef DATASET_TESTING
 #define DATASET_TESTING
-#include "../Matrix.hpp"
-#include "../Vector.hpp"
+#include "../Matrices/Matrix.hpp"
+#include "../Matrices/Vector.hpp"
 
 namespace cpu {
     /**

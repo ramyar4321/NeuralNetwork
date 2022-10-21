@@ -1,8 +1,8 @@
 #ifndef CPU_HIDDEN_LAYER
 #define CPU_HIDDEN_LAYER
 
-#include "../Matrix.hpp"
-#include "../Vector.hpp"
+#include "../Matrices/Matrix.hpp"
+#include "../Matrices/Vector.hpp"
 
 namespace cpu{
     /**

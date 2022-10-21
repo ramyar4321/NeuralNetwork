@@ -1,7 +1,7 @@
 #ifndef CPU_OUTPUT_LAYER
 #define CPU_OUTPUT_LAYER
 
-#include "../Vector.hpp"
+#include "../Matrices/Vector.hpp"
 
 namespace cpu{
     /**
