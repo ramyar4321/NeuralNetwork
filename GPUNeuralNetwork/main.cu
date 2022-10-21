@@ -4,6 +4,7 @@
 #include "Testing/MatrixTesting.hpp"
 #include "Testing/VectorTesting.hpp"
 #include "Testing/ScalarTesting.hpp"
+#include "Specs/specs.cuh"
 #include "Dataset.hpp"
 #include <iostream>
 
@@ -30,6 +31,9 @@ int main(){
     std::vector<float> y_pred = net.perdict(x_test_stand, threeshold);
     float acc = net.computeAccuracy(y_pred, y_test);
     std::cout << acc << std::endl;*/
+
+    // Uncomment to get GPU specs
+    //gpu::getGPUSpecs();
     
     // Uncomment to run tests for the Matrix class.
     /*gpu::MatrixTesting test_mat;
@@ -55,10 +59,10 @@ int main(){
     test_vec.testSubAssignOperator();*/
 
     // Uncomment to run tests for the Scalar class
-    gpu::ScalarTesting test_scalar;
-    //test_scalar.testCopyConstructor();
-    //test_scalar.testEqualOperator();
-    test_scalar.testIsEqualOperator();
+    /*gpu::ScalarTesting test_scalar;
+    test_scalar.testCopyConstructor();
+    test_scalar.testEqualOperator();
+    test_scalar.testIsEqualOperator();*/
 
     // Uncomment to run tests for the neural network.
     /*gpu::NeuralNetTesting test_net;
