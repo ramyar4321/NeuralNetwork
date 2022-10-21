@@ -2,6 +2,13 @@
 #define SCALAR_TESTING
 
 namespace gpu{
+    /**
+     * 
+     * This class will test important methods of 
+     * Scalar class. Tests will focus on success of operations
+     * on d_vec. The testing will not be rigorous.
+     * 
+    */
     class ScalarTesting{
 
         public:

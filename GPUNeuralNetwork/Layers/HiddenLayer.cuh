@@ -5,6 +5,12 @@
 #include "../Matrix/Vector.cuh"
 
 namespace gpu{
+    /**
+     * HiddenLayer class to represent a hidden layer
+     * of a neural network. The size of a this hidden layer
+     * is specified during instantiation of this hidden layer class.
+     * This hidden layer will not include a bias term.
+    */
     class HiddenLayer{
        private:
             gpu::Vector m_z;
