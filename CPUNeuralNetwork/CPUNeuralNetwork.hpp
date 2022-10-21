@@ -12,7 +12,7 @@ namespace cpu {
     /** 
      * Class NeuralNetwork
      * 
-     * The neural network will of an input layer, two hidden layers,
+     * The neural network will be comprised of an input layer, two hidden layers,
      * and an output layer. Since the Haberman Breast Cancer dataset
      * will be used, the input layer will be of size 3 and the output layer
      * will be of size 1. The sizes of the two hidden layers will be 

@@ -4,6 +4,11 @@
 #include "../Vector.hpp"
 
 namespace cpu{
+    /**
+     * OutputLayer class to represent an output layer 
+     * of a neural network. The output layer will contain
+     * only one output neuron.
+    */
     class OutputLayer{
         private:
 
