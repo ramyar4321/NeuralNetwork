@@ -20,7 +20,7 @@ I used visual studio code with g++ compiler.
  to setup the g++ compiler.
 
  In order to run the CPU portion of this project, from the command prompt
- move into the [CPUNeuralNetwork folder](\CPUNeuralNetwork) and compile it using the following command.
+ move into the [CPUNeuralNetwork folder](CPUNeuralNetwork) and compile it using the following command.
  ```
  g++ main.cpp .\Testing\NeuralNetTesting.cpp .\Testing\DatasetTesting.cpp CPUNeuralNetwork.cpp Layers/HiddenLayer.cpp Layers/OutputLayer.cpp Dataset.cpp Matrices/Matrix.cpp Matrices/Vector.cpp -o main
  ```
