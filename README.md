@@ -8,9 +8,9 @@ The last reason was to get familiar with C++ programming.
 
 The project is split into two sections. The first section performs linear algebra computations
 required for the neural network, sequentially and utilizes the CPU. The code for it can be found 
-in the [CPUNeuralNetwork folder](\CPUNeuralNetwork). 
+in the [CPUNeuralNetwork folder](CPUNeuralNetwork). 
 The second performs linear algebra computations required for the neural network in parallel 
-and utilizes the GPU. The code for it can be found in the [GPUNeuralNetwork folder](\GPUNeuralNetwork).
+and utilizes the GPU. The code for it can be found in the [GPUNeuralNetwork folder](GPUNeuralNetwork).
 
 ## Sequential computation
 
@@ -36,8 +36,8 @@ However, for the GPU portion of this project, you will need to have the [CUDA to
 
 Make sure to download the CUDA version compatible with your GPU capability.
 
-If you have a Nvidia GPU device, you can run [specs.cu file](\GPUNeuralNetwork\Specs\specs.cu) by
-uncommenting out `gpu::getGPUSpecs();` code line in the [main.cu file](\GPUNeuralNetwork\main.cu). The 
+If you have a Nvidia GPU device, you can run [specs.cu file](GPUNeuralNetwork/Specs/specs.cu) by
+uncommenting out `gpu::getGPUSpecs();` code line in the [main.cu file](GPUNeuralNetwork/main.cu). The 
 GPU device specifications for my system is the following.
 ```
 CUDA version:   v10000
@@ -74,8 +74,8 @@ CUDA does not support g++ on windows. You will need `cl.exe` that comes with 201
 If you do not have 2015 Microsoft Visual Studios installed, install the 2015 Microsoft Visual C++ Build Tools.
 Locate the path to the `cl.exe` file and add it to your environment variables.
 
-Once all of the above is setup,  from the command prompt move into  [GPUNeuralNetwork folder](\GPUNeuralNetwork)
-and uncomment the section of the code you want to run in the [main.cu file](\GPUNeuralNetwork\main.cu).
+Once all of the above is setup,  from the command prompt move into  [GPUNeuralNetwork folder](GPUNeuralNetwork)
+and uncomment the section of the code you want to run in the [main.cu file](GPUNeuralNetwork/main.cu).
 First compile the code using the follow command.
 ```
 nvcc -lcurand main.cu .\Testing\NeuralNetTesting.cpp .\Specs\specs.cu .\Testing\DatasetTesting.cpp .\Testing\MatrixTesting.cpp .\Testing\VectorTesting.cpp .\Testing\ScalarTesting.cpp  NeuralNetwork.cpp Layers/HiddenLayer.cu Layers/OutputLayer.cpp Dataset.cpp Matrix/Matrix.cu Matrix/Vector.cu Matrix/Scalar.cu -o main
