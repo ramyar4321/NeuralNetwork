@@ -14,12 +14,12 @@ void gpu::MatrixTesting::testCopyConstructor(){
     std::vector<float> mat_ = {1,2,3,4};
     gpu::Matrix mat(2,2, mat_);
 
-    gpu::Matrix copyMat = mat;
+    gpu::Matrix copy_mat = mat;
 
-    if(copyMat == mat){
-        std::cout << "Test passed! Copy constructor produces expected results." << std::endl;
+    if(copy_mat == mat){
+        std::cout << "Test passed! Copy constructor of Matrix class produces expected results." << std::endl;
     }else{
-        std::cout << "Test failed! Copy constructor produces unexpected results." << std::endl;
+        std::cout << "Test failed! Copy constructor of Matrix class produces unexpected results." << std::endl;
     }
 }
 
@@ -28,7 +28,7 @@ void gpu::MatrixTesting::testCopyConstructor(){
  * class that uses a vector to construct a matrix.
 */
 void gpu::MatrixTesting::testVectorConstructor(){
-    bool testPassed = true;
+    bool test_passed = true;
 
     std::vector<float> mat_ = {1,2,3,4};
     gpu::Matrix mat(2,2, mat_);
@@ -41,12 +41,12 @@ void gpu::MatrixTesting::testVectorConstructor(){
     for(int j = 0; j < mat_num_rows; j++){
         for(int i = 0;  i < mat_num_cols; i++){
             if(mat(j,i) != mat_[j*mat_num_cols+i]){
-                testPassed = false;
+                test_passed = false;
             }
         }
     }
 
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! Matrix constructor created matrix using std::vector." << std::endl;
     }else{
         std::cout << "Test failed! Matrix constructor failed to create matrix using std::vector." << std::endl;
@@ -69,36 +69,36 @@ void gpu::MatrixTesting::testVectorConstructor(){
 */
 void gpu::MatrixTesting::testDeepCopy(){
 
-    bool testPassed = true;
+    bool test_passed = true;
 
     // Matrix to be copied
     std::vector<float> mat = {1,2,3,4};
-    gpu::Matrix copiedMatrix(2,2, mat);
+    gpu::Matrix copied_matrix(2,2, mat);
 
     // This matrix
-    gpu::Matrix thisMatrix(2,2);
+    gpu::Matrix this_matrix(2,2);
     // Save address pointed to by h_mat and d_mat
     // before copying.
-    float* add_hmat_before = thisMatrix.h_mat.get();
-    float* add_dmat_before = thisMatrix.d_mat.get();
+    float* add_hmat_before = this_matrix.h_mat.get();
+    float* add_dmat_before = this_matrix.d_mat.get();
 
     // Perform deep copy
-    thisMatrix.deepCopy(copiedMatrix);
+    this_matrix.deepCopy(copied_matrix);
 
     // Save address pointed to by h_mat and d_mat
     // after copying.
-    float* add_hmat_after = thisMatrix.h_mat.get();
-    float* add_dmat_after = thisMatrix.d_mat.get();
+    float* add_hmat_after = this_matrix.h_mat.get();
+    float* add_dmat_after = this_matrix.d_mat.get();
 
     // Tests if dimensions and elements of thisMatrix
     // are of expected values.
-    testPassed = (thisMatrix == copiedMatrix);
+    test_passed = (this_matrix == copied_matrix);
 
     // Test if address pointed to by d_mat and h_mat changed
-    testPassed = (add_hmat_before == add_hmat_after);
-    testPassed = (add_dmat_before == add_dmat_after);
+    test_passed = (add_hmat_before == add_hmat_after);
+    test_passed = (add_dmat_before == add_dmat_after);
     
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! deepCopy of Matrix class produced expected results." << std::endl;
     } else{
         std::cout << "Test failed! deppCopy of Matrix class produced unexpected results." << std::endl;
@@ -121,9 +121,9 @@ void gpu::MatrixTesting::testTranspose(){
     gpu::Matrix expected_transpose_mat(2,2,expected_transpose_mat_);
 
     if(actual_transpose_mat == expected_transpose_mat){
-        std::cout << "Test passed! Transpose of matrix produced expected results." << std::endl;
+        std::cout << "Test passed! Transpose of Matrix produced expected results." << std::endl;
     }else{
-        std::cout << "Test failed! Transpose of matrix produced unexpected results." << std::endl;
+        std::cout << "Test failed! Transpose of Matrix produced unexpected results." << std::endl;
     }
 
 }
@@ -139,7 +139,7 @@ void gpu::MatrixTesting::testTranspose(){
 */
 void gpu::MatrixTesting::testEqualOperator(){
     
-    bool testPassed = true;
+    bool test_passed = true;
 
     gpu::Matrix rhs_mat(2,2);
 
@@ -163,7 +163,7 @@ void gpu::MatrixTesting::testEqualOperator(){
     // and rhs matrix are equal.
     if(this_num_rows != this_num_rows ||
        this_num_cols != this_num_cols){
-        testPassed = false;
+        test_passed = false;
     }
 
     // Check if d_mat and h_mat of this matrix
@@ -171,10 +171,10 @@ void gpu::MatrixTesting::testEqualOperator(){
     // of rhs matrix
     if(add_this_hmat != add_rhs_hmat ||
        add_this_dmat != add_rhs_dmat){
-        testPassed = false;
+        test_passed = false;
     }
 
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! operator= of Matrix class works as expected." << std::endl;
     } else{
         std::cout << "Test failed! operator= of Matrix class does not work as expected." << std::endl;
@@ -200,7 +200,7 @@ void gpu::MatrixTesting::testEqualOperator(){
 */
 void gpu::MatrixTesting::testIsEqualOperator(){
 
-    bool testPassed = true;
+    bool test_passed = true;
 
     std::vector<float> mat1_ = {1,2,3,4};
     std::vector<float> mat2_ = {5,6,7,8};
@@ -212,19 +212,19 @@ void gpu::MatrixTesting::testIsEqualOperator(){
     // Test if operator== returns false
     // for unequal matricies
     if(mat1 == mat2){
-        testPassed = false;
+        test_passed = false;
     }
 
     // Test if operator== reutrn true
     // for equal matrices
     if(!(mat2 == mat3)){
-        testPassed = false;
+        test_passed = false;
     }
 
-    if(testPassed){
-        std::cout << "Test passed! operator== produces expected results." << std::endl;
+    if(test_passed){
+        std::cout << "Test passed! operator== of Matrix class produces expected results." << std::endl;
     }else{
-        std::cout << "Test failed! operator== produces unexpected results." << std::endl;
+        std::cout << "Test failed! operator== of Matrix class produces unexpected results." << std::endl;
     }
 }
 
@@ -258,9 +258,9 @@ void gpu::MatrixTesting::testMultOperator(){
     gpu::Matrix actual_mat = mat*scalar;
 
     if(actual_vec == expected_vec || actual_mat == expected_mat){
-        std::cout << "Test passed! Both operator* overloads produces expected results." << std::endl;
+        std::cout << "Test passed! Both operator* overloads of Matrix class produces expected results." << std::endl;
     }else{
-        std::cout << "Test failed! One or both operator* overloads produces unexpected results." << std::endl;
+        std::cout << "Test failed! One or both operator* overloads of Matrix  produces unexpected results." << std::endl;
     }
 }
 
@@ -282,8 +282,8 @@ void gpu::MatrixTesting::testSubAssignOperator(){
     gpu::Matrix expected_mat(2,2, expected_mat_);
 
     if(actual_mat == expected_mat){
-        std::cout << "Test passed! operator-= overload produces expected results." << std::endl;
+        std::cout << "Test passed! operator-= overload of Matrix class produces expected results." << std::endl;
     }else{
-        std::cout << "Test failed! operator-= overload produces unexpected results." << std::endl;
+        std::cout << "Test failed! operator-= overload of Matrix class produces unexpected results." << std::endl;
     }
 }

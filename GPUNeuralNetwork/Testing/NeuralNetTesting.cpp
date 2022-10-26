@@ -265,9 +265,9 @@ bool gpu::NeuralNetTesting::areFloatEqual(float a, float b){
  * 
  */
 float gpu::NeuralNetTesting::computeQuadraticLoss(gpu::Vector& w){
-    float quadraticLoss = w[0]*w[0];
+    float quadratic_loss = w[0]*w[0];
 
-    return quadraticLoss;
+    return quadratic_loss;
 }
 
 /**
@@ -277,10 +277,10 @@ float gpu::NeuralNetTesting::computeQuadraticLoss(gpu::Vector& w){
  * 
  */
 gpu::Matrix gpu::NeuralNetTesting::computeGradientQuadraticLoss(gpu::Vector& w){
-    std::vector<float> gradientQuadracticLoss = {2*w[0]};
+    std::vector<float> gradient_quadracticLoss = {2*w[0]};
 
 
-    gpu::Matrix gradientQuadracticLoss_(1,1,gradientQuadracticLoss);
+    gpu::Matrix gradient_quadracticLoss_(1,1,gradient_quadracticLoss);
 
-    return gradientQuadracticLoss_;
+    return gradient_quadracticLoss_;
 }

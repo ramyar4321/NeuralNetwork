@@ -12,18 +12,18 @@ gpu::VectorTesting::VectorTesting(){}
 */
 void gpu::VectorTesting::testVectorConstructor(){
     
-    bool testPassed = true;
+    bool test_passed = true;
     
     std::vector<float> vec_ = {1,2,3};
     gpu::Vector vec(vec_);
 
     for(int j=0; j < vec_.size(); j++){
         if(vec[j] != vec_[j]){
-            testPassed = false;
+            test_passed = false;
         }
     }
 
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! Vector constructor created vector using std::vector " << std::endl;
     }else{
         std::cout << "Test failed! Vector constructor failed to create vector using std::vector" << std::endl;
@@ -40,9 +40,9 @@ void gpu::VectorTesting::testCopyConstructor(){
     std::vector<float> vec_ = {1,2,3};
     gpu::Vector vec(vec_);
 
-    gpu::Vector copiedVec = vec;
+    gpu::Vector copied_vec = vec;
 
-    if(copiedVec == vec){
+    if(copied_vec == vec){
         std::cout << "Test passed! Copy constructor of Vector class produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! Copy constructor of Vector class produced unexpected results." << std::endl;
@@ -90,9 +90,9 @@ void gpu::VectorTesting::testTensor(){
     gpu::Matrix expect_res(2,2, expect_res_);
 
     if(actual_res == expect_res){
-        std::cout << "Test passed! Tensor product produced expected results" << std::endl;
+        std::cout << "Test passed! Tensor product of Vector class produced expected results" << std::endl;
     }else{
-        std::cout << "Test failed! Tensor prduced produced unexpected results" << std::endl;
+        std::cout << "Test failed! Tensor product of Vector class produced unexpected results" << std::endl;
     }
 }
 
@@ -111,36 +111,36 @@ void gpu::VectorTesting::testTensor(){
 */
 void gpu::VectorTesting::testDeepCopy(){
 
-    bool testPassed = true;
+    bool test_passed = true;
 
     // Vector to be copied
     std::vector<float> vec = {1,2,3,4};
-    gpu::Vector copiedVec(vec);
+    gpu::Vector copied_vec(vec);
 
     // This vector
-    gpu::Vector thisVec(4);
+    gpu::Vector this_vec(4);
     // Save address pointed to by h_vec and d_vec
     // before copying.
-    float* add_hvec_before = thisVec.h_vec.get();
-    float* add_dvec_before = thisVec.d_vec.get();
+    float* add_hvec_before = this_vec.h_vec.get();
+    float* add_dvec_before = this_vec.d_vec.get();
 
     // Perform deep copy
-    thisVec.deepCopy(copiedVec);
+    this_vec.deepCopy(copied_vec);
 
     // Save address pointed to by h_vec and d_vec
     // after copying.
-    float* add_hvec_after = thisVec.h_vec.get();
-    float* add_dvec_after = thisVec.d_vec.get();
+    float* add_hvec_after = this_vec.h_vec.get();
+    float* add_dvec_after = this_vec.d_vec.get();
 
     // Tests if size and elements of thisVec
     // are of expected values.
-    testPassed = (thisVec == copiedVec);
+    test_passed = (this_vec == copied_vec);
 
     // Test if address pointed to by d_vec and h_vec changed
-    testPassed = (add_hvec_before == add_hvec_after);
-    testPassed = (add_dvec_before == add_dvec_after);
+    test_passed = (add_hvec_before == add_hvec_after);
+    test_passed = (add_dvec_before == add_dvec_after);
     
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! deepCopy of Vector class produced expected results." << std::endl;
     } else{
         std::cout << "Test failed! deppCopy of Vector class produced unexpected results." << std::endl;
@@ -160,32 +160,32 @@ void gpu::VectorTesting::testDeepCopy(){
  * 
 */
 void gpu::VectorTesting::testEqualOperator(){
-    bool testPassed = true;
+    bool test_passed = true;
 
     gpu::Vector rhs(2);
-    gpu::Vector thisVec(1);
+    gpu::Vector this_vec(1);
 
-    thisVec = rhs;
+    this_vec = rhs;
 
     int rhs_size = rhs.getSize();
-    int thisVec_size =  thisVec.getSize();
+    int this_vec_size =  this_vec.getSize();
 
     float* add_rhs_hvec = rhs.h_vec.get();
     float* add_rhs_dvec = rhs.d_vec.get();
 
-    float* add_thisVec_hvec = thisVec.h_vec.get();
-    float* add_thisVec_dvec = thisVec.d_vec.get();
+    float* add_this_vec_hvec = this_vec.h_vec.get();
+    float* add_this_vec_dvec = this_vec.d_vec.get();
 
-    if(rhs_size != thisVec_size){
-        testPassed = false;
+    if(rhs_size != this_vec_size){
+        test_passed = false;
     }
 
-    if(add_rhs_hvec != add_thisVec_hvec ||
-        add_rhs_dvec != add_thisVec_dvec){
-            testPassed = false;
+    if(add_rhs_hvec != add_this_vec_hvec ||
+        add_rhs_dvec != add_this_vec_dvec){
+            test_passed = false;
     }
 
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! operator= of Vector class produced expected results." << std::endl;
     } else{
         std::cout << "Test failed! operator= of Vector class produced unexpected results." << std::endl;
@@ -210,7 +210,7 @@ void gpu::VectorTesting::testEqualOperator(){
 */
 void gpu::VectorTesting::testIsEqualOperator(){
     
-    bool testPassed = true;
+    bool test_passed = true;
 
     std::vector<float> vec1_ = {1,2,3};
     std::vector<float> vec2_ = {4,5,6};
@@ -222,16 +222,16 @@ void gpu::VectorTesting::testIsEqualOperator(){
     // Test if operator== returns false
     // for vectors that are unequal
     if(vec1 ==  vec2){
-        testPassed = false;
+        test_passed = false;
     }
 
     // Test if operator== returns true
     // for vectors that are equal
     if(!(vec2 == vec3)){
-        testPassed = false;
+        test_passed = false;
     }
 
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! operator== of Vector class produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! operator== of Vector class produced unexpected results." << std::endl;
@@ -257,9 +257,9 @@ void gpu::VectorTesting::testMultOperator(){
     gpu::Vector expected_res(expected_res_);
 
     if(actual_res == expected_res){
-        std::cout << "Test passed! operator* produced expected results." << std::endl;
+        std::cout << "Test passed! operator* of Vector class produced expected results." << std::endl;
     }else{
-        std::cout << "Test failed! operator* produced unexpected results." << std::endl;
+        std::cout << "Test failed! operator* of Vector class produced unexpected results." << std::endl;
     }
 
 }
@@ -282,7 +282,7 @@ void gpu::VectorTesting::testMultAssignOperator(){
     gpu::Vector expected_res(expected_res_);
 
     if(actual_res == expected_res){
-        std::cout << "Test pass! operator*= of Vector class produced expected results." << std::endl;
+        std::cout << "Test passed! operator*= of Vector class produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! operator*= of Vector class produced unexpected results." << std::endl;
     }
@@ -305,7 +305,7 @@ void gpu::VectorTesting::testSubAssignOperator(){
     gpu::Vector expected_res(expected_res_);
 
     if(actual_res == expected_res){
-        std::cout << "Test pass! operator-= of Vector class produced expected results." << std::endl;
+        std::cout << "Test passed! operator-= of Vector class produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! operator-= of Vector class produced unexpected results." << std::endl;
     }

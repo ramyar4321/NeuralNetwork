@@ -15,9 +15,9 @@ void gpu::ScalarTesting::testCopyConstructor(){
 
     gpu::Scalar scalar(1.0f);
 
-    gpu::Scalar copiedScalar = scalar;
+    gpu::Scalar copied_scalar = scalar;
 
-    if(copiedScalar == scalar){
+    if(copied_scalar == scalar){
         std::cout << "Test passed! Copy constructor of Scalar class produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! Copy constructor of Scalar class produced unexpected results." << std::endl;
@@ -34,11 +34,11 @@ void gpu::ScalarTesting::testEqualOperator(){
     
     gpu::Scalar scalar(1.0f);
 
-    gpu::Scalar copiedScalar(2.0f);
+    gpu::Scalar copied_scalar(2.0f);
 
-    copiedScalar = scalar;
+    copied_scalar = scalar;
 
-    if(copiedScalar ==  scalar){
+    if(copied_scalar ==  scalar){
         std::cout << "Test passed! operator= of Scalar class produced expected results." << std::endl;
     } else{
         std::cout << "Test failed! operator= of Scalar class produced unexpected results." << std::endl;
@@ -63,21 +63,21 @@ void gpu::ScalarTesting::testEqualOperator(){
  * 
 */void gpu::ScalarTesting::testIsEqualOperator(){
 
-    bool testPassed = true;
+    bool test_passed = true;
 
     gpu::Scalar scalar1(1.0f);
     gpu::Scalar scalar2(2.0f);
     gpu::Scalar scalar3(2.0f);
 
     if(scalar1 == scalar2){
-        testPassed = false;
+        test_passed = false;
     }
 
     if(!(scalar2 == scalar3)){
-        testPassed = false;
+        test_passed = false;
     }
 
-    if(testPassed){
+    if(test_passed){
         std::cout << "Test passed! operator== of Scalar class produced expected results." << std::endl;
     }else{
         std::cout << "Test failed! operator== of Scalar class produced unexpected results." << std::endl;
