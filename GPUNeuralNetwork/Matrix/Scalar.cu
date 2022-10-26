@@ -1,4 +1,5 @@
 #include "Scalar.cuh"
+#include "../ErrorHandling/CudaError.cuh"
 
 //================================//
 // Constructors.
@@ -40,8 +41,13 @@ void gpu::Scalar::allocateMemHost(float init_val){
  * Allocate space on device for scalar value.
 */
 void gpu::Scalar::allocateMemDevice(){
-    this->d_scalar = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
-    cudaMalloc((void**) &this->d_scalar, sizeof(float));
+
+    std::string cudaFree_err_msg = "cudaFree failed in Scalar allocateMemDevice.";
+    std::string cudaMalloc_err_msg = "cudaMalloc failed in Scalar allocateMemDevice";
+
+    this->d_scalar = std::shared_ptr<float>(nullptr,  
+                                            [&](float* ptr){ gpu::CudaError::checkCudaError(cudaFree(ptr), cudaFree_err_msg);});
+    gpu::CudaError::checkCudaError(cudaMalloc((void**) &this->d_scalar, sizeof(float)), cudaMalloc_err_msg);
 }
 
 /**
@@ -49,14 +55,18 @@ void gpu::Scalar::allocateMemDevice(){
  * 
 */
 void gpu::Scalar::copyHostToDevice(){
-    cudaMemcpy(this->d_scalar.get(), this->h_scalar.get(), sizeof(float), cudaMemcpyHostToDevice);
+    std::string cudaMemcpy_err_msg = "cudaMemcpy failed in Scalar copyHostToDevice";
+    gpu::CudaError::checkCudaError(cudaMemcpy(this->d_scalar.get(), this->h_scalar.get(), 
+                                                sizeof(float), cudaMemcpyHostToDevice), cudaMemcpy_err_msg);
 }
 
 /**
  * Copy scalar value from device to host.
 */
 void gpu::Scalar::copyDeviceToHost(){
-    cudaMemcpy(this->h_scalar.get(), this->d_scalar.get(), sizeof(float), cudaMemcpyDeviceToHost);
+    std::string cudaMemcpy_err_msg = "cudaMemcpy failed in Scalar copyDeviceToHost";
+    gpu::CudaError::checkCudaError(cudaMemcpy(this->h_scalar.get(), this->d_scalar.get(), 
+                                                sizeof(float), cudaMemcpyDeviceToHost), cudaMemcpy_err_msg);
 }
 
 //================================//

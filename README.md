@@ -78,7 +78,7 @@ Once all of the above is setup,  from the command prompt move into  [GPUNeuralNe
 and uncomment the section of the code you want to run in the [main.cu file](GPUNeuralNetwork/main.cu).
 First compile the code using the follow command.
 ```
-nvcc -lcurand main.cu .\Testing\NeuralNetTesting.cpp .\Specs\specs.cu .\Testing\DatasetTesting.cpp .\Testing\MatrixTesting.cpp .\Testing\VectorTesting.cpp .\Testing\ScalarTesting.cpp  NeuralNetwork.cpp Layers/HiddenLayer.cu Layers/OutputLayer.cpp Dataset.cpp Matrix/Matrix.cu Matrix/Vector.cu Matrix/Scalar.cu -o main
+nvcc -lcurand main.cu .\ErrorHandling\CudaError.cu .\Testing\NeuralNetTesting.cpp .\Specs\specs.cu .\Testing\DatasetTesting.cpp .\Testing\MatrixTesting.cpp .\Testing\VectorTesting.cpp .\Testing\ScalarTesting.cpp  NeuralNetwork.cpp Layers/HiddenLayer.cu Layers/OutputLayer.cpp Dataset.cpp Matrix/Matrix.cu Matrix/Vector.cu Matrix/Scalar.cu -o main
 ```
 Then run the code using the following command.
 ```

@@ -1,5 +1,6 @@
 #include "Matrix.cuh"
 #include "Vector.cuh"
+#include "../ErrorHandling/CudaError.cuh"
 #include <algorithm>
 #include <curand.h>
 
@@ -84,8 +85,12 @@ void gpu::Matrix::allocateMemHost(){
  */
 void gpu::Matrix::allocateMemDevice(){
     int size  = this->m_num_cols * this->m_num_rows;
-    this->d_mat = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
-    cudaMalloc((void**) &this->d_mat, size*sizeof(float));
+    std::string cudaFree_err_msg = "cudaFree failed in Matrix allocateMemDevice.";
+    std::string cudaMalloc_err_msg = "cudaMalloc failed in Matrix allocateMemDevice";
+
+    this->d_mat = std::shared_ptr<float>(nullptr,  
+                                [&](float* ptr){ gpu::CudaError::checkCudaError(cudaFree(ptr), cudaFree_err_msg);});
+    gpu::CudaError::checkCudaError(cudaMalloc((void**) &this->d_mat, size*sizeof(float)), cudaMalloc_err_msg);
 }
 
 /**
@@ -93,7 +98,10 @@ void gpu::Matrix::allocateMemDevice(){
  */
 void gpu::Matrix::copyHostToDevice(){
     int size  = this->m_num_cols * this->m_num_rows;
-    cudaMemcpy(this->d_mat.get(), this->h_mat.get(), size*sizeof(float), cudaMemcpyHostToDevice);
+    std::string cudaMemcpy_err_msg = "cudaMemcpy failed in Matrix copyHostToDevice";
+
+    gpu::CudaError::checkCudaError(cudaMemcpy(this->d_mat.get(), this->h_mat.get(),
+                                     size*sizeof(float), cudaMemcpyHostToDevice),cudaMemcpy_err_msg ) ;
 }
 
 /**
@@ -101,7 +109,9 @@ void gpu::Matrix::copyHostToDevice(){
  */
 void gpu::Matrix::copyDeviceToHost(){
     int size  = this->m_num_cols * this->m_num_rows;
-    cudaMemcpy(this->h_mat.get(), this->d_mat.get(), size*sizeof(float), cudaMemcpyDeviceToHost);
+    std::string cudaMemcpy_err_msg = "cudaMemcpy failed in Matrix copyDeviceToHost";
+    gpu::CudaError::checkCudaError(cudaMemcpy(this->h_mat.get(), this->d_mat.get(), 
+                                    size*sizeof(float), cudaMemcpyDeviceToHost), cudaMemcpy_err_msg);
 }
 
 
@@ -186,8 +196,8 @@ __global__ void kMatrixMatrixSub(float* lhsMat, float* rhsMat, int mat_num_rows,
     int idx = blockIdx.x*blockDim.x + threadIdx.x;
     int idy = blockIdx.y*blockDim.y + threadIdx.y;
 
-    if(idx < mat_num_cols && idx < mat_num_rows){
-        lhsMat[idy*mat_num_cols +idx] -= rhsMat[idy*mat_num_rows +idx];
+    if(idx < mat_num_cols && idy < mat_num_rows){
+        lhsMat[idy*mat_num_cols +idx] -= rhsMat[idy*mat_num_cols +idx];
     }
 }
 
@@ -203,19 +213,26 @@ __global__ void kMatrixMatrixSub(float* lhsMat, float* rhsMat, int mat_num_rows,
  */
 void gpu::Matrix::matrixInitializationDevice()
 {
+
+    std::string create_gen_err_msg = "curandCreateGenerator failed in Matrix matrixInitializationDevice";
+    std::string seed_gen_err_msg = "curandSetPseudoRandomGeneratorSeed failed in Matrix matrixInitializationDevice.";
+    std::string norm_gen_err_msg = "curandGenerateNormal failed in Matrix matrixInitializationDevice";
+    std::string destroy_gen_err_msg = "curandDestroyGenerator failed in Matrix matrixInitializationDevice";
+
     curandGenerator_t gen;
-    curandCreateGenerator(&gen, 
-                CURAND_RNG_PSEUDO_DEFAULT);
-    curandSetPseudoRandomGeneratorSeed(gen, 
-                1234ULL);
+    gpu::CudaError::checkCurandError(curandCreateGenerator(&gen, 
+                CURAND_RNG_PSEUDO_DEFAULT),create_gen_err_msg);
+    gpu::CudaError::checkCurandError(curandSetPseudoRandomGeneratorSeed(gen, 
+                1234ULL), seed_gen_err_msg);
 
     int size  = this->m_num_cols * this->m_num_rows;
     float mean = 0.0;
     float stddev = 1/sqrtf(1.0/(float)size);
 
-    curandGenerateNormal(gen, this->d_mat.get(), size, mean, stddev);
+    gpu::CudaError::checkCurandError(curandGenerateNormal(gen, this->d_mat.get(), 
+                                                        size, mean, stddev), norm_gen_err_msg);
 
-    curandDestroyGenerator(gen);
+    gpu::CudaError::checkCurandError(curandDestroyGenerator(gen), destroy_gen_err_msg);
 
 }
 
@@ -252,12 +269,14 @@ gpu::Matrix gpu::Matrix::transpose() const{
     int bx = (this->get_num_cols() + t - 1)/t;
     int by = (this->get_num_rows() + t - 1)/t;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Matrix transpose.";
+
     dim3 threads(t,t);
     dim3 blocks(bx, by);
 
     kTranspose<<<blocks, threads>>>(transpose_mat.d_mat.get(), this->d_mat.get(), 
                                     this->get_num_rows(), this->get_num_cols());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return transpose_mat;
 }
@@ -361,9 +380,11 @@ gpu::Vector gpu::Matrix::operator*(const Vector& rhs) const{
     int threads =32;
     int blocks = (this->get_num_cols() + threads -1)/threads;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Matrix operator*.";
+
     kMatrixVectorMult<<<blocks, threads>>>(res.d_vec.get(), this->d_mat.get(), 
                                             rhs.d_vec.get(), this->get_num_cols());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return res;
 }
@@ -382,12 +403,14 @@ gpu::Matrix gpu::Matrix::operator*(const float& rhs) const{
     int bx = (this->get_num_cols() + t - 1)/t;
     int by = (this->get_num_rows() + t - 1)/t;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Matrix operator*.";
+
     dim3 threads(t,t);
     dim3 blocks(bx, by);
 
     kMatrixScalarMult<<<blocks, threads>>>(res.d_mat.get(), this->d_mat.get(), rhs,
                                               this->get_num_rows(), this->get_num_cols());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return res;
 }
@@ -401,12 +424,14 @@ gpu::Matrix& gpu::Matrix::operator-=(const gpu::Matrix& rhs){
     int bx = (this->get_num_cols() + t - 1)/t;
     int by = (this->get_num_rows() + t - 1)/t;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Matrix operator-=.";
+
     dim3 threads(t,t);
     dim3 blocks(bx, by);
 
     kMatrixMatrixSub<<<blocks, threads>>>(this->d_mat.get(), rhs.d_mat.get(),
                                               this->get_num_rows(), this->get_num_cols());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return *this;
 }

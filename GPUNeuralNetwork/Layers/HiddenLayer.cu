@@ -1,4 +1,5 @@
 #include "HiddenLayer.cuh"
+#include "../ErrorHandling/CudaError.cuh"
 
 /*=======================*/
 // Constructor
@@ -97,10 +98,10 @@ void gpu::HiddenLayer::reluActivation()
 
     int threads = 32;
     int blocks = (this->m_a.getSize() + threads -1)/ threads;
-    
+    std::string err_msg = "cudaDeviceSynchronize failed in HiddenLayer reluActivation.";
 
     kReluActivation<<<blocks, threads>>>(this->m_a.d_vec.get(), this->m_z.d_vec.get(), this->m_a.getSize());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 }
 
 /**
@@ -144,8 +145,11 @@ gpu::Vector gpu::HiddenLayer::reluPrime(){
 
     int threads = 32;
     int blocks = (this->m_z.getSize() + threads -1)/threads;
+    
+    std::string err_msg = "cudaDeviceSynchronize failed in HiddenLayer reluPrime.";
 
     kReluPrime<<<blocks, threads>>>(f_prime.d_vec.get(), this->m_z.d_vec.get(), this->m_z.getSize());
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return f_prime;
 

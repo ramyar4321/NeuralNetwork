@@ -1,5 +1,6 @@
 #include "Vector.cuh"
 #include "Matrix.cuh"
+#include "../ErrorHandling/CudaError.cuh"
 #include <curand.h>
 #include <iostream>
 
@@ -62,22 +63,32 @@ void gpu::Vector::allocateMemHost(){
  * Allocate memeory space for vector on device. 
 */
 void gpu::Vector::allocateMemDevice(){
-    this->d_vec = std::shared_ptr<float>(nullptr,  [&](float* ptr){ cudaFree(ptr);});
-    cudaMalloc((void**) &this->d_vec, this->m_size*sizeof(float));
+
+    std::string cudaFree_err_msg = "cudaFree failed in Vector allocateMemDevice.";
+    std::string cudaMalloc_err_msg = "cudaMalloc failed in Vector allocateMemDevice";
+
+    this->d_vec = std::shared_ptr<float>(nullptr,  
+                                    [&](float* ptr){ gpu::CudaError::checkCudaError(cudaFree(ptr),cudaFree_err_msg);});
+    gpu::CudaError::checkCudaError(cudaMalloc((void**) &this->d_vec, this->m_size*sizeof(float)), cudaMalloc_err_msg);
 }
 
 /**
  * Copy vector from host to device.
  */
 void gpu::Vector::copyHostToDevice(){
-    cudaMemcpy(this->d_vec.get(), this->h_vec.get(), this->m_size*sizeof(float), cudaMemcpyHostToDevice);
+    std::string cudaMemcpy_err_msg = "cudaMemcpy failed in Vector copyHostToDevice";
+
+    gpu::CudaError::checkCudaError(cudaMemcpy(this->d_vec.get(), this->h_vec.get(),
+                         this->m_size*sizeof(float), cudaMemcpyHostToDevice),cudaMemcpy_err_msg) ;
 }
 
 /**
  * Copy vector from device to host.
  */
 void gpu::Vector::copyDeviceToHost(){
-    cudaMemcpy(this->h_vec.get(), this->d_vec.get(), this->m_size*sizeof(float), cudaMemcpyDeviceToHost);
+    std::string cudaMemcpy_err_msg = "cudaMemcpy failed in Vector copyDeviceToHost";
+    gpu::CudaError::checkCudaError(cudaMemcpy(this->h_vec.get(), this->d_vec.get(), 
+                    this->m_size*sizeof(float), cudaMemcpyDeviceToHost),cudaMemcpy_err_msg);
 }
 
 //================================//
@@ -196,18 +207,25 @@ __global__ void kVecVecElementwiseMult(float* delta, float* f_prime,  int delta_
 void gpu::Vector::vectorInitializationDevice()
 {
 
+    std::string create_gen_err_msg = "curandCreateGenerator failed in Vector vectorInitializationDevice";
+    std::string seed_gen_err_msg = "curandSetPseudoRandomGeneratorSeed failed in Vector vectorInitializationDevice.";
+    std::string norm_gen_err_msg = "curandGenerateNormal failed in Vector vectorInitializationDevice";
+    std::string destroy_gen_err_msg = "curandDestroyGenerator failed in Vector vectorInitializationDevice";
+
     curandGenerator_t gen;
-    curandCreateGenerator(&gen, 
-                CURAND_RNG_PSEUDO_DEFAULT);
-    curandSetPseudoRandomGeneratorSeed(gen, 
-                1234ULL);
+
+    gpu::CudaError::checkCurandError(curandCreateGenerator(&gen, 
+                CURAND_RNG_PSEUDO_DEFAULT), create_gen_err_msg);
+    gpu::CudaError::checkCurandError(curandSetPseudoRandomGeneratorSeed(gen, 
+                1234ULL), seed_gen_err_msg);
 
     float mean = 0.0;
     float stddev = 1/sqrtf(1.0/(float)this->m_size);
 
-    curandGenerateNormal(gen, this->d_vec.get(), this->m_size, mean, stddev);
+    gpu::CudaError::checkCurandError(curandGenerateNormal(gen, this->d_vec.get(), 
+                                                    this->m_size, mean, stddev), norm_gen_err_msg);
 
-    curandDestroyGenerator(gen);
+    gpu::CudaError::checkCurandError(curandDestroyGenerator(gen), destroy_gen_err_msg);
 
 }
 
@@ -222,9 +240,11 @@ gpu::Scalar gpu::Vector::dot(const gpu::Vector& rhs) const{
     int threads = 32;
     int blocks = (this->getSize() + threads - 1)/threads;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Vector dot.";
+
     kDot<<<blocks, threads>>>(res.d_scalar.get(), this->d_vec.get(), 
                                 rhs.d_vec.get(), this->getSize());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return res;
 
@@ -243,12 +263,14 @@ gpu::Matrix gpu::Vector::tensor(const Vector& rhs) const{
     int bx = (num_cols + t - 1)/t;
     int by = (num_rows + t - 1)/t;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Vector tensor.";
+
     dim3 threads(t,t);
     dim3 blocks(bx, by);
 
     kTensor<<<blocks, threads>>>(res.d_mat.get(), this->d_vec.get(), rhs.d_vec.get(), 
                                   num_rows, num_cols);
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return res;
 }
@@ -376,9 +398,11 @@ gpu::Vector gpu::Vector::operator*(const float& rhs) const{
     int threads = 32;
     int blocks = (this->getSize() + threads -1)/threads;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Vector operator*.";
+
     kVecScalarMult<<<blocks, threads>>>(res.d_vec.get(), this->d_vec.get(), 
                                         rhs, this->getSize());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return res;
 
@@ -394,8 +418,10 @@ gpu::Vector& gpu::Vector::operator*=( const gpu::Vector& rhs){
     int threads = 32;
     int blocks = (this->getSize() + threads - 1)/threads;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Vector operator*=.";
+
     kVecVecElementwiseMult<<<blocks, threads>>>(this->d_vec.get(), rhs.d_vec.get(), this->getSize());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return *this;
 
@@ -411,8 +437,10 @@ gpu::Vector& gpu::Vector::operator-=(const Vector& rhs){
     int threads = 32;
     int blocks = (this->getSize() + threads -1)/threads;
 
+    std::string err_msg = "cudaDeviceSynchronize failed in Vector operator-=.";
+
     kVecVecSub<<<blocks, threads>>>(this->d_vec.get(), rhs.d_vec.get(), this->getSize());
-    cudaDeviceSynchronize();
+    gpu::CudaError::checkCudaError(cudaDeviceSynchronize(), err_msg);
 
     return *this;
 
